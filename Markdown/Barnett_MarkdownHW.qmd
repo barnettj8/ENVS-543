@@ -1,0 +1,28 @@
+---
+title: "Barnett Markdown Resume HW"
+author: "Jackson Barnett"
+date: "09/03/2024"
+format: html
+editor: visual
+---
+
+## Abstract
+
+Hello, my name is Jackson Barnett. I am currently pursuing my master's in Environmental Studies at Virginia Commonwealth University. My academic focus is on lake/reservoir research through my position as a Graduate Research Assistant with Dr. Paul Bukaveckas and the Environmental Analysis Lab. At VCU, I also serve as a Graduate Teaching Assistant where I instruct an ecology lab for approximately 22 students each semester. I recently completed my undergraduate studies at James Madison University where my primarily studied freshwater ecosystems. At JMU I served as an Undergraduate Research Assistant in the environment lab, where I worked on projects for JMU and the Virginia Department of Environmental Quality on local aquatic stressors.
+
+## Education
+
+-   James Madison University – 2022
+    -   Bachelor's Degree in Integrated Science and Technology
+-   Virginia Commonwealth University – 2025
+    -   Master's Degree in Environmental Studies
+
+## Work Experience
+
+-   Graduate Research Assistant (VCU)
+
+-   Graduate Teaching Assistant (VCU)
+
+-   Undergraduate Research Assistant (JMU)
+
+-   Undergraduate Teaching Assistant (JMU)
