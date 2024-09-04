@@ -1,0 +1,76 @@
+---
+title: "Barnett Markdown HW Presentation"
+author: "Jackson Barnett"
+date: "09/03/2024"
+format: revealjs
+editor: visual
+---
+
+## Personal History
+
+-   Born in Harrisonburg and raised in McGaheysville, Virginia
+
+-   Shenandoah National Park \~ 15 minute drive from home
+
+-   Strong connection with local environment, grew up hiking, skiing, etc.
+
+    -   Fun Fact: In *Take Me Home, Country Roads* "West Virginia, Mountain Mamma" refers to *western* Virginia, NOT the state West Virginia
+
+        {{< video https://www.youtube.com/watch?v=1vrEljMfXYo >}}
+
+## Environmental Education
+
+-   In high school, I attended a Governor's School for Environmental Science
+
+-   This was the first time I got experience testing water and collecting benthic macroinvertebrates
+
+-   I got my bachelor's degree in Integrated Science and Technology at James Madison University, graduating in December 2022
+
+    -   At JMU I did research with the Virginia Department of Environmental Quality evaluating stream impairments and helping coordinate a Lake/River TMDL implementation plan
+
+## Interests at VCU
+
+-   I began my studies at VCU in Fall 2023 in the Bukaveckas lab working to help monitor urban streams in Richmond
+
+-   I also am a GTA for the Biology 317 Ecology lab
+
+    -   This has been the most formative of my graduate experiences, getting me interested in pursuing environmental education in my future
+    -   See course info for BIOZ 317 [here](https://bulletin.vcu.edu/azcourses/bioz/)
+
+-   In the 2023-24 year, I began developing my thesis project with Dr. Bukaveckas
+
+## Thesis Project Background
+
+-   Project Purpose: to evaluate the role of abiogenic sediments, algae, and colored (chromophoric) dissolved organic matter (CDOM) in the water clarity of Virginia reservoirs.
+
+-   Water clarity is important as it largely determines the types of primary producers that dominate in aquatic ecosystems (algae vs. SAV)
+
+-   Project Components
+
+    1.  Detailed field study of seven Virginia reservoirs
+    2.  Comprehensive analysis of historical lake data \~ 100 lakes for 30 years (Click [here](https://www.waterqualitydata.us/#statecode=US%3A51&mimeType=csv&providers=NWIS&providers=STORET) for DEQ data portal)
+
+## What Are Our Variables?
+
+-   Light Attenuation Coefficient - measured as "kd"
+
+    -   Represents the rate that light diminishes as depth increases
+
+-   Total Suspended Solids (TSS) - measure of the concentration abiogenic sediments in the water
+
+    -   Typically high due to erosion/disturbances in the watershed
+
+    -   Scatters light particles as they enter the water
+
+## What Are Our Variables Cont.
+
+-   Chlorophyll-a (CHLa) - measure of photosynthetically active organics
+
+    -   Typically high due to excess nutrient inputs
+
+    -   Scatters/uses light as it enters water
+
+-   Chromophoric Dissolved Organic Matter (CDOM) - measure of absorbance of light by dissolved colors in the water
+
+    -   Typically high due to leeching of organic material through sandy watersheds
+    -   Absorbs incoming light particles
