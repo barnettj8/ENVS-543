@@ -20,6 +20,14 @@ editor: visual
 
 ## Environmental Education
 
+![](images/clipboard-786278790.png){width="171"}
+
+![](images/clipboard-3857282619.png){width="398"}
+
+![](images/clipboard-847192665.png)
+
+## Environmental Education
+
 -   In high school, I attended a Governor's School for Environmental Science
 
 -   This was the first time I got experience testing water and collecting benthic macroinvertebrates
@@ -64,6 +72,18 @@ editor: visual
 
 ## What Are Our Variables Cont.
 
+Light Attenuation
+
+![](images/clipboard-94660521.png){fig-align="center" width="348"}
+
+## What Are Our Variables Cont.
+
+Total Suspended Solids
+
+![](images/clipboard-540785613.png){fig-align="center" width="342"}
+
+## What Are Our Variables Cont.
+
 -   Chlorophyll-a (CHLa) - measure of photosynthetically active organics
 
     -   Typically high due to excess nutrient inputs
@@ -74,3 +94,15 @@ editor: visual
 
     -   Typically high due to leeching of organic material through sandy watersheds
     -   Absorbs incoming light particles
+
+## What Are Our Variables Cont.
+
+Chlorophyll-a
+
+![](images/clipboard-4063056206.png){fig-align="center"}
+
+## What Are Our Variables Cont.
+
+Chromophoric Dissolved Organic Matter
+
+![](images/clipboard-238103038.png){fig-align="center"}
