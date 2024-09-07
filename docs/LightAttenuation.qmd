@@ -1,0 +1,23 @@
+---
+title: "Light Attenuation"
+format: html
+editor: visual
+---
+
+-   The intensity of light decreases underwater as depth increases due to the scattering and absorption of incoming light
+
+-   Light intensity sensors are used to determine the amount of light at 0.5m intervals under the water surface
+
+-   Graphing this produces a light attenuation curve
+
+    -   Taking the natural log of this curve gives a linear relationship, the slope of which is our light attenuation coefficient (kd)
+
+-   Light attenuation is important due to the significance of light in determining dominant primary producers
+
+-   Waterbodies with little clarity, phytoplankton typically dominates primary production
+
+    -   This leads to more frequent harmful algal blooms, the release of toxins, and less aquatic vegetation
+
+-   Waterbodies with high clarity are able to better support colonies of submerged aquatic vegetation
+
+    -   These help reduce present nutrients and prevent sediment resuspension

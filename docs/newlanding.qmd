@@ -1,7 +1,6 @@
 ---
 title: "More about the Project"
 format: html
-background-color: rgba(104, 234, 195, .5);
 editor: visual
 ---
 
