@@ -1,5 +1,5 @@
 ---
-title: "Thesis Proposal"
+title: "Assessment of Drivers in Virginia Reservoir Water Clarity Full Research Proposal"
 author: "Jackson Barnett"
 format: html
 editor: visual
