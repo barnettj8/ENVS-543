@@ -1,3 +1,4 @@
 project:
   title: "ENVS 543"
+  format: html
   output-dir: docs
