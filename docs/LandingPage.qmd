@@ -1,0 +1,9 @@
+---
+title: "More about the project"
+format: revealjs
+editor: visual
+---
+
+## Useful Links 
+
+- [Original Full Research Proposal](https://barnettj8.github.io/ENVS-543/docs/Proposal.html)
