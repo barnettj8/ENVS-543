@@ -5,7 +5,7 @@ format: html
 editor: visual
 ---
 
-## Introduction
+## Introduction 
 
 The purpose of this project is to evaluate the role of abiogenic sediments, algae, and colored (chromophoric) dissolved organic matter (CDOM) in the water clarity of Virginia reservoirs. Water clarity is a key property of lakes because it determines the depth to which primary production occurs (i.e., the trophogenic zone; 1, 2). As abiogenic turbidity, algal abundance, and CDOM increase, light penetration decreases due to greater scattering and absorption of photons. As water clarity decreases, submerged aquatic vegetation declines while phytoplankton and algal blooms become more dominant (3, 1). Declines in water clarity cause a shift in lake state from a clear water macrophyte-dominated regime to a light-limited phytoplankton-dominated ecosystem (3). Loss of macrophyte communities diminishes littoral habitat structure and results in further reductions in water clarity due to greater sediment resuspension (5, 6). Increased algal blooms are associated with a range of water quality problems including low dissolved oxygen and the release of toxins harmful to humans and livestock (7, 8). A 2012 study of algae communities in 46 Virginia reservoirs found the majority to be meso- eutrophic and prone to cyanobacteria (a harmful algal bloom-producing bacteria) (9). Long-term changes in water clarity may, therefore, serve as a key indicator of trends in lake health.
 
