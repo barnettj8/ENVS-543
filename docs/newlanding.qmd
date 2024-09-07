@@ -6,9 +6,9 @@ editor: visual
 
 [Full Original Research Proposal](https://barnettj8.github.io/ENVS-543/docs/Proposal.html)
 
-Basic Info on:
+Click [Here](https://barnettj8.github.io/ENVS-543/docs/LightAttenuation.html) for More Info on:
 
-- [Light Attenuation](https://barnettj8.github.io/ENVS-543/docs/LightAttenuation.html)
+- Light Attenuation
 - CHLa
 - TSS
 - CDOM
