@@ -1,0 +1,10 @@
+---
+title: "Learn More About the Project"
+format: html
+editor: visual
+---
+
+## Useful Links
+ 
+
+[Full Original Research Proposal](https://barnettj8.github.io/ENVS-543/docs/Proposal.html) 
