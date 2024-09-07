@@ -1,23 +1,70 @@
 ---
-title: "Light Attenuation"
+title: "Scroll Down for More About Our Variables"
 format: html
 editor: visual
 ---
+
+## Light Attenuation
 
 -   The intensity of light decreases underwater as depth increases due to the scattering and absorption of incoming light
 
 -   Light intensity sensors are used to determine the amount of light at 0.5m intervals under the water surface
 
 -   Graphing this produces a light attenuation curve
-
     -   Taking the natural log of this curve gives a linear relationship, the slope of which is our light attenuation coefficient (kd)
 
 -   Light attenuation is important due to the significance of light in determining dominant primary producers
 
 -   Waterbodies with little clarity, phytoplankton typically dominates primary production
-
     -   This leads to more frequent harmful algal blooms, the release of toxins, and less aquatic vegetation
 
 -   Waterbodies with high clarity are able to better support colonies of submerged aquatic vegetation
-
     -   These help reduce present nutrients and prevent sediment resuspension
+
+## CHLA
+
+-   Measure of photosynthetically active organics in water (ug/L)
+
+-   Indicates the presence of phytoplankton in water column
+
+-   CHLa Impacts
+    -   Light availability is dominated by algae colonies
+    -   Indicates excess nutrient inputs
+    -   High CHLa during peak production times (Summer)
+    -   Limits SAV communities
+
+-   Cyanobacteria (blue-green algae)
+    -   Common form of prokaryotic bloom-forming algae in lakes
+    -   Uses buoyancy from an internal gas vacuole to float to water surface
+        -   Maximizes light exposure for growth and blocks more incoming light
+    -   Produces Microcystin and other toxins
+        -   Liver toxin, fatal to livestock and pets when consumed, potential human carcinogen
+
+## TSS
+
+-   Measure of the total mass of particulates suspended in water column (mg/L)
+
+-   Does not distinguish between abiotic and biotic influences
+    -   This is why CHLa is measured as a separate variable as well
+
+-   Higher TSS = higher light scattering
+    -   Correlated with turbidity
+
+-   TSS Impacts
+    -   Smothering of benthic communities necessary for ecosystems
+    -   High general TSS indicates sediment presence
+    -   High TSS during peak production suggests algal dominance
+    -   Indication of a lack of sedimentation and too much resuspension of particulates
+        -   Can be mitigated by increased submerged aquatic vegetation communities
+
+## CDOM
+
+-   Measure of the light absorbance due to watershed organic matter that has dissolved into waterbodies
+    -   A lot like a tea bag dissolving its color into the water of a mug
+
+-   Blocks specific wavelengths from penetrating water (440 nm)
+
+-   Decreased light from absorbance will limit energy sources for microbial food webs
+
+-   Dependent on location and watershed inputs
+    -   Sandy soils typically allow for more leaching of organic material through the watershed into lakes/reservoirs
