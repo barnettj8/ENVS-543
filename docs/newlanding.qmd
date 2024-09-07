@@ -4,10 +4,15 @@ format: html
 editor: visual
 ---
 
-## Useful Links
-
 [Full Original Research Proposal](https://barnettj8.github.io/ENVS-543/docs/Proposal.html)
 
-Basic Info on Light Attenuation, CHLa, TSS, and CDOM
+Basic Info on:
 
-Add me on Linkedin [here](https://www.linkedin.com/in/barnettjackson)
+- [Light Attenuation](https://barnettj8.github.io/ENVS-543/docs/LightAttenuation.html)
+- CHLa
+- TSS
+- CDOM
+
+Add me on [Linkedin](https://www.linkedin.com/in/barnettjackson)
+
+Special thanks to Paul Bukaveckas and Mac Lee at VCU, Mike Shaver and Warren Smigo from DEQ, Hary Looney and Peter Kendrick with LAKA, and all others who helped support this project.
