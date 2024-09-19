@@ -1,0 +1,34 @@
+---
+title: "Untitled"
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+
+url <- "https://docs.google.com/spreadsheets/d/1Mk1YGH9LqjF7drJE-td1G_JkdADOU0eMlrP01WFBT8s/pub?gid=0&single=true&output=csv"
+
+rice <- read_csv( url )
+
+names(rice)
+
+```
+
+
+```{r}
+rice |>
+  mutate( H2O_Temp = 1.8 * H2O_TempC + 32) |> 
+  select( -H2O_TempC ) |>
+  select( DateTime, H2O_Temp, AirTempF, Rain_in) |>
+  mutate( Date = mdy_hms( DateTime, tz= "EST")) |>
+  mutate( Weekday = wday( Date, 
+                          label = TRUE,
+                          abbr = FALSE)) |>
+  group_by( Weekday) |>
+  summarise( `Water Temp` = mean(H2O_Temp, na.rm = TRUE),
+             `Air Temp` = mean(AirTempF),
+             `Rain Inches` = mean(Rain_in))
+
+
+```
+

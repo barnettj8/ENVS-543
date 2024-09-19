@@ -1,0 +1,104 @@
+---
+title: "Code Along! - Data Containers"
+format: 
+  html:
+    code-tools: true
+    toc: false
+editor: source
+---
+
+## Examples
+
+This file is used for demonstrating individual examples related to this topic and is kept as a persistent record of examples provided during lectures.
+
+## The Data
+
+There are two data sets used for this example; The *iris* data set (that comes with R) and data from the following url that has some sampling site locales for a species of bark beetle, *Araptus attenuatus* (Fig. @fig-araptus) that we will be using throughout the semester.
+
+![The Sonoran desert bark beetle, *Araptus attenuatus*.](media/beetles.png){#fig-araptus}
+
+```{r}
+url <- "https://raw.githubusercontent.com/DyerlabTeaching/Data-Containers/main/data/arapat.csv"
+```
+
+## Vectors
+
+This is some text that I am writing. 
+
+```{r}
+
+data <- c(23, 42, 96, 87, 59, 243)
+
+data
+
+sum(data)
+
+sqrt( data )
+
+other <- 1:6
+
+other
+
+data - other
+
+data -32 * 5/9
+
+data
+
+data -32 *5/9 -> data
+
+data
+
+tempValues <- as.character( data )
+
+tempValues
+
+```
+
+## Matrices
+
+skipping
+
+## Lists
+
+```{r}
+summary( iris )
+
+class(iris)
+
+tail(iris)
+
+
+fit <- cor.test(iris$Petal.Length, iris$Petal.Width)
+fit
+
+
+names(fit)
+
+
+```
+
+We found a significant correlation between the variables (p=`r fit$.pvalue `)
+
+
+## Data Frames
+
+```{r}
+library( tidyverse)
+
+Beetles <- read_csv( url )
+
+
+summary( Beetles )
+
+sites <- Beetles$Stratum
+summary(sites)
+sites
+```
+
+```{r}
+
+```
+
+
+
