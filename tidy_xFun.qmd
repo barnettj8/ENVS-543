@@ -5,6 +5,7 @@ editor: visual
 
 ```{r}
 library(tidyverse)
+library(kableExtra)
 
 url <- "https://docs.google.com/spreadsheets/d/1Mk1YGH9LqjF7drJE-td1G_JkdADOU0eMlrP01WFBT8s/pub?gid=0&single=true&output=csv"
 
@@ -16,6 +17,9 @@ names(rice)
 
 
 ```{r}
+
+library(knitr)
+
 rice |>
   mutate( H2O_Temp = 1.8 * H2O_TempC + 32) |> 
   select( -H2O_TempC ) |>
@@ -27,7 +31,9 @@ rice |>
   group_by( Weekday) |>
   summarise( `Water Temp` = mean(H2O_Temp, na.rm = TRUE),
              `Air Temp` = mean(AirTempF),
-             `Rain Inches` = mean(Rain_in))
+             `Rain Inches` = mean(Rain_in)) |>
+  kable() |>
+  kable_minimal()
 
 
 ```
