@@ -15,7 +15,6 @@ names(rice)
 
 ```
 
-
 ```{r}
 
 library(knitr)
@@ -37,4 +36,3 @@ rice |>
 
 
 ```
-
