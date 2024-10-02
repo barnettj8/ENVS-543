@@ -1,0 +1,102 @@
+---
+title: "Producing Tabular Summaries for DEQ Lake Datasets"
+author: "Jackson Barnett"
+date: 10/01/2024
+format: 
+  html:
+    echo: false #this turns off showing the chunks of code when false
+    warning: false #one option to turn off warning/error messages when loading code when false
+    message: false #one option to turn off warning/error messages when loading code when false
+    error: false #one option to turn off warning/error messages when loading code when false
+    
+#you can do this in individual chunks of code by starting with "#| message: false
+ #| warning: false ..."
+
+#can also use function in chunk, suppressPagagesStartupMessages(library( tidyverse ))
+    
+editor: visual
+---
+
+## Abstract
+
+This document outlines the steps taken to properly manipulate, format, and visualize water quality data from DEQ Summer sampling of Fort Barfoot Reservoir. This data is downloaded from the National Water Quality Monitoring Council portal, but the formatting is not conducive for data analysis. Using a functions primarily from the tidyverse, kable, and knitr libraries, the data was transformed into two tables. The first table provides a simple summary of the DEQ data's most important parameters. The format of this visualization, however, is still limited by the original format of the dataset. The second table uses the pivot_wider() function to split parameters into separate rows for easier visualization. This second output shows the mean monthly values for Turbidity, TSS, CHLa, Total Solids, Nitrogen, DO, and Water Temperature. This data could be used for a variety of analyses, but will likely help in identifying relationships regarding algal blooms and water clarity. 
+
+## Introduction
+
+The Virginia Department of Environmental Quality (DEQ) is responsible for monitoring the water quality of Virginia's drinking water supplies. Once samples are collected and analyzed, the data is published online through the National Water Quality Monitoring Council (NWQMC). Here, we outline the steps taken to manipulate data formatting to look for relevant parameters and summarize the most important measurements from a NWQMC dataset.
+
+The data was downloaded from the NWQMC website with the parameters set for lake data in Brunswick County, Virginia between the dates of April and early August. This data represents general water quality information on Fort Barfoot Reservoir including temperatures, clarity, nutrient levels, oxygen contents, long/lat coordinates, and more. The dataset contains a large amount of information about the sampling location, techniques, and comments for each measurement as well. The data was published as a public .csv file via google sheets and downloaded into R.
+
+## Methods
+
+An initial summary table of the data was created by selecting date, depth, characterstic, and unit columns, summarizing them using the summarize() function, and visualizing them in a minimalistic table using the Kable_minimal() function (shown in Results section).
+
+While this shows the data for each characteristic, the data is still grouped in the original format with all parameters grouped under the same "CharacteristicName" column. To simplify the data for summary, excess date columns were removed via the select(-) function.
+
+The dataframe was then widened using the pivot_wider() function to split the "CharacteristicnName" column into individual columns for each parameter and its corresponding values.
+
+This new dataframe was then modified to ensure that all relevant parameter columns were in numeric format for analysis.
+
+Lastly, this modified dataframe was plotted via the summarize() function to show mean values for all chosen parameters by sampling date. The same Kable_minimal() function was used to create the table (shown in Results section).
+
+## Results
+
+The below table shows the output of the original data summary. Here, all water quality parameters are shown under the "CharacteristicName" column, while the measurement values and units are seen in the "ResultMeasureValue" and "ResultMeasure/MeasureUnitCode" columns respectively. This table is unable to show the means or any other trasformations of data by parameter. Additionally, the format of having each parameter/measurment listed consecutively in the same columns makes the frame large and diffcult to glean results from.
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+
+url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5cQc84ZkekZSLx5SfWwxqAmsEZqKOGljVuG4jPS-N6-8SL5TgSLSSdgLeaozQ9IzVzPJk07L7qkAO/pub?gid=0&single=true&output=csv"
+
+read_csv( url ) -> barfoot
+
+barfoot |> 
+  select ( ActivityStartDate, `ActivityDepthHeightMeasure/MeasureValue`, MonitoringLocationIdentifier, CharacteristicName, ResultMeasureValue, `ResultMeasure/MeasureUnitCode` ) |>
+  group_by( ActivityStartDate ) |>
+  summarise ( `Location` = MonitoringLocationIdentifier,
+              `Depth` = `ActivityDepthHeightMeasure/MeasureValue`,
+              `Parameter` = CharacteristicName,
+              `Result` = ResultMeasureValue,
+              `Unit` = `ResultMeasure/MeasureUnitCode`,) |>
+  kable() |>
+  kable_minimal()
+```
+
+
+
+The second table, seen below, shows the final table of results for this data. This table visualizes more specific parameters by their mean values per sampling date (one per month). Here, we are able to view simple relationships that may exist between parameters. The presentation of data in this format provides easier access to data for further manipulation and analysis of factors contributing to algae blooms, water clarity, and more.
+
+
+```{r}
+barfoot |>
+  select( -`ActivityStartTime/Time`, -`ActivityStartTime/TimeZoneCode`, -ActivityEndDate, -`ActivityEndTime/Time`, -`ActivityEndTime/TimeZoneCode`, -LastUpdated)
+  
+wide_data <- barfoot|>
+  pivot_wider(names_from = CharacteristicName, values_from = ResultMeasureValue)
+
+wide_data$`Total suspended solids` <- as.numeric(as.character(wide_data$`Total suspended solids`))
+wide_data$`Chlorophyll a, corrected for pheophytin` <- as.numeric(as.character(wide_data$`Chlorophyll a, corrected for pheophytin`))
+wide_data$`Temperature, water` <- as.numeric(as.character(wide_data$`Temperature, water`))
+wide_data$Turbidity <- as.numeric(as.character(wide_data$Turbidity))
+wide_data$`Total solids` <- as.numeric(as.character(wide_data$`Total solids`))
+wide_data$Nitrogen <- as.numeric(as.character(wide_data$Nitrogen))
+wide_data$`Dissolved oxygen (DO)` <- as.numeric(as.character(wide_data$`Dissolved oxygen (DO)`))
+
+wide_data |>
+  group_by(ActivityStartDate)|>
+  summarise ( 
+              `Turbidity (ntu)` = mean(Turbidity, na.rm = TRUE),
+              `TSS (mg/L)` = mean(`Total suspended solids`, na.rm = TRUE),
+              `CHLa (ug/L)` = mean(`Chlorophyll a, corrected for pheophytin`, na.rm = TRUE),
+              `Total solids (mg/L)` = mean(`Total solids`, na.rm = TRUE),
+              `Nitrogen (mg/L)` = mean(Nitrogen, na.rm = TRUE),
+              `Dissolved Oxygen (%)` = mean(`Dissolved oxygen (DO)`, na.rm = TRUE),
+              `Water Temp (C)` = mean(`Temperature, water`, na.rm = TRUE)
+              
+              ) |>
+  
+  kable() |>
+  kable_minimal()
+```
