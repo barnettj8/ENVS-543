@@ -14,11 +14,11 @@ anna |>
   select ( Date, Site, Temp, `DO (%)`, TSS, `CHLa (pheophytin corrected)`, `TN-N`, `TP-P`) |>
   group_by( Date) |>
   summarise ( `Site Location` = Site,
-              `Water Temperature (C)` = mean(Temp),
-              `DO (%)` = mean(`DO (%)`),
-              `TSS (mg/L)` = mean(TSS),
-              `Corrected CHLa (ug/L)` = mean(`CHLa (pheophytin corrected)`),
-              `TN-N` = mean(`TN-N`),
-              `TP-P` = mean(`TP-P`) ) |>
+              `Water Temperature (C)` = mean(Temp, na.rm = TRUE),
+              `DO (%)` = mean(`DO (%)`, na.rm = TRUE),
+              `TSS (mg/L)` = mean(TSS, na.rm = TRUE),
+              `Corrected CHLa (ug/L)` = mean(`CHLa (pheophytin corrected)`, na.rm = TRUE),
+              `TN-N` = mean(`TN-N`, na.rm = TRUE),
+              `TP-P` = mean(`TP-P`, na.rm = TRUE) ) |>
   kable() |>
   kable_minimal()

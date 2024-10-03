@@ -19,7 +19,6 @@ barfoot |>
   kable() |>
   kable_minimal()
 
-#filter -fecal coliform...
 
 barfoot |>
   select( -`ActivityStartTime/Time`, -`ActivityStartTime/TimeZoneCode`, -ActivityEndDate, -`ActivityEndTime/Time`, -`ActivityEndTime/TimeZoneCode`, -LastUpdated)
