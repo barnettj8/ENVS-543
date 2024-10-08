@@ -1,0 +1,46 @@
+---
+title: "Graphics Assignment"
+format: html
+editor: visual
+---
+
+## Getting the Rice Data
+
+```{r}
+
+library(tidyverse)
+
+source("get_rice_data.R")
+
+data <- getRiceData()
+
+```
+
+## Barplot of Rain in January 
+```{r}
+names(data)
+
+data |> 
+  filter ( month == "January") |>
+  group_by( Weekday) |>
+  summarize ( Rain = sum(Rain_m)) -> df
+
+barplot(df$Rain, names.arg = df$Weekday, ylab = "Rain (m)", cex.names = 0.5, xlab = "Weekday", main = "Rice Center Rain by Weekday in January")
+
+```
+
+```{r}
+library(ggplot2)
+
+# One way to make it that Dyer used
+#df |>
+#  ggplot( aes (Weekday, Rain)) + geom_col()
+
+
+ggplot( data, aes (x = Weekday, Rain_m)) +
+  geom_col() +
+  labs(title = "Rice Center Rain by Weekday")
+
+```
+
+
