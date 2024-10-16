@@ -16,10 +16,8 @@ data <- getRiceData()
 
 ```
 
-## Barplot of Rain in January 
+## Classic Barplot of Rain in January 
 ```{r}
-names(data)
-
 data |> 
   filter ( month == "January") |>
   group_by( Weekday) |>
@@ -29,13 +27,10 @@ barplot(df$Rain, names.arg = df$Weekday, ylab = "Rain (m)", cex.names = 0.5, xla
 
 ```
 
+## ggplot Barplot of Rain in January
+
 ```{r}
 library(ggplot2)
-
-# One way to make it that Dyer used
-#df |>
-#  ggplot( aes (Weekday, Rain)) + geom_col()
-
 
 ggplot( data, aes (x = Weekday, Rain_m)) +
   geom_col() +
@@ -43,4 +38,195 @@ ggplot( data, aes (x = Weekday, Rain_m)) +
 
 ```
 
+## Classic Barplot of Average Daily Temp in February
 
+```{r}
+
+
+data |> 
+  filter ( month == "February") |>
+  group_by( Weekday) |>
+  summarize ( Temperature = mean(AirTemp)) -> df
+
+barplot(df$Temperature, names.arg = df$Weekday, ylab = "Air Temperature (C)", cex.names = 0.5, xlab = "Weekday", main = "Rice Mean February Temperature by Weekday")
+
+
+```
+
+## ggplot Barplot of Average Daily Temp in February
+
+```{r}
+
+
+ggplot( df, aes (x = Weekday, Temperature)) +
+  geom_col() +
+  labs(title = "Rice Mean February Temperature by Weekday")
+
+
+```
+
+## Classic Plot of Water Depth on Valentines Day
+
+```{r}
+library(lubridate)
+
+data$Date <- ymd_hms(data$Date)
+
+df <- data |>
+  filter(month == "February", day == 14) |>
+  summarize(Depth = Depth_m, time_in_minutes = hour(Date) * 60 + minute(Date))
+
+str(data$Date)
+
+plot(df$time_in_minutes, df$Depth, 
+     type = "b",  # Line with points
+     xlab = "Time (Minutes)",
+     ylab = "Water Depth (m)",
+     main = "Rice Water Depth on Valentine's Day 2024",
+     pch = 19)  # Point type
+
+
+```
+
+
+
+## ggplot of Water Depth on Valentines Day
+
+```{r}
+
+ggplot(df, aes(x = time_in_minutes, y = Depth)) +
+  geom_line() +   # Line plot
+  geom_point(size = 3) +  # Points on the line
+  labs(title = "Rice Water Depth on Valentine's Day 2024",
+       x = "Time (Minutes)",
+       y = "Water Depth (m)") +
+  theme_minimal()
+
+```
+
+## Classic Scatter Plot of Rain/Temp by Month
+
+```{r}
+
+names(data)
+
+data |>
+  group_by(day, month) |>
+  summarize ( TotRain = sum(Rain_m, na.rm = TRUE),
+              MedTemperature = median(AirTemp, na.rm = TRUE)) -> df
+
+centroids <- df |>
+  group_by(month) |>
+  summarize(
+    mean_rain = mean(TotRain),
+    mean_temp = mean(MedTemperature)
+  )
+
+colors <- as.factor(df$month)
+color_palette <- c("red", "blue", "green")
+
+plot(df$MedTemperature, df$TotRain, 
+     col = color_palette[colors],
+     pch = 19, cex = 1.5, 
+     xlab = "Daily Median Temperature (°C)", 
+     ylab = "Daily Total Rain (mm)",
+     main = "Daily Total Rain vs. Daily Median Temperature")
+
+points(centroids$mean_temp, centroids$mean_rain, 
+       col = "black", 
+       pch = 21, cex = 2.5, bg = "orange")
+
+text(centroids$mean_temp, centroids$mean_rain, 
+     labels = centroids$month, 
+     pos = 3, col = "orange", cex = 0.8)
+
+```
+
+## ggplot Scatter Plot of Rain/Temp by Month
+
+```{r}
+
+data |>
+  group_by(day, month) |>
+  summarize ( TotRain = sum(Rain_m, na.rm = TRUE),
+              MedTemperature = median(AirTemp, na.rm = TRUE)) -> df
+
+centroids <- df |>
+  group_by(month) |>
+  summarize(
+    mean_rain = mean(TotRain),
+    mean_temp = mean(MedTemperature)
+  )
+
+ggplot(df, aes(x = MedTemperature, 
+               y = TotRain, 
+               color = month)) +
+  geom_point(size = 3) +
+  geom_point(data = centroids, aes(x = mean_temp, 
+                                   y = mean_rain), 
+             color = "black", 
+             size = 4, 
+             shape = 21, 
+             fill = "orange") +  # Centroids
+  geom_text(data = centroids, 
+            aes(x = mean_temp, 
+                y = mean_rain, 
+                label = month), 
+            vjust = -1.2, 
+            color = "orange") +  # Labels for the centroids
+  labs(title = "Daily Total Rain vs. Daily Median Temperature with Trend",
+       x = "Daily Median Temperature (°C)",
+       y = "Daily Total Rain (mm)") +
+  theme_minimal()
+
+
+#plot(df$Temperature, df$Rain, 
+    # xlab = "Median Monthly Air Temperature (C)", 
+    # ylab = "Total Monthly Rain (m)", 
+    # main = "Rice Mean February Temperature by Weekday")
+
+```
+
+## Classic Plot of Wind Direction During Jan 8 Week
+
+```{r}
+
+data$Date <- ymd_hms(data$Date)
+
+# Step 1: Filter data between January 7 and January 13
+df <- data %>%
+  filter(month(Date) == 1 & day(Date) >= 7 & day(Date) <= 13) %>%
+  summarize(Wind_Direction = WindDir, Date = Date)  # Preserve the exact date and time for plotting
+
+# Step 2: Plot Wind Direction over the Date-Time variable
+plot(df$Date, df$Wind_Direction, 
+     type = "p",  # Line with points
+     xlab = "Date and Time", 
+     ylab = "Wind Direction (rad)", 
+     main = "Wind Direction during the Week of Jan 8",
+     pch = 19)  # Points
+
+```
+
+## ggplot of Wind Direction During Jan 8 Week
+
+```{r}
+# Convert Date column to POSIXct
+data$Date <- ymd_hms(data$Date)
+
+# Step 1: Filter for dates between January 7 and January 13
+df <- data %>%
+  filter(month == "January", day >= 7, day <= 13)
+
+# Step 2: Plot Wind Direction over time using Date (with time)
+ggplot(df, aes(x = Date, y = WindDir)) +
+  geom_point() +   # Line plot to connect the points
+  geom_point(size = 3) +  # Points on the line
+  labs(title = "Wind Direction during the Week of Jan 8",
+       x = "Date and Time",
+       y = "Wind Direction (rad)") +
+  theme_minimal() +
+  scale_x_datetime(date_labels = "%b %d %H:%M")  # Format the x-axis to show both date and time
+
+
+```
