@@ -26,6 +26,7 @@ source("get_rice_data.R")
 rice <- getRiceData()
 
 ```
+
 ## Changing the Order of the Weekdays to Start With Monday
 
 Here, the Weekday variable is converted into a factor and the levels are redefined to go from Monday to Sunday. This is checked using the levels() function, the output of which is seen below. Clearly, the order starts with Monday and moves through the week, ending on Sunday.
@@ -69,7 +70,7 @@ viewdf[286:292, ]
 
 ## Create Column for the 4 Primary Lunar Phases
 
-Here, the lunar package is used to mutate the rice data and add a column called LunarPhase. This column reports which of the four primary moon phases is present for each date. The four moon phases are plotted across time for the given rice dataset. 
+Here, the lunar package is used to mutate the rice data and add a column called LunarPhase. This column reports which of the four primary moon phases is present for each date. The four moon phases are plotted across time for the given rice dataset.
 
 ```{r}
 
@@ -91,9 +92,9 @@ ggplot(df, aes(x = Date, y = LunarPhase)) +
 
 ```
 
-## Create a Column that Indicates if Tide is Incoming or Outgoing 
+## Create a Column that Indicates if Tide is Incoming or Outgoing
 
-This is done by creating a Depth_diff column that indicates if the current depth is greater than or less that the previous depth measurement. If it is less, another column will indicate it as being an outgoing tide, if it is above, then the column will list it as an incoming tide. This is visualized using an example week of depths during a week in January. The incoming tide is in the blue portion and the outgoing tide is in the red portion. 
+This is done by creating a Depth_diff column that indicates if the current depth is greater than or less that the previous depth measurement. If it is less, another column will indicate it as being an outgoing tide, if it is above, then the column will list it as an incoming tide. This is visualized using an example week of depths during a week in January. The incoming tide is in the blue portion and the outgoing tide is in the red portion.
 
 ```{r}
 
@@ -133,4 +134,3 @@ legend("bottomright",                # Position of the legend
        pch = 19)
 
 ```
-
