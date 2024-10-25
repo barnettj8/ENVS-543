@@ -1,0 +1,215 @@
+---
+title: "In Class Activity"
+format: html
+editor: visual
+knitr:
+  opts_chunk: 
+    warning: false
+---
+
+<center>
+![*Araptus attenuatus* the enigmatic Sonoran Desert Bark Beetle.](https://live.staticflickr.com/65535/50441339417_74e04216fa_w_d.jpg)
+</center>
+
+
+This homework is a bit quick but is designed to make sure that:
+
+1. To make sure everyone can get their computer up-to-date with the proper set of libraries so that we can work with geospatial data, and
+2. Give you some practice turning normal numerical data into geospatial coordinates and performing basic operations. 
+
+## Spatial Libraries
+
+The following code defines the set of necessary libraries for the next few weeks and then figures out which (potential) subset you need to install. It then installs them all in one call.  It will not load them into your session, you'll have to do that later in your code chunks.
+
+```{r}
+# needed_libraries <- c("sf",
+#                       "maps",
+#                       "units",
+#                       "rgdal",
+#                       "rgeos",
+#                       "GGally",
+#                       "raster",
+#                       "mapproj",
+#                       "leaflet",
+#                       "rnaturalearth",
+#                       "rnaturalearthdata"
+#                       )
+# # Determines which libraries you do not have
+# #   already installed.
+# need_inst <- setdiff( needed_libraries,
+#                       rownames( installed.packages()) )
+# # Install the neccessary ones.
+# if( length( need_inst ) ) {
+#   install.packages( need_inst, dependencies = TRUE )
+# }
+```
+
+
+
+## The Data - Preprocessing
+
+The data for this is some site-level data from the Sonoran Desert bark beetle.  The URL is in the next chunk, and is currently being hosted on my class [Github repository](https://github.com/dyerlab/ENVS-Lectures).  Load it in.
+
+```{r}
+url <- "https://raw.githubusercontent.com/dyerlab/ENVS-Lectures/master/data/Araptus_Disperal_Bias.csv"
+```
+
+
+### Interactive Map
+
+Use the `leaflet` library and make an interactive map.  If you can, add a label to each marker with the ID of the site.  You can look at the provider tiles [here](https://leaflet-extras.github.io/leaflet-providers/preview/) and use on in the `addProviderTiles()` function. 
+
+There is a great tutorial [here](https://rstudio.github.io/leaflet/map_widget.html) on how to customize the leaflet display.  You may want to go look at it and see what you can use to make a better display.
+
+
+```{r}
+
+# make a quick leaflet map here to get an idea of 
+library(leaflet)
+library(readr)
+library(tidyverse)
+
+data <- read_csv(url)
+
+head (data)
+
+data |>
+  mutate( Label = paste( "<b>Site:", Site)) |>
+  leaflet() |>
+  addMarkers( ~Longitude, ~Latitude, popup = ~Label ) |>
+  addProviderTiles( "OpenTopoMap" )
+
+```
+
+
+### Converting to `sf` Objects
+
+Convert the spatial data in the beetle data.frame into an `sf` object.  Make sure you set the Coordinate Reference System to $4326$.
+
+
+```{r}
+# convert raw data to simple features in your data.frame
+library(sf)
+
+data |>
+  st_as_sf( coords=c("Longitude","Latitude"),
+            crs = 4326 ) -> data
+head( data )
+
+```
+
+
+### Questions
+
+For these questions, you may want to look at the `sf` cheat sheet [here](https://github.com/rstudio/cheatsheets/raw/main/sf.pdf) to find the appropriate geospatial function.
+
+1. How far apart (in km) are the sites Constitución (`const`) and San Francisquito (`sfran`)?  
+
+```{r}
+st_distance( data[4,], data[12,])
+
+```
+
+
+2. Is there a correlation between habitat suitability and the ratio of males to female beetles sampled at each locale?  
+
+```{r}
+
+cor.response <- cor.test(data$Suitability, data$MFRatio)
+
+r <- cor.response$estimate
+p_value <- cor.response$p.value
+
+cat("r =", r, "\n")
+cat("P =", p_value, "\n")
+
+library(ggplot2)
+
+ggplot(data, aes(x = Suitability, y = MFRatio)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Habitat Suitability", y = "MF Ratio", 
+       title = "Relationship Between Habitat Suitability and MF Ratio") +
+  theme_minimal()
+
+
+```
+
+
+3. Make a plot using `ggplot` of the data with suitability as the size of the points and the sex ratio as the fill color.
+
+```{r}
+
+map_data("world") |>
+  filter( region == "Mexico") -> map
+head( map )
+
+ggplot() + 
+  geom_polygon(aes(x = long, y = lat, group = group), 
+               data = map, 
+               fill = "grey") + 
+  geom_sf(data = data, 
+          aes(color = Suitability, size = MFRatio)) + 
+  xlab("Longitude") + 
+  ylab("Latitude") + 
+  theme_bw(base_size = 12) +
+  coord_sf( xlim = c(-115, -105),
+            ylim = c(20, 30) )
+
+```
+
+
+4. Reproject the data and plot it again using an EPSG code defined for Mexico UTM zone 12N (see [epgs.io](https://epsg.io) for projections).
+
+Creating the plot using the st_transform() function
+
+```{r}
+
+mapdf <- data |>
+  st_transform(6367)
+
+map_data("world") |>
+  filter(region == "Mexico") -> map
+
+newmap_sf <- st_as_sf(map, coords = c("long", "lat"), crs = 4326)  # 
+newmap <- st_transform(newmap_sf, 6367)
+
+ggplot() + 
+  geom_sf(data = newmap,
+          color = "black") + 
+  geom_sf(data = mapdf, 
+          aes(color = Suitability, size = MFRatio)) + 
+  xlab("Longitude") + 
+  ylab("Latitude") + 
+  theme_bw(base_size = 12) + 
+  coord_sf(xlim = c(180128, 666529.7),
+           ylim = c(2575408, 3248545))
+
+```
+
+Creating the plot by resetting the original CRS value
+
+```{r}
+
+data |>
+  st_as_sf( coords=c("Longitude","Latitude"),
+            crs = 6367 ) -> newdata
+
+map_data("world") |>
+  filter( region == "Mexico") -> map
+
+ggplot() + 
+  geom_polygon(aes(x = long, y = lat, group = group), 
+               data = map, 
+               fill = "grey") + 
+  geom_sf(data = newdata, 
+          aes(color = Suitability, size = MFRatio)) + 
+  xlab("Longitude") + 
+  ylab("Latitude") + 
+  theme_bw(base_size = 12) +
+  coord_sf( xlim = c(-115, -105),
+            ylim = c(20, 30) )
+
+```
+
+
