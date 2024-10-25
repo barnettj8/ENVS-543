@@ -1,0 +1,234 @@
+---
+title: "Textual Data"
+format: html
+editor: visual
+---
+
+##Textual Data Assignment
+
+```{r}
+
+library(tidyverse)
+library(stringr)
+library(readr)
+
+```
+
+```{r}
+
+w <- " 'Coding is fun!' said Jackson"
+
+x <- "Jackson"
+
+y <- "Barnett"
+
+z <- 'Bob Marley once said, "It is a foolish dog who barks at a passing bird"'
+
+w
+x
+y
+z
+
+print(z)
+cat(z)
+
+```
+## Creating Text Variables
+
+```{r}
+paste("Bob", "is", "not", "Here", "man")
+paste("Bob", "is", "not", "Here", "man", sep = ", ")
+
+paste("My favorite number is ", 11, "!", sep = "")
+
+```
+
+
+```{r}
+length(z)
+nchar(z)
+str_length(z)
+
+```
+
+```{r}
+vec <- c(w,x,y,z)
+vec
+length( vec )
+str_length( vec )
+
+```
+
+```{r}
+a <- 1:10
+paste( a )
+paste( a, collapse = ", ")
+
+b <- LETTERS[1:10]
+b
+
+paste ( a, b )
+paste ( b, a, sep = "")
+paste ( b, a, collapse = "!")
+
+```
+
+```{r}
+
+str_c(a,b) #no default separator
+
+```
+
+## Finding stuff in strings
+
+```{r}
+
+z
+
+str_detect(z, "Marley")
+
+str_detect(z, "marley")
+
+str_detect(vec, "Jackson")
+
+str_count(z, "a")
+
+str_count(vec, "Jackson")
+
+
+```
+
+```{r}
+
+str_locate(z, "dog")
+
+str_locate(vec, "a")
+
+```
+
+```{r}
+
+str_locate_all(vec, "a")
+
+```
+
+```{r}
+str_sub(z, 24, -2) #everything between the 24th and second to last character
+
+c <- z
+
+str_sub(c, 24,-2) <- "hey" # substitutes the quote for hey
+
+c
+
+```
+
+```{r}
+str_remove(z, "dog")
+
+str_remove_all(vec, "a")
+
+```
+
+```{r}
+str_trunc(z, 23) #truncate z and make it 23 characters long
+
+```
+
+```{r}
+str_to_lower(z)
+str_to_upper(z)
+str_to_sentence(z)
+str_to_title(z)
+
+```
+__________________________________________________________________
+
+##Regular Expressions
+
+-Make a graphical display of number of courses in ENVS by course level 100, 200, etc
+
+-Make a word cloud from the titles
+
+```{r}
+url <- "https://raw.githubusercontent.com/DyerlabTeaching/Textual-Data/refs/heads/main/data/ENVSclasses.txt?token=GHSAT0AAAAAACWO27UIA46V72P7DBZEP5EKZYZFFXQ"
+
+envs <- read_lines ( url )
+head (envs, 25)
+
+```
+
+```{r}
+
+str_detect(envs, "ENVS") -> idx
+
+envs [ idx ]
+
+#not the way we want to do it, good but will not work for multiple majors well
+```
+
+```{r}
+
+envs101 <- envs[1]
+envs101
+
+```
+
+```{r}
+
+str_view( envs101, "ENVS")
+str_view( envs101, "Hour")
+str_view( envs101, "o")
+
+str_view( envs101, "[:digit:]")
+str_view( envs101, "[:digit:]{3}")
+
+str_view( envs101, "[:digit:]{2,3}")
+
+```
+```{r}
+str_view( envs101, "[:punct:]")
+
+```
+```{r}
+str_view( envs101, "[:alpha:]")
+
+```
+```{r}
+str_view( envs101, "[:lower:]")
+
+```
+```{r}
+str_view( envs101, "[:space:]")
+
+```
+```{r}
+str_view( envs101, "[:alpha:] {4} [:digit:]{3}")
+str_view( envs101, "[:upper:] {4} [:digit:]{3}")
+str_view( envs101, "[:lower:] {4} [:digit:]{3}")
+
+```
+
+```{r}
+str_view( envs101, "[A-Z]{4} [0-9]{3}")
+```
+```{r}
+str_view( "Semester course; 3 lecture hours. 3 credits. Prerequisite: ENVS 101 or", "[A-Z]{4} [0-9]{3}")
+
+```
+```{r}
+
+str_view( envs101, "^[A-Z]{4} [0-9]{3}") #the ^ symbol anchors the A-Z text search to the beginning of the line when searching
+
+str_view( envs101, "[0-9] Hours.$") #the $ symbol anchors the number and Hour search to the end of the line when searching
+
+str_view( envs101, "[0-9] Hour|s.$") #the | symbol searches for either Hour OR Hours
+
+```
+
+```{r}
+str_view( envs101, "^[A-Z]{4} .+ [0-9] Hours.$") #the .+ symbol is a filler for a bunch of stuff between the search at the beginning of lines and the end of lines. It basically is a stand in for 1 or more "things" inside of the searches
+
+
+```
+
