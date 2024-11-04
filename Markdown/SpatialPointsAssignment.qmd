@@ -108,12 +108,12 @@ st_distance( data[4,], data[12,])
 
 ```{r}
 
-cor.response <- cor.test(data$Suitability, data$MFRatio)
-
-r <- cor.response$estimate
-p_value <- cor.response$p.value
-
-cat("r =", r, "\n")
+  cor.response <- cor.test(data$Suitability, data$MFRatio)
+  
+  r <- cor.response$estimate
+  p_value <- cor.response$p.value
+  
+  cat("r =", r, "\n")
 cat("P =", p_value, "\n")
 
 library(ggplot2)

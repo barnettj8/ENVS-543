@@ -1,0 +1,236 @@
+---
+title: "Raster Data Homework"
+format: html
+editor: visual
+---
+
+## Question 1
+
+Load the raster and point data in and crop to an appropriate size to display the locations of the sampling plots and make a label for each site.
+
+```{r}
+
+library(raster)
+library(sf)
+library( tidyverse )
+library (ggplot2)
+
+raster_url <- "https://github.com/DyerlabTeaching/Raster-Data/raw/main/data/alt_22.tif"
+
+beetle_url <- "https://raw.githubusercontent.com/DyerlabTeaching/Raster-Data/main/data/AraptusDispersalBias.csv"
+
+rast <- raster(raster_url)
+
+```
+
+```{r}
+
+read_csv( beetle_url ) |>
+  st_as_sf( coords=c("Longitude","Latitude"), crs=4326 ) -> beetles
+
+beetles |> st_bbox()
+
+```
+
+```{r}
+library(raster)
+library(sf)
+
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+par(mar = c(2, 2, 1, 1)) #This changes the size of the plot within the window (bottom, left, top, right margins)
+
+alt <- crop( rast, baja_extent )
+plot(alt)
+plot( beetles["Suitability"], 
+      pch=16, 
+      add=TRUE)
+
+text(beetles$geometry, labels = beetles$Site, pos = 4, cex = 0.7, col = "blue")
+
+```
+
+## Question 2
+
+Use the click() function to crop the raster and filter the sites to include only the sampling locations that are in the Cape regions (e.g., south of site labeled #75). Plot the raster of elevation and all cape region locales with sex-ratio represented as the size of the plot symbol
+
+```{r}
+
+#copy into the console!!
+
+# par(mar = c(2, 2, 1, 1))
+# alt <- crop(rast, baja_extent)
+# 
+# plot(alt)
+# 
+# cape_extent <- click(n = 2)
+
+```
+
+```{r}
+# Crop the raster to the Cape region based on selected coordinates
+cape_raster <- crop(alt, extent(cape_extent))
+
+plot(cape_raster)
+
+
+```
+
+```{r}
+
+alt |>
+  rasterToPoints() |>
+  as.data.frame() |> 
+  transmute(Longitude=x,
+            Latitude=y,
+            Elevation=alt_22)  -> alt.df
+head( alt.df )
+
+alt.df |>
+  ggplot()  + 
+  geom_raster( aes( x = Longitude, 
+                    y = Latitude, 
+                    fill = Elevation) ) + 
+  coord_equal() +
+  theme_minimal() -> baja_elevation
+
+baja_elevation
+```
+
+```{r}
+
+baja_elevation + 
+  scale_fill_gradient2( low = "darkolivegreen",
+                        mid = "yellow",
+                        high = "brown", 
+                        midpoint = 1000 ) -> baja_map
+
+baja_map + 
+  geom_sf( aes(size = MFRatio ), 
+           data = beetles, 
+           color = "dodgerblue2",
+           alpha = 0.75) 
+
+```
+
+## Question 3
+
+The peninsula of Baja California is divided into the States of Baja California Norte and Baja California Sur. The border between these states is at 28° Latitude. Divide the sample locations into groups based on which state they are located in and plot the average sex ratio of the sample sites partitioned by each site.
+
+```{r}
+
+# Extract coordinates to create a new data frame
+beetles_df <- st_as_sf(beetles)
+
+# Create a new column for the state based on latitude
+beetles_df <- beetles_df |>
+  mutate(State = ifelse(st_coordinates(geometry)[,2] >= 28, 
+                        "Baja California Norte", 
+                        "Baja California Sur"))
+
+# Calculate the average sex ratio by site and state
+average_sex_ratio <- beetles_df |>
+  group_by(Site, State) |>
+  summarize(Average_MFRatio = mean(MFRatio, na.rm = TRUE))
+
+ggplot(average_sex_ratio, aes(x = Site, y = Average_MFRatio, fill = State)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Average Sex Ratio by Site in Baja California",
+       x = "Site",
+       y = "Average Sex Ratio") +
+  theme_minimal() +
+  theme(
+     legend.text = element_text(size = 4.5),
+    legend.title = element_text(size = 4.5),  
+    legend.key.size = unit(0.5, "cm"),
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
+
+
+```
+
+```{r}
+# Extract coordinates to create a new data frame
+beetles_df <- st_as_sf(beetles)
+
+# Create a new column for the state based on latitude
+beetles_df <- beetles_df |>
+  mutate(State = ifelse(st_coordinates(geometry)[,2] >= 28, 
+                        "Baja California Norte", 
+                        "Baja California Sur"))
+
+# Calculate the average sex ratio by site and state
+average_sex_ratio <- beetles_df |>
+  group_by(State) |>
+  summarize(Average_MFRatio = mean(MFRatio, na.rm = TRUE))
+
+ggplot(average_sex_ratio, aes(x = State, y = Average_MFRatio, fill = State)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Average Sex Ratio by State in Baja California",
+       x = "State",
+       y = "Average Sex Ratio") +
+  theme_minimal() +
+  theme(
+     legend.text = element_text(size = 4.5),
+    legend.title = element_text(size = 4.5),  
+    legend.key.size = unit(0.5, "cm"),
+    axis.text.x = element_text(size = 6))
+```
+
+```{r}
+
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+state_colors <- setNames(c("red", "blue"), unique(beetles_df$State))
+
+par(mar = c(2, 2, 1, 1)) #This changes the size of the plot within the window (bottom, left, top, right margins)
+
+alt <- crop( rast, baja_extent )
+plot(alt)
+plot( beetles["Suitability"], 
+      pch=16, 
+      add=TRUE)
+
+text(beetles$geometry, labels = beetles$MFRatio, pos = 4, cex = 0.7, col = state_colors[beetles_df$State])
+
+```
+
+## Question 4
+
+Is there a relationship between the observed sex ratio and the elevation at that site? Plot these, and in the text, perform a correlation test (cor.test()) and report the values as if you were writing them up in a results section.
+
+```{r}
+
+beet_df <- as.data.frame(beetles)  
+coordinates <- st_coordinates(beetles$geometry) 
+
+#add lat/long to beet_df
+beet_df$Longitude <- coordinates[, 1]
+beet_df$Latitude <- coordinates[, 2]
+
+#get elevation from raster based on lat/long
+elevation_values <- extract(rast, beet_df[, c("Longitude", "Latitude")])
+
+#add elevations to beetles_df
+beet_df$Elevation <- elevation_values
+
+
+ggplot(beet_df, aes(x = Elevation, y = MFRatio)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Elevation", y = "MF Ratio", 
+       title = "Relationship Between Elevation and MF Ratio") +
+  theme_minimal()
+
+
+# Perform the correlation test
+cor_test_result <- cor.test(beet_df$MFRatio, beet_df$Elevation)
+
+ r <- cor.response$estimate
+  p_value <- cor.response$p.value
+  
+cat("r =", r, "\n")
+cat("P =", p_value, "\n")
+
+```

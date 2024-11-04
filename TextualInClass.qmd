@@ -227,8 +227,36 @@ str_view( envs101, "[0-9] Hour|s.$") #the | symbol searches for either Hour OR H
 ```
 
 ```{r}
-str_view( envs101, "^[A-Z]{4} .+ [0-9] Hours.$") #the .+ symbol is a filler for a bunch of stuff between the search at the beginning of lines and the end of lines. It basically is a stand in for 1 or more "things" inside of the searches
+str_view( envs101, "^[A-Z]{4} [0-9]{3}.+[0-9] Hours.$") #the .+ symbol is a filler for a bunch of stuff between the search at the beginning of lines and the end of lines. It basically is a stand in for 1 or more "things" inside of the searches
 
 
+```
+
+```{r}
+pattern <- "^[A-Z]{4} [0-9]{3}.+[0-9] Hour[s]?\\.$"
+
+grepl(pattern, envs) ->idx
+
+titles <- envs[idx]
+
+titles
+
+```
+
+```{r}
+
+str_split(titles, pattern = "\\.")
+
+str_split(titles, pattern = "\\.", simplify = TRUE) -> raw
+
+
+data.frame(course = raw[,1],
+           title = str_trim(raw[,2]),
+           hours = str_trim(raw[,3]), "Hours") |>
+  mutate(hours = str_remove(hours, "Hour"))|>
+  mutate(hours = str_remove(hours, "s")) |>
+  mutate(program = str_split(course, " ", simplify = TRUE)[,1]) |>
+  mutate(number = as.numeric(str_split(course, " ", simplify = TRUE)[,2]) ) |>
+  select( program, number, title, hours ) 
 ```
 

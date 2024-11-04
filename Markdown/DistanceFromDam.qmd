@@ -1,0 +1,215 @@
+---
+title: "Distance from Dam Data Analysis"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+
+```
+
+```{r, echo= FALSE}
+library(tidyverse)
+library(ggplot2)
+
+
+newurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQC8V8v0yeGHO-Ojzlf2jPfzfEoXLJPmX2ii_U2-kjh3ulpj1zAv1mhja2CYrKDm0UoT2TLlPiwqeiU/pub?gid=0&single=true&output=csv"
+
+
+ltdata <- read_csv(newurl)
+
+ltdata <- ltdata[-1, ]
+
+ltdata <- ltdata[-c(24, 30), ]
+
+view(ltdata)
+```
+
+```{r, echo= FALSE}
+ltdata$`CHLa (ug/L)` <- as.numeric(as.character(ltdata$`CHLa (ug/L)`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `CHLa (ug/L)`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Mean CHLa (ug/L)", 
+       title = "Relationship Between Distance from Dam and Mean CHLa") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+
+```
+
+```{r, echo= FALSE}
+ltdata$`...10` <- as.numeric(as.character(ltdata$`...10`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `...10`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Median CHLa (ug/L)", 
+       title = "Relationship Between Distance from Dam and Median CHLa") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+```
+
+```{r, echo= FALSE}
+
+ltdata$`TSS (mg/L)` <- as.numeric(as.character(ltdata$`TSS (mg/L)`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `TSS (mg/L)`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Mean TSS (mg/L)", 
+       title = "Relationship Between Distance from Dam and Mean TSS") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+```
+
+
+
+```{r, echo= FALSE}
+
+ltdata$`...20` <- as.numeric(as.character(ltdata$`...20`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `...20`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Median TSS (mg/L)", 
+       title = "Relationship Between Distance from Dam and Median TSS (mg/L)") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+
+```
+
+```{r, echo= FALSE}
+
+ltdata$`SECCHI_DEPTH (m)` <- as.numeric(as.character(ltdata$`SECCHI_DEPTH (m)`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `SECCHI_DEPTH (m)`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Mean Secchi Depth (m)", 
+       title = "Relationship Between Distance from Dam and Mean Secchi Depth") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+```
+
+```{r, echo= FALSE}
+
+ltdata$`...18` <- as.numeric(as.character(ltdata$`...18`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `...18`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Median Secchi Depth (m)", 
+       title = "Relationship Between Distance from Dam and Median Secchi Depth") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+
+```
+
+```{r, echo= FALSE}
+
+ltdata$`DIN (mg/L)` <- as.numeric(as.character(ltdata$`DIN (mg/L)`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `DIN (mg/L)`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "DIN (mg/L)", 
+       title = "Relationship Between Distance from Dam and Mean DIN") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+```
+
+```{r, echo= FALSE}
+
+ltdata$`...12` <- as.numeric(as.character(ltdata$`...12`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `...12`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Median DIN (mg/L)", 
+       title = "Relationship Between Distance from Dam and Median DIN") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+```
+
+```{r, echo= FALSE}
+
+ltdata$`NITROGEN_TOTAL` <- as.numeric(as.character(ltdata$`NITROGEN_TOTAL`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `NITROGEN_TOTAL`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Mean Total Nitrogen", 
+       title = "Relationship Between Distance from Dam and Mean Total Nitrogen") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+```
+
+
+```{r, echo= FALSE}
+
+
+ltdata$`...14` <- as.numeric(as.character(ltdata$`...14`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `...14`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Median Total Nitrogen", 
+       title = "Relationship Between Distance from Dam and Median Total Nitrogen") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+
+```
+
+
+```{r, echo= FALSE}
+
+
+ltdata$`PHOSPHORUS_TOTAL` <- as.numeric(as.character(ltdata$`PHOSPHORUS_TOTAL`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `PHOSPHORUS_TOTAL`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Mean Total Phosphorus", 
+       title = "Relationship Between Distance from Dam and Mean Total Phosphorus") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+```
+
+```{r, echo= FALSE}
+ltdata$`...16` <- as.numeric(as.character(ltdata$`...16`))
+
+ggplot(ltdata, aes(x = `Distance (m)`, y = `...16`, color = `Lake/Reservoir`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(x = "Distance (m)", y = "Median Total Phosphorus", 
+       title = "Relationship Between Distance from Dam and Median Total Phosphorus") +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 8),    
+        legend.title = element_text(size = 9))
+
+```
+
+
