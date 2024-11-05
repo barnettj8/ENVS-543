@@ -22,8 +22,6 @@ ltdata <- read_csv(newurl)
 ltdata <- ltdata[-1, ]
 
 ltdata <- ltdata[-c(24, 30), ]
-
-view(ltdata)
 ```
 
 ```{r, echo= FALSE}
