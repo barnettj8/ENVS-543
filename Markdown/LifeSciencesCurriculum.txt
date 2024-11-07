@@ -1,0 +1,542 @@
+VCU Life Sciences
+Bioinformatics (BNFO)
+BNFO 101. Introduction to Scientific Computing. 1 Hour.
+Semester course; 1 lecture hour. 1 credit. Enrollment is restricted to
+bioinformatics majors. This course will introduce students to basic
+principles and skills for using a computer to solve scientific problems.
+It is hands-on course and does not assume any special prior knowledge
+or skill with computers. Students completing the course will become
+familiar with and develop skills and practical knowledge of how to use
+common computer-based command-line tools and systems critical for
+effective scientific computing.
+BNFO 125. Disease and Human Ancestry. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. This course introduces
+the role that disease has played in human existence. A key part of this
+understanding comes from new DNA sequencing and genomic data
+analysis tools that provide information about our ancestry and origin,
+as well as about the ancestry and history of disease organisms that
+have co-evolved with us. The vast amount of new data has opened
+controversial doors to social and ethical implications, such as questions
+of race and discrimination, and teach us how to fight emerging disease
+at local and global levels. This course will discuss these topics through
+case examples of different diseases from parasites (e.g., malaria),
+bacteria (e.g., bubonic plague, tuberculosis and syphilis) and viruses (e.g.,
+smallpox, influenza and AIDS).
+BNFO 191. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of nine credits, with the provision that no more than
+nine combined credits of BNFO 191 and BNFO 193 can apply toward
+graduation. An introductory, detailed study of a selected topic in
+bioinformatics unavailable as an existing course. If multiple topics are
+offered, students may elect to take more than one. Adviser's approval is
+required for counting each special topics course toward meeting specific
+requirements of the B.S. program.
+BNFO 193. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of nine credits, with the provision that no more than
+nine combined credits of BNFO 191 and BNFO 193 can apply toward
+graduation. An introductory, detailed study of a selected topic in
+bioinformatics unavailable as an existing course. If multiple topics are
+offered, students may elect to take more than one. Adviser's approval is
+required for counting each special topics course toward meeting specific
+requirements of the B.S. program. Graded as pass/fail.
+BNFO 201. Computing Skills and Concepts for Bioinformatics. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: MATH 151
+or 200 with a minimum grade of C, or satisfactory score on the VCU
+Mathematics Placement Test within the one-year period immediately
+preceding the beginning of the course. An introduction to computation
+in bioinformatics, including basics of data representation, and computer
+organization, as well as programming in Python or other appropriate
+scripting language. Bioinformatics applications in the literature will be
+discussed. Guest speakers will share bioinformatics career experiences
+and opportunities.
+BNFO 251. Phage Discovery I. 2 Hours.
+Semester course; 4 laboratory hours. 2 credits. Corequisite: BIOL 151 or
+152. An exploratory laboratory where students will purify phage from soil,
+visualize phage using electron microscopy and isolate genomic material
+for nucleic acid sequencing. Registration by override only.
+BNFO 252. Phage Discovery II. 2 Hours.
+Semester course; 4 laboratory hours. 2 credits. Corequisite: BIOL 151
+or 152. An exploratory laboratory where students will learn about
+the genomes of viruses infecting bacteria. Students will be given the
+genome sequence of a novel virus, which will be the basis for a series of
+computer-based analyses to understand the biology of the virus and to
+compare it with other viruses that infect the same host. Registration by
+override only.
+BNFO 291. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of nine credits, with the provision that no more than
+nine combined credits of BNFO 291 and BNFO 293 can apply toward
+graduation. An introductory, detailed study of a selected topic in
+bioinformatics unavailable as an existing course. If multiple topics are
+offered, students may elect to take more than one. Adviser's approval is
+required for counting each special topics course toward meeting specific
+requirements of the B.S. program.
+BNFO 292. Independent Study. 1-2 Hours.
+Semester course; variable hours. 1-2 credits. May be repeated for a
+maximum total of 6 credits. Prerequisite: permission of instructor. A
+course designed to provide an opportunity for independent readings of
+the bioinformatics literature under supervision of a staff member.
+BNFO 293. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of nine credits, with the provision that no more than
+nine combined credits of BNFO 291 and BNFO 293 can apply toward
+graduation. An introductory, detailed study of a selected topic in
+bioinformatics unavailable as an existing course. If multiple topics are
+offered, students may elect to take more than one. Adviser's approval is
+required for counting each special topics course toward meeting specific
+requirements of the B.S. program. Graded as pass/fail.
+BNFO 300. Molecular Biology Through Discovery. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. The course aims to
+expand students' "ignorance,
+" a prerequisite for success in science, by
+confronting them with the interface between the known and the unknown,
+stressing the process by which the boundary is traversed. It will do so
+using as the raw material the study of molecular biology, an essential
+groundwork for bioinformatics.
+BNFO 301. Introduction to Bioinformatics. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisites: BNFO 201
+or permission of instructor. The course will present a practical and
+theoretical introduction to the tools and techniques needed to obtain
+and interpret a variety of genome-related data types. The course will
+include several bioinformatic methods underlying nucleotide and protein
+sequence alignment, statistical methods for data visualization in R, the
+types of experimental results commonly encountered in bioinformatics
+data analysis and the public databases where these data can be
+accessed.
+BNFO 315. Effective Communication in the Sciences. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. How do we tell our science
+as a story? This course will explore ways to share science with fellow
+scientists and the public, including best practices for presenting data,
+simplifying complex ideas for presentations and sharing science in an
+accurate and ethical way in different media. Students will experience a
+hands-on approach to scientific writing and storytelling and hear from
+guest speakers from varying backgrounds in scientific communication.
+Communicating about science is an important part of being published,
+securing funding and building awareness around interests and this
+course is a first step to honing those skills.
+VCU Undergraduate Bulletin 2023-24 885
+BNFO 380. Introduction to Mathematical Biology. 4 Hours.
+Semester course; 3 lecture and 2 laboratory hours. 4 credits.
+Prerequisites: MATH 200 and BIOL 151, both with a minimum grade of
+C, or permission of instructor. An introduction to mathematical biology.
+Various mathematical modeling tools will be covered and implemented
+in a range of biological areas. Additionally, the collaborative research
+process will be presented and discussed. Crosslisted as: MATH 380.
+BNFO 391. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of nine credits, with the provision that no more than
+nine combined credits of BNFO 391 and BNFO 393 can apply toward
+graduation. A detailed study of a selected topic in bioinformatics
+unavailable as an existing course. If multiple topics are offered,
+students may elect to take more than one. Adviser's approval is required
+for counting each special topics course toward meeting specific
+requirements of the B.S. program.
+BNFO 393. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of nine credits, with the provision that no more than
+nine combined credits of BNFO 391 and BNFO 393 can apply toward
+graduation. An introductory, detailed study of a selected topic in
+bioinformatics unavailable as an existing course. If multiple topics are
+offered, students may elect to take more than one. Adviser's approval is
+required for counting each special topics course toward meeting specific
+requirements of the B.S. program. Graded as pass/fail.
+BNFO 411. Ethical Issues in Life Sciences. 2 Hours.
+Semester course; 2 lecture hours. 2 credits. This course will introduce
+fundamentals in ethical conduct with a focus on interdisciplinary
+application to the life sciences, with attention paid to the design,
+collection, analysis and dissemination of bioinformatic datasets. Graded
+as pass/fail.
+BNFO 420. Applications in Bioinformatics. 3 Hours.
+Semester course; 2 lecture and 2 laboratory hours. 3 credits.
+Prerequisites: CMSC 245 or 255 and BNFO 301. Capstone course.
+Students will integrate biological, computational and quantitative skills to
+complete bioinformatics projects in a professional team-problem-solving
+context. Course includes explicit instruction in the conduct of research
+as well as a review of applicable strategies, methods and technologies.
+Written and oral presentation is emphasized, with systematic feedback
+and practice opportunities provided.
+BNFO 440. Computational Methods in Bioinformatics. 3 Hours.
+Semester course; 2 lecture and 2 laboratory hours. 3 credits.
+Prerequisites: CMSC 255 and 256; BNFO 301, or permission of instructor.
+An introduction to mathematical and computational methods in
+bioinformatics analysis. Topics include but are not limited to operating
+systems, interfaces, languages, SQL, search algorithms, string
+manipulation, gene sequencing, simulation and modeling, and pattern
+recognition. Students will be exposed to Maple, Matlab, SPSS, E-cell,
+BioPerl, Epigram and C as part of the requirements of this course.
+BNFO 451. Genomic Medicine. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: BIOL 300.
+Genomic medicine is a clinical approach to diagnose and treat patients
+based on testing that includes an individual’s genomic information. This
+course will provide an introduction to this emerging field and its potential
+to improve the diagnosis, prevention and treatment of disease. Topics
+will include key genomic technologies and the computational approaches
+used to probe genomic data as applied to real clinical examples. The
+ethical, legal and societal issues in genomic medicine will be explored.
+This course is geared toward students with a general biology background.
+BNFO 491. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of 12 credits, with the provision that no more than
+12 combined credits of BNFO 491 and BNFO 493 can apply toward
+graduation. A detailed study of a selected topic in bioinformatics
+unavailable as an existing course. If multiple topics are offered,
+students may elect to take more than one. Adviser's approval is required
+for counting each special topics course toward meeting specific
+requirements of the B.S. program.
+BNFO 492. Independent Study. 1-4 Hours.
+Semester course; variable hours. A minimum of three hours of supervised
+activity per week per credit is required. 1-4 credits. May be repeated
+for a maximum total of 6 credits. Prerequisite: BIOL 218. Projects
+should include data collection and analysis, learning bioinformatics-
+related research techniques, and mastering experimental procedures, all
+under the direct supervision of a faculty member. A final report must be
+submitted at the completion of the project. Graded as pass/fail.
+BNFO 493. Special Topics in Bioinformatics. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated for
+a maximum total of 12 credits, with the provision that no more than
+12 combined credits of BNFO 491 and BNFO 493 can apply toward
+graduation. A detailed study of a selected topic in bioinformatics
+unavailable as an existing course. If multiple topics are offered,
+students may elect to take more than one. Adviser's approval is required
+for counting each special topics course toward meeting specific
+requirements of the B.S. program. Graded as pass/fail.
+BNFO 496. Undergraduate Teaching Assistantship in Bioinformatics. 1-2
+Hours.
+Semester course; 1-2 field experience hours. 1-2 credits. May be repeated
+for a maximum total of two credits. Enrollment requires permission of
+instructor and a minimum grade of B in the course the student will TA.
+Student will work with course instructor to implement course objectives.
+Typical duties involve media preparation, answering questions, providing
+feedback on course assignments and peer mentoring. Provides exposure
+to the practice, possibilities, rewards and responsibilities of the act of
+teaching. Graded as pass/fail.
+BNFO 497. Research and Thesis. 1-4 Hours.
+Semester course; variable hours. A minimum of three hours of supervised
+activity per week per credit is required. 1-4 credits. May be repeated for
+a maximum total of 6 credits. Prerequisites: BIOL 218, junior or senior
+status. Projects should include data collection and analysis, learning
+bioinformatics-related research techniques, and mastering experimental
+procedures, all under the direct supervision of a faculty member. A written
+thesis of substantial quality is required at the completion of the research.
+Environmental Studies (ENVS)
+ENVS 101. Introduction to Environmental Studies I. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Enrollment is restricted to
+environmental studies majors. Study of contemporary issues related to
+environmental studies including sustainability, biological conservation,
+global change and an overview of the core earth systems.
+ENVS 102. Introduction to Environmental Studies II. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: ENVS 101 or
+permission of instructor. Enrollment is restricted to environmental studies
+majors. Studies of contemporary issues related to government policy and
+environmental issues at local to international scales.
+886 Undergraduate courses
+ENVS 105. Physical Geology. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. A descriptive approach to
+physical geology dealing with the history and structure of the earth,
+catastrophic events and geology as it relates to the contemporary
+environment. An optional laboratory, ENVZ 105, may be taken with this
+course.
+ENVS 201. Earth System Science. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. An introduction to the
+processes of and linkages among the major systems that drive planet
+Earth. The biosphere, geosphere, hydrosphere, atmosphere and
+sociosphere are presented as dynamic and interdependent systems.
+ENVS 222. Electronic Portfolios. 1 Hour.
+Semester course; 1 lecture hour (delivered online). 1 credit. This online
+course will guide individuals in developing an electronic portfolio
+consisting of student-curated collections of specific academic work,
+bibliographic information and a curriculum vitae used throughout their
+academic career. Graded as pass/fail.
+ENVS 260. Outdoor Leadership. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. This course is designed
+to provide an introduction to the concepts and skills needed to work
+and lead teams in outdoor settings. Topics include the historical and
+philosophical foundations of outdoor leadership, outdoor teaching and
+facilitation, safety and risk management, and environmental stewardship.
+The course includes classroom and field application components.
+ENVS 265. Paths to Environmental Leadership. 2 Hours.
+Semester course; 2 lecture hours. 2 credits. Prerequisites: ENVS 101
+and ENVS 102, both with a minimum grade of B. This course focuses
+on personal leadership development, leadership in the field of
+environmental studies, grant writing and revision, and the peer-review
+process. Discussions with guest speakers who are leaders in various
+environmental fields, additional readings and self-directed exploration
+of leadership figures will broaden our understanding of environmental
+leadership. Students will then use the Udall Undergraduate Scholarship
+application as a tool to begin to develop their own vision of environmental
+leadership and develop experience in grant writing and peer review.
+ENVS 291. Special Topics in Environmental Studies. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated
+with different topics for a maximum of 12 credits. An introductory
+investigation into a selected topic salient to environmental studies. See
+the Schedule of Classes for specific topics being offered each semester.
+ENVS 300. Sustainable Societies: James River Basin. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. This course explores the 25
+most critical social, economic and environmental issues in the region
+in a global context. It examines how people are tackling the issues of
+sustainably and turning them into opportunities.
+ENVS 301. Introduction to Meteorology. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. An introductory course
+designed to provide the student with an overview of the structures and
+processes that cause weather. These include atmospheric circulations
+and the weather patterns that we observe. Emphasis will be placed upon
+the tracking and display of weather phenomena, as well as their forecast
+movement and impact.
+ENVS 310. Introduction to Oceanography. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. An introductory course
+designed to provide the student with an overview of the structures
+and processes of the world's oceans. These include the systems that
+impact the oceans: the hydrosphere, the atmosphere, the geosphere,
+the biosphere and the sociosphere. Emphasis will be placed upon
+hands-on techniques for understanding these systems, including online
+simulations and in-class activities.
+ENVS 311. Politics of the Environment. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. An exploration of the current
+controversy about environmental politics and the issues and crises it
+centers on. Special attention will be given to the constitutional, political
+and geographical factors in the development of environmental policy and
+the organized effort to deal with governmental actions and inaction and
+its impact on policy outcomes. Crosslisted as: POLI 311.
+ENVS 314. Human-Environment Interactions: Foundations and
+Applications. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. A comparative study
+of the ecology and natural history of human populations, including
+the environments as determining factors in the evolution of human
+institutions and technology, resources management, and population
+crises; cultural traditions as mechanisms of population control; basic
+theory of population biology. Crosslisted as: INTL 314.
+ENVS 315. Energy and the Environment. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Enrollment restricted to
+non-physics majors with junior or senior standing; not applicable to the
+physics major. A study of society's demands for energy, how it is currently
+being met, the environmental consequences thereof and some discussion
+of alternatives. Crosslisted as: PHYS 315.
+ENVS 321. Cartography. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: MATH 131,
+STAT 208, or higher level MATH or STAT course. This course provides
+an introduction to the art and science behind the presentation of spatial
+information using maps and charts. Students will develop visual thinking
+and communication skills while applying cartographic theory to address
+contemporary practical problems. Students must have a laptop able to
+run ArcGIS Online.
+ENVS 330. Environmental Pollution. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisites: BIOL 151 and
+BIOL 152. The study of pollution in the environment with emphasis on the
+procedures for detection and abatement.
+ENVS 332. Environmental Management. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: URSP 204. An
+interdisciplinary review of domestic and international environmental
+problems and their underlying causes, current management frameworks,
+alternative management approaches and strategies, and barriers to
+their implementation. Other topics include: environmental history and
+economics, population growth, natural resources use, biodiversity,
+pollution. Crosslisted as: URSP 332.
+ENVS 335. Environmental Geology. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: ENVS 105
+or URSP 204. The relationship between humankind and the physical
+environment, earth materials and processes, geological hazards, water,
+mineral and energy resources, land use, and environmental health and
+law.
+ENVS 343. Data Literacy. 4 Hours.
+Semester course; 4 lecture hours. 4 credits. Prerequisites: ENVS 102
+and STAT 210. This course takes a hands-on, collaborative approach for
+students to develop proficiency in the application of data management
+skills, static and dynamic data visualization, and quantitative analyses of
+environmental and geospatial datasets. Students will be required to bring
+their own laptop and analyses and visualization will be performed using
+the R statistical programming language.
+ENVS 355. Water. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: BIOL 317 or
+ENVS 330 or permission of instructor. The course takes an ecosystem
+approach to understanding the functioning of streams, rivers, lakes,
+estuaries and oceans. The course complements curricula in biology and
+environmental studies and is specifically geared toward students with an
+interest in the water resources profession.
+ENVS 360. Outdoor Programming and Event Management. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. This course is designed
+to provide students with information and practical experience required
+to successfully design, promote, implement and evaluate outdoor
+experiential programming across a range of contexts.
+ENVS 361. Outdoor Team Building and Group Facilitation. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. This course is designed
+to provide students with the theory and practice of developing and
+deploying a successful outdoor recreational, educational, interpretive
+or adventure experience. In doing so, students will learn about group
+dynamics, team building, risk management and inquiry-based learning
+techniques.
+ENVS 368. Nature Writing. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: ENGL 201,
+ENGL 202, ENGL 203, ENGL 204, ENGL 205, ENGL 206, ENGL 211,
+ENGL 215, ENGL 217, ENGL 236, ENGL 250, ENGL 291, ENGL 295 or
+NEXT 240. A study of the literary genre of nature writing in English.
+Crosslisted as: ENGL 368.
+ENVS 370. Applications of Conservation Science. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: ENVS 343.
+The field of conservation science is focused on protecting biodiversity
+through the promotion of both social and ecological processes. This
+course will provide a foundation in the real-world applications of
+conservation science and demonstrate how data are essential to
+effective conservation of natural resources.
+ENVS 391. Special Topics in Environmental Studies. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated with
+different topics for a maximum of 12 credits. A detailed investigation into
+a selected topic salient to environmental studies. See the Schedule of
+Classes for specific topics being offered each semester.
+ENVS 401. Meteorology and Climatology. 3 Hours.
+Semester course; 3 lecture hours. Prerequisite: PHYS 201 or PHYS 207.
+A basic, semiquantitative course in the elements of weather and climate,
+their driving forces and their spatial and temporal distribution and
+variability. Atmospheric motions and circulation, weather forecasting,
+human impact on weather and climate.
+ENVS 411. Oceanography. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisites: BIOL 151,
+BIOL 152 and CHEM 102. A basic course in the physical, chemical and
+geological properties of oceans and ocean basins. Origin and character of
+ocean basins, properties of oceanic waters, oceanic circulation, land-sea
+interactions, marine environments and ecology.
+VCU Undergraduate Bulletin 2023-24 887
+ENVS 421. Environmental Data Visualization. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: STAT 314. This
+is an introductory course in using databases and geospatial technology.
+The course will introduce students to computer technology, project
+development and management skills, database management skills, and
+geospatial technology. Students will use in-class applied environmental
+analyses to guide skill-set development. The course will introduce the
+students to working with data in various formats and using the ArcGIS
+software suite to visualize the data. Students will be introduced to
+Microsoft Excel, Microsoft Access, ESRI ArcGIS software suite and ESRI
+ArcGIS Online.
+ENVS 430. Invasive Species Management. 3 Hours.
+Semester course; 1 lecture and 2 field experience hours. 3 credits.
+Prerequisite: BIOL 317. This course explores the ecological, political and
+regulatory issues surrounding invasive species in the city of Richmond
+and the commonwealth of Virginia. Students will be introduced to the
+James River Park System habitat restoration plan, a long-term strategy
+to manage non-native invasive species. Individuals will work directly with
+environmental professionals, park personnel and community partners to
+restore natural areas.
+ENVS 460. Wilderness First Responder. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. This course is intended
+for anyone working in a position of leadership in an outdoor setting
+or for individuals who want a high level of wilderness medical training
+for working in remote field settings, extended personal backcountry
+trips or expeditions. The course is a comprehensive and in-depth look
+at the standards and skills of dealing with response and assessment,
+musculoskeletal injuries, environmental emergencies and survival skills,
+soft tissue injuries, and medical emergencies. Additional topics, such
+as CPR, are also included. Wilderness First Responder training is the
+industry standard for those who work as government and nongovernment
+field technicians, backcountry trip leaders, camp counselors, mountain
+guides, river guides and ski patrollers.
+ENVS 461. Wilderness Policy and Practice. 3 Hours.
+Semester course; 2 lecture and 1 field experience hours. 3 credits. This
+course takes a multidisciplinary and experiential look at the concept of
+wilderness. Learning spans from the classroom to a first-hand wilderness
+experience, and materials include environmental law, natural resources
+management, environmental philosophy and ethics, regional and local
+history, and conservation science. Throughout students will focus on the
+intersection between society, biodiversity and the wilderness concept in
+principle and practice.
+ENVS 490. Research Seminar in Environmental Studies. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisites: senior
+standing and at least 12 hours of approved environmental studies course
+work. An interdisciplinary examination of problems and issues central
+to environmental studies. Environmental research of VCU faculty will
+be reviewed, and selected local environmental problems will be studied.
+Each student will complete a research project focusing on a specific
+environmental question.
+ENVS 491. Topics in Environmental Studies. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated with
+different topics for a maximum of 12 credits. An in-depth study of a
+selected environmental topic. See the Schedule of Classes for specific
+topics to be offered each semester and prerequisites.
+ENVS 492. Independent Study. 1-3 Hours.
+Semester course; variable hours. Variable credit. Maximum of 3 credits
+per semester; maximum total of 6 credits for all topics courses.
+Prerequisite: junior or senior standing, and permission of instructor.
+888 Undergraduate courses
+ENVS 493. Environmental Studies Internship. 1-3 Hours.
+Semester course; variable hours. 1-3 credits per semester. Maximum total
+of 6 credits. Prerequisite: junior or senior standing, and permission of
+instructor. Graded as pass/fail.
+ENVS 499. Environmental Studies Capstone Experience. 0 Hours.
+Semester course; variable hours. 0 credits. Corequisite: ENVS 490,
+ENVS 491 (when topics implement core competencies required for a
+capstone experience and are approved by the director of the Center for
+Environmental Studies), ENVS 492 or ENVS 493. Enrollment restricted to
+students who have completed 90 hours of undergraduate course work.
+Any of the corequisite courses qualify as a capstone experience if taken
+with this course. Graded as pass/fail.
+Environmental Studies Lab (ENVZ)
+ENVZ 105. Physical Geology Laboratory. 1 Hour.
+Semester course; 2 laboratory hours. 1 credit. Pre- or corequisite:
+ENVS 105, an optional laboratory course consisting of experiments and
+activities related to ENVS 105.
+ENVZ 335. Environmental Geology Laboratory. 1 Hour.
+Semester course; 2 laboratory hours. 1 credit. Corequisite: ENVS 335.
+Required for environmental science majors enrolled in ENVS 335; optional
+for other majors. Attendance on one Saturday morning field trip required.
+Laboratory exercises coordinated with ENVS 335 lectures.
+ENVZ 401. Meteorology and Climatology Laboratory. 1 Hour.
+Semester course; 3 laboratory hours. 1 credit. Pre- or corequisite:
+ENVS 401. A series of laboratory and field experiments designed to
+quantify the elements of weather and climate and to interpret their local
+temporal and spatial variations.
+Life Sciences (LFSC)
+LFSC 101. Academic and Career Options in Life Sciences. 1 Hour.
+Semester course; 1 lecture hour. 1 credit. Students interested in the life
+sciences at VCU are faced with an enormous variety of academic options
+from bioinformatics and biomedical engineering to exercise science
+and nursing. Students outside of these programs have post-graduate
+opportunities in the life sciences, such as health care administration and
+government policy. This course will introduce students to an overview of
+all of the academic programs in life sciences available at VCU and their
+associated potential career options. Graded as pass/fail.
+LFSC 191. Special Topics in Integrative Life Sciences. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated
+for credit with different topics. A 100-level study of a selected topic
+in integrative life sciences. Students will find specific topics and
+prerequisites for each special topics course listed in the Schedule of
+Classes. If multiple topics are offered, students may elect to take more
+than one.
+LFSC 301. Integrative Life Sciences Research. 3 Hours.
+Semester course; 2 lecture and 1 recitation hours. 3 credits. Pre- or
+corequisite: UNIV 200 or HONR 200. Students will leave this course
+knowing enough about science and the process of science to feel
+confident in critically evaluating scientific information and/or embarking
+on their own process of discovery with a faculty mentor. They will gain an
+appreciation of the interdisciplinary and complex nature of life sciences
+and will hone their critical thinking about how science interacts with and
+informs society.
+LFSC 307. Community Solutions: Multiple Perspectives. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: PSYC 101.
+Explores possibilities for addressing social concerns of the Richmond
+community by understanding the complex nature of social issues as
+essential to their successful amelioration via perspectives of life and
+social sciences. Toward this end, expertise from the social sciences,
+the life sciences and the community are integrated. Includes a service-
+learning experience (a 20-hour volunteer requirement). Crosslisted as:
+PSYC 307.
+LFSC 391. Special Topics in Integrative Life Sciences. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated
+for credit with different topics. A 300-level study of a selected topic
+in integrative life sciences. Students will find specific topics and
+prerequisites for each special topics course listed in the Schedule of
+Classes. If multiple topics are offered, students may elect to take more
+than one.
+LFSC 401. Faith and Life Sciences. 3 Hours.
+Semester course; 3 lecture hours. 3 credits. Prerequisite: UNIV 200 or
+HONR 200. Open to students of any school or program. Explores the
+complex relationships between faith traditions and the life sciences.
+Topics include epistemology, impact of life sciences on ideas of fate
+and responsibility, limits of science and technology, and scientific and
+religious perspectives on human origins, consciousness, aggression,
+forgiveness, health, illness and death. Crosslisted as: RELS 401.
+LFSC 491. Special Topics in Integrative Life Sciences. 1-4 Hours.
+Semester course; 1-4 lecture hours. 1-4 credits. May be repeated
+for credit with different topics. A 400-level study of a selected topic
+in integrative life sciences. Students will find specific topics and
+prerequisites for each special topics course listed in the Schedule of
+Classes. If multiple topics are offered, students may elect to take more
+than one.

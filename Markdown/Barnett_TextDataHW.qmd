@@ -1,0 +1,109 @@
+---
+title: "TextHW"
+format: html
+editor: visual
+knitr:
+  opts_chunk: 
+    warning: false
+---
+
+```{r}
+
+library(tidyverse)
+library(stringr)
+library(readr)
+
+```
+
+```{r}
+
+envs <- read_lines ( "LifeSciencesCurriculum.txt" )
+
+```
+
+```{r}
+
+pattern <- "^[A-Z]{4} [0-9]{3}.+[0-9] Hour[s]?\\.$"
+
+grepl(pattern, envs) ->idx
+
+titles <- envs[idx]
+
+```
+
+```{r}
+
+str_split(titles, pattern = "\\.", simplify = TRUE) -> raw
+
+
+df <- data.frame(course = raw[,1],
+           title = str_trim(raw[,2]),
+           hours = str_trim(raw[,3]), "Hours") |>
+  mutate(hours = str_remove(hours, "Hour"))|>
+  mutate(hours = str_remove(hours, "s")) |>
+  mutate(program = str_split(course, " ", simplify = TRUE)[,1]) |>
+  mutate(number = as.numeric(str_split(course, " ", simplify = TRUE)[,2]) ) |>
+  select( program, number, title, hours ) 
+
+```
+
+## Question 1
+
+A plot of the number of courses at the 100, 200, 300, and 400-level grouped by program. 
+
+```{r}
+
+library(dplyr)
+library(ggplot2)
+
+# Create a new column for range categories
+count_data <- df |>
+  mutate(range = case_when(
+    number >= 100 & number < 200 ~ "100 Level",
+    number >= 200 & number < 300 ~ "200 Level",
+    number >= 300 & number < 400 ~ "300 Level",
+    number >= 400 & number < 500 ~ "400 Level")) |>
+  filter(!is.na(range)) |>
+  group_by(program, range) |>
+  summarize(count = n())
+
+ggplot(count_data, aes(x = program, y = count, fill = range)) +
+  geom_col(position = "dodge") +  
+  labs(
+    title = "Amount of Course Numbers Levels By Program",
+    x = "Program",
+    y = "Number of Courses Offered",
+    fill = "Range"
+  ) +
+  theme_minimal()
+
+
+```
+
+
+## Question 2
+
+A wordcloud based upon all course titles
+
+```{r}
+library(tm)
+library(wordcloud2)
+
+# Combine all course titles into one string
+text <- paste(df$title, collapse = " ")
+
+# Split text into words
+word_list <- unlist(strsplit(text, "\\s+"))
+
+# Remove "English stop words" (ie and, for, in, etc)
+word_list <- word_list[!tolower(word_list) %in% stopwords("en")]
+
+# Calculate word frequencies/put in data frame
+word_freq <- as.data.frame(table(word_list))
+colnames(word_freq) <- c("word", "freq")
+
+# Make word cloud
+wordcloud2(data = word_freq, size = 0.7)
+
+```
+
