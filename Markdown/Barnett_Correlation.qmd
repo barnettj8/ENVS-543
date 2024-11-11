@@ -1,0 +1,81 @@
+---
+title: "Correlation Assignment"
+format: html
+editor: visual
+---
+
+## Question 1
+
+```{r}
+
+library(tidyverse)
+
+library(ggplot2)
+
+library(GGally)
+
+library(lubridate)
+
+source("get_rice_data.R")
+
+data <- getRiceData()
+
+head(data)
+
+```
+
+
+  
+```{r}
+
+data$Date <- ymd_hms(data$Date)
+
+atmdf <- data |>
+  filter(month(Date) == 2 & day(Date) >= 10 & day(Date) <= 15) |>
+  select(AirTemp, Rain_m, WindDir, BP_HG, RelHumidity)
+
+ggpairs(
+  data = atmdf,
+  columns = 1:ncol(atmdf)) 
+
+```
+  
+## Question 2
+  
+```{r}
+
+# Calculate correlation matrix for the variables in atmdf
+cor_matrix <- cor(atmdf, use = "complete.obs")
+
+# Convert the correlation matrix to a data frame for easier identification of the strongest correlation
+library(dplyr)
+cor_df <- as.data.frame(as.table(cor_matrix)) %>%
+  filter(Var1 != Var2) %>% # Remove diagonal (self-correlations)
+  mutate(abs_correlation = abs(Freq)) %>% # Take absolute value of correlations
+  arrange(desc(abs_correlation)) # Sort by absolute correlation
+
+# Identify the pair with the strongest correlation
+strongest_pair <- cor_df[1, c("Var1", "Var2")]
+strongest_corr_value <- cor_df[1, "Freq"]
+
+# Calculate 95% confidence interval for the strongest correlation
+cor_test_result <- cor.test(atmdf[[strongest_pair$Var1]], atmdf[[strongest_pair$Var2]])
+
+# Print the results
+cat("The strongest correlation is between", strongest_pair$Var1, "and", strongest_pair$Var2, "\n")
+cat("Correlation coefficient:", strongest_corr_value, "\n")
+cat("95% confidence interval:", cor_test_result$conf.int[1], "to", cor_test_result$conf.int[2], "\n")
+
+```
+
+## Question 3
+
+```{r}
+
+
+
+```
+
+
+
+  

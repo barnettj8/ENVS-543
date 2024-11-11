@@ -11,7 +11,7 @@ getRiceData <- function() {
   result <- rice |>
     # Get rid of extra data (only choose the variables we want)
     select(DateTime, H2O_TempC, AirTempF, PH, WindDir, Rain_in, 
-           Turbidity_ntu, SpCond_mScm, ODO_sat, Depth_m, Chla_ugl) |>
+           Turbidity_ntu, SpCond_mScm, ODO_sat, Depth_m, Chla_ugl, RelHumidity, BP_HG) |>
     # Make date object
     mutate(Date = mdy_hms(DateTime, tz = "EST")) |>
     mutate(AirTemp = (AirTempF - 32) * 5 / 9) |>
