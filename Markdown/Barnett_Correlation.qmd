@@ -20,8 +20,6 @@ source("get_rice_data.R")
 
 data <- getRiceData()
 
-head(data)
-
 ```
 
 
@@ -72,10 +70,71 @@ cat("95% confidence interval:", cor_test_result$conf.int[1], "to", cor_test_resu
 
 ```{r}
 
+# Subset the first 40 observations of AirTemp and BP_HG
+sample_data <- data[1:40, ]
+
+# Visual check with Q-Q plots
+par(mfrow = c(1, 2))  # Set up a 1x2 plot layout
+qqnorm(sample_data$AirTemp, main = "Q-Q Plot of AirTemp")
+qqline(sample_data$AirTemp, col = "red")
+
+qqnorm(sample_data$BP_HG, main = "Q-Q Plot of BP_HG")
+qqline(sample_data$BP_HG, col = "red")
+
+# Statistical check with Shapiro-Wilk test
+shapiro_test_AirTemp <- shapiro.test(sample_data$AirTemp)
+shapiro_test_BP_HG <- shapiro.test(sample_data$BP_HG)
+
+# Print Shapiro-Wilk test results
+cat("Shapiro-Wilk test for AirTemp:\n")
+print(shapiro_test_AirTemp)
+
+cat("\nShapiro-Wilk test for BP_HG:\n")
+print(shapiro_test_BP_HG)
 
 
 ```
 
+The Shapiro-Wilk test indicates that AirTemp is likely normally distributed (p = 0.2031), as we do not reject the null hypothesis of normality. However, BP_HG is not normally distributed (p = 0.0016), as the test shows a significant deviation from normality. Thus, normality-based analyses may be appropriate for AirTemp but not for BP_HG.
 
 
+## Question 4
+
+Given that AirTemp appears to be normally distributed but BP_HG does not, a non-parametric correlation statistic would be most appropriate. Specifically, the Spearman rank correlation or Kendall's tau would be suitable choices, as they do not assume normality and are robust to non-normal distributions.
+
+## Question 5
+
+In the Q-Q plot for BP_HG (barometric pressure data), there’s an unusual pattern where all the points fall on a straight vertical line, indicating that all values are nearly identical or have very little variability. This is unusual because, in typical data, you would expect some spread in the quantiles.
+
+This pattern suggests that the BP_HG data might be nearly constant, possibly due to measurement limitations, a data entry error, or because it was recorded during a period with very stable atmospheric conditions, leading to almost identical barometric pressure readings. This lack of variability is likely why the Shapiro-Wilk test flagged BP_HG as non-normal—it essentially behaves like a single value, which does not conform to a normal distribution.
   
+## Question 6
+
+```{r}
+
+set.seed(42)  # For reproducibility
+
+# Step 1: Calculate the observed correlation
+observed_corr <- cor(sample_data$AirTemp, sample_data$BP_HG, method = "spearman")
+
+# Step 2-4: Permutation test
+n_permutations <- 1000
+permuted_corrs <- numeric(n_permutations)
+
+for (i in 1:n_permutations) {
+  # Permute BP_HG values
+  permuted_BP_HG <- sample(sample_data$BP_HG)
+  
+  # Calculate the correlation with AirTemp
+  permuted_corrs[i] <- cor(sample_data$AirTemp, permuted_BP_HG, method = "spearman")
+}
+
+# Step 5: Plot the distribution
+hist(permuted_corrs, breaks = 30, main = "Permutation Distribution of Correlation (Null Hypothesis)",
+     xlab = "Correlation", xlim = range(c(permuted_corrs, observed_corr)), col = "lightblue", border = "black")
+abline(v = observed_corr, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = paste("Observed Correlation =", round(observed_corr, 3)),
+       col = "red", lty = 2, lwd = 2)
+
+```
+

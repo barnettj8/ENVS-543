@@ -21,7 +21,7 @@ getRiceData <- function() {
     mutate(month = month(Date, label = TRUE, abbr = FALSE)) |>
     mutate(day = day(Date)) |>
     select(Date, month, day, Weekday, AirTemp, Rain_m,PH, WindDir, 
-           Turbidity_ntu, SpCond_mScm, ODO_sat, Depth_m, Chla_ugl)
+           Turbidity_ntu, SpCond_mScm, ODO_sat, Depth_m, Chla_ugl, RelHumidity, BP_HG)
  
   
 #returns the result of the data
