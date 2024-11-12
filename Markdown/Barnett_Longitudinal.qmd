@@ -61,7 +61,7 @@ ggplot(long, aes(x = `Distance (m)`, y = CHLa_mean)) +
     inherit.aes = FALSE,
     size = 3,
     color = "black"
-  )
+  ) 
 
 ```
 
