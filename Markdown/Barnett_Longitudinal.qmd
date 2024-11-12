@@ -1,11 +1,11 @@
 ---
-title: "revised long analysis"
+title: "Longitudinal Analysis"
 format: html
 editor: visual
 ---
 
 ```{r setup, include = FALSE}
-# Set global chunk options to hide code, suppress warnings, and suppress messages
+
 knitr::opts_chunk$set(
   echo = FALSE,      # Hide the code
   warning = FALSE,   # Suppress warnings
@@ -24,72 +24,14 @@ url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQC8V8v0yeGHO-Ojzlf2jPfz
 long <- read_csv(url)
 
 ```
-## Code Testing
-
-
-```{r}
-
-# Load ggplot2 library
-library(ggplot2)
-
-# Create scatterplots with lines of best fit for each Lake/Reservoir
-ggplot(long, aes(x = `Distance (m)`, y = CHLa_mean)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
-  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
-  labs(x = "Distance (m)", y = "CHLa_mean", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
-  theme_minimal()
-
-```
-
-
-```{r}
-
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model and R-squared for each Lake/Reservoir
-model_data <- long %>%
-  group_by(`Lake/Reservoir`) %>%
-  summarize(
-    intercept = coef(lm(CHLa_mean ~ `Distance (m)`))[1],
-    slope = coef(lm(CHLa_mean ~ `Distance (m)`))[2],
-    r_squared = summary(lm(CHLa_mean ~ `Distance (m)`))$r.squared
-  )
-
-# Create a label with the equation and R^2 for each Lake/Reservoir
-model_data <- model_data %>%
-  mutate(label = paste0("y = ", round(intercept, 2), " + ", round(slope, 2), "x\nR² = ", round(r_squared, 2)))
-
-# Plot with annotations for each Lake/Reservoir
-ggplot(long, aes(x = `Distance (m)`, y = CHLa_mean)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
-  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
-  labs(x = "Distance (m)", y = "CHLa_mean", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
-  theme_minimal() +
-  geom_text(
-    data = model_data,
-    aes(x = Inf, y = Inf, label = label),
-    hjust = 1.1, vjust = 1.5,
-    inherit.aes = FALSE,
-    size = 3,
-    color = "black"
-  )
-
-
-```
 
 ## Mean CHLa Regressions
 
 ```{r}
 
-# Load necessary libraries
 library(ggplot2)
 library(dplyr)
 
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   summarize(
@@ -127,11 +69,6 @@ ggplot(long, aes(x = `Distance (m)`, y = CHLa_mean)) +
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   summarize(
@@ -167,15 +104,49 @@ ggplot(long, aes(x = `Distance (m)`, y = CHLa_median)) +
 
 ```
 
+## CHLa Slope Regression
+
+```{r}
+
+model_data <- long %>%
+  group_by(`Lake/Reservoir`) %>% 
+  filter(!all(is.na(CHLa_slope)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
+  summarize(
+    intercept = coef(lm(CHLa_slope ~ `Distance (m)`))[1],
+    slope = coef(lm(CHLa_slope ~ `Distance (m)`))[2],
+    r_squared = summary(lm(CHLa_slope ~ `Distance (m)`))$r.squared,
+    p_value = summary(lm(CHLa_slope ~ `Distance (m)`))$coefficients[2, 4]  # p-value for the slope
+  )
+
+# Create a label with the equation, R², and p-value for each Lake/Reservoir
+model_data <- model_data %>%
+  mutate(label = paste0("y = ", round(slope, 6), "x + ", round(intercept, 2), "\n",
+                        "R² = ", round(r_squared, 2), "\n",
+                        "p = ", round(p_value, 4)))
+
+# Plot with annotations for each Lake/Reservoir
+ggplot(long, aes(x = `Distance (m)`, y = CHLa_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
+  labs(x = "Distance (m)", y = "CHLa_slope", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
+  theme_minimal() +
+  geom_text(
+    data = model_data,
+    aes(x = Inf, y = Inf, label = label),
+    hjust = 1.1, vjust = 1.5,
+    inherit.aes = FALSE,
+    size = 3,
+    color = "black"
+  )
+
+
+```
+
 ## Mean DIN Regressions
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(DIN_mean)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -215,11 +186,6 @@ ggplot(long, aes(x = `Distance (m)`, y = DIN_mean)) +
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(DIN_median)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -255,16 +221,49 @@ ggplot(long, aes(x = `Distance (m)`, y = DIN_median)) +
 
 ```
 
+## DIN Slope Regression
+
+```{r}
+
+model_data <- long %>%
+  group_by(`Lake/Reservoir`) %>% 
+  filter(!all(is.na(DIN_slope)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
+  summarize(
+    intercept = coef(lm(DIN_slope ~ `Distance (m)`))[1],
+    slope = coef(lm(DIN_slope ~ `Distance (m)`))[2],
+    r_squared = summary(lm(DIN_slope ~ `Distance (m)`))$r.squared,
+    p_value = summary(lm(DIN_slope ~ `Distance (m)`))$coefficients[2, 4]  # p-value for the slope
+  )
+
+# Create a label with the equation, R², and p-value for each Lake/Reservoir
+model_data <- model_data %>%
+  mutate(label = paste0("y = ", round(slope, 6), "x + ", round(intercept, 2), "\n",
+                        "R² = ", round(r_squared, 2), "\n",
+                        "p = ", round(p_value, 4)))
+
+# Plot with annotations for each Lake/Reservoir
+ggplot(long, aes(x = `Distance (m)`, y = DIN_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
+  labs(x = "Distance (m)", y = "DIN_slope", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
+  theme_minimal() +
+  geom_text(
+    data = model_data,
+    aes(x = Inf, y = Inf, label = label),
+    hjust = 1.1, vjust = 1.5,
+    inherit.aes = FALSE,
+    size = 3,
+    color = "black"
+  )
+
+
+```
 
 ## Mean Total Nitrogen Regressions
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(N_mean)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -304,11 +303,6 @@ ggplot(long, aes(x = `Distance (m)`, y = N_mean)) +
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(N_median)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -344,15 +338,51 @@ ggplot(long, aes(x = `Distance (m)`, y = N_median)) +
 
 ```
 
+
+## Total Nitrogen Slope Regression
+
+```{r}
+
+model_data <- long %>%
+  group_by(`Lake/Reservoir`) %>% 
+  filter(!all(is.na(N_slope)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
+  summarize(
+    intercept = coef(lm(N_slope ~ `Distance (m)`))[1],
+    slope = coef(lm(N_slope ~ `Distance (m)`))[2],
+    r_squared = summary(lm(N_slope ~ `Distance (m)`))$r.squared,
+    p_value = summary(lm(N_slope ~ `Distance (m)`))$coefficients[2, 4]  # p-value for the slope
+  )
+
+# Create a label with the equation, R², and p-value for each Lake/Reservoir
+model_data <- model_data %>%
+  mutate(label = paste0("y = ", round(slope, 6), "x + ", round(intercept, 2), "\n",
+                        "R² = ", round(r_squared, 2), "\n",
+                        "p = ", round(p_value, 4)))
+
+# Plot with annotations for each Lake/Reservoir
+ggplot(long, aes(x = `Distance (m)`, y = N_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
+  labs(x = "Distance (m)", y = "N_slope", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
+  theme_minimal() +
+  geom_text(
+    data = model_data,
+    aes(x = Inf, y = Inf, label = label),
+    hjust = 1.1, vjust = 1.5,
+    inherit.aes = FALSE,
+    size = 3,
+    color = "black"
+  )
+
+
+```
+
+
 ## Mean Total Phosphorous Regressions
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(P_mean)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -393,11 +423,7 @@ ggplot(long, aes(x = `Distance (m)`, y = P_mean)) +
 
 
 ```{r}
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
 
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(P_median)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -433,16 +459,49 @@ ggplot(long, aes(x = `Distance (m)`, y = P_median)) +
 
 ```
 
+## Total Phosphorous Slope Regression
+
+```{r}
+
+model_data <- long %>%
+  group_by(`Lake/Reservoir`) %>% 
+  filter(!all(is.na(P_slope)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
+  summarize(
+    intercept = coef(lm(P_slope ~ `Distance (m)`))[1],
+    slope = coef(lm(P_slope ~ `Distance (m)`))[2],
+    r_squared = summary(lm(P_slope ~ `Distance (m)`))$r.squared,
+    p_value = summary(lm(P_slope ~ `Distance (m)`))$coefficients[2, 4]  # p-value for the slope
+  )
+
+# Create a label with the equation, R², and p-value for each Lake/Reservoir
+model_data <- model_data %>%
+  mutate(label = paste0("y = ", round(slope, 6), "x + ", round(intercept, 2), "\n",
+                        "R² = ", round(r_squared, 2), "\n",
+                        "p = ", round(p_value, 4)))
+
+# Plot with annotations for each Lake/Reservoir
+ggplot(long, aes(x = `Distance (m)`, y = P_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
+  labs(x = "Distance (m)", y = "P_slope", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
+  theme_minimal() +
+  geom_text(
+    data = model_data,
+    aes(x = Inf, y = Inf, label = label),
+    hjust = 1.1, vjust = 1.5,
+    inherit.aes = FALSE,
+    size = 3,
+    color = "black"
+  )
+
+
+```
 
 ## Mean Sechhi Depth Regressions
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(Secchi_mean)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -483,11 +542,6 @@ ggplot(long, aes(x = `Distance (m)`, y = Secchi_mean)) +
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(Secchi_median)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -524,15 +578,50 @@ ggplot(long, aes(x = `Distance (m)`, y = Secchi_median)) +
 ```
 
 
+## Secchi Slope Regression
+
+```{r}
+
+model_data <- long %>%
+  group_by(`Lake/Reservoir`) %>% 
+  filter(!all(is.na(Secchi_slope)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
+  summarize(
+    intercept = coef(lm(Secchi_slope ~ `Distance (m)`))[1],
+    slope = coef(lm(Secchi_slope ~ `Distance (m)`))[2],
+    r_squared = summary(lm(Secchi_slope ~ `Distance (m)`))$r.squared,
+    p_value = summary(lm(Secchi_slope ~ `Distance (m)`))$coefficients[2, 4]  # p-value for the slope
+  )
+
+# Create a label with the equation, R², and p-value for each Lake/Reservoir
+model_data <- model_data %>%
+  mutate(label = paste0("y = ", round(slope, 6), "x + ", round(intercept, 2), "\n",
+                        "R² = ", round(r_squared, 2), "\n",
+                        "p = ", round(p_value, 4)))
+
+# Plot with annotations for each Lake/Reservoir
+ggplot(long, aes(x = `Distance (m)`, y = Secchi_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
+  labs(x = "Distance (m)", y = "Secchi_slope", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
+  theme_minimal() +
+  geom_text(
+    data = model_data,
+    aes(x = Inf, y = Inf, label = label),
+    hjust = 1.1, vjust = 1.5,
+    inherit.aes = FALSE,
+    size = 3,
+    color = "black"
+  )
+
+
+
+```
+
 ## Mean TSS Regressions
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(TSS_mean)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -572,11 +661,6 @@ ggplot(long, aes(x = `Distance (m)`, y = TSS_mean)) +
 
 ```{r}
 
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-
-# Calculate linear model, R-squared, and p-value for each Lake/Reservoir
 model_data <- long %>%
   group_by(`Lake/Reservoir`) %>%
   filter(!all(is.na(TSS_median)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
@@ -599,6 +683,45 @@ ggplot(long, aes(x = `Distance (m)`, y = TSS_median)) +
   geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
   facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
   labs(x = "Distance (m)", y = "TSS_median", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
+  theme_minimal() +
+  geom_text(
+    data = model_data,
+    aes(x = Inf, y = Inf, label = label),
+    hjust = 1.1, vjust = 1.5,
+    inherit.aes = FALSE,
+    size = 3,
+    color = "black"
+  )
+
+
+```
+
+## TSS Slope Regression
+
+```{r}
+
+model_data <- long %>%
+  group_by(`Lake/Reservoir`) %>% 
+  filter(!all(is.na(TSS_slope)) & !all(is.na(`Distance (m)`))) %>%  # Ensure there's data to model
+  summarize(
+    intercept = coef(lm(TSS_slope ~ `Distance (m)`))[1],
+    slope = coef(lm(TSS_slope ~ `Distance (m)`))[2],
+    r_squared = summary(lm(TSS_slope ~ `Distance (m)`))$r.squared,
+    p_value = summary(lm(TSS_slope ~ `Distance (m)`))$coefficients[2, 4]  # p-value for the slope
+  )
+
+# Create a label with the equation, R², and p-value for each Lake/Reservoir
+model_data <- model_data %>%
+  mutate(label = paste0("y = ", round(slope, 6), "x + ", round(intercept, 2), "\n",
+                        "R² = ", round(r_squared, 2), "\n",
+                        "p = ", round(p_value, 4)))
+
+# Plot with annotations for each Lake/Reservoir
+ggplot(long, aes(x = `Distance (m)`, y = TSS_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  facet_wrap(~ `Lake/Reservoir`, scales = "free") +         # Separate plot for each lake/reservoir
+  labs(x = "Distance (m)", y = "TSS_slope", title = "Scatterplots with Best Fit Lines for Each Lake/Reservoir") +
   theme_minimal() +
   geom_text(
     data = model_data,
