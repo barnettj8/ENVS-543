@@ -4,7 +4,18 @@ format: html
 editor: visual
 ---
 
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  warning = FALSE,   # Suppress warnings
+  message = FALSE    # Suppress messages
+)
+
+```
+
 ## Question 1
+
+Look up the library GGally; it has a function named ggpairs(). Use that function to plot the atmospheric data from the Rice Rivers Center for the samples collected from 10 February to 15 February.
 
 ```{r}
 
@@ -39,6 +50,8 @@ ggpairs(
 ```
   
 ## Question 2
+
+For those atmospheric data, which pair of variables has the strongest correlation? What is the 95% confidence interval on that correlation coefficient?
   
 ```{r}
 
@@ -67,6 +80,8 @@ cat("95% confidence interval:", cor_test_result$conf.int[1], "to", cor_test_resu
 ```
 
 ## Question 3
+
+Using the first 40 observations in air temperature and barometric pressure from the Rice Center data set, determine if they are individually distributed as normal random variables. 
 
 ```{r}
 
@@ -100,15 +115,22 @@ The Shapiro-Wilk test indicates that AirTemp is likely normally distributed (p =
 
 ## Question 4
 
+Given your findings in the last question, what kind of correlation statistic would be most appropriate for estimating the correlation between this subset of data?
+
 Given that AirTemp appears to be normally distributed but BP_HG does not, a non-parametric correlation statistic would be most appropriate. Specifically, the Spearman rank correlation or Kendall's tau would be suitable choices, as they do not assume normality and are robust to non-normal distributions.
 
 ## Question 5
+
+Look at a qqnorm() plot of the barometric pressure data you used in the previous example. Is there something that "looks" odd with these data? Explain why those data are the way they are.
+
 
 In the Q-Q plot for BP_HG (barometric pressure data), there’s an unusual pattern where all the points fall on a straight vertical line, indicating that all values are nearly identical or have very little variability. This is unusual because, in typical data, you would expect some spread in the quantiles.
 
 This pattern suggests that the BP_HG data might be nearly constant, possibly due to measurement limitations, a data entry error, or because it was recorded during a period with very stable atmospheric conditions, leading to almost identical barometric pressure readings. This lack of variability is likely why the Shapiro-Wilk test flagged BP_HG as non-normal—it essentially behaves like a single value, which does not conform to a normal distribution.
   
 ## Question 6
+
+Using a permutation approach, define the distribution of correlation values between the variables in #3, assuming that the NULL hypothesis is true. Plot these as a histogram and include the observed correlation. 
 
 ```{r}
 
