@@ -1,0 +1,61 @@
+---
+title: "regression hw"
+format: html
+editor: visual
+---
+
+
+## Question 1
+
+Look up the library GGally; it has a function named ggpairs(). Use that function to plot the atmospheric data from the Rice Rivers Center for the samples collected from 10 February to 15 February.
+
+```{r}
+
+library(tidyverse)
+
+library(ggplot2)
+
+library(GGally)
+
+library(lubridate)
+
+source("get_rice_data.R")
+
+data <- getRiceData()
+
+```
+
+```{r}
+
+data$Date <- ymd_hms(data$Date)
+
+atmdf <- data |>
+  filter(month(Date) == 2 & day(Date) >= 10 & day(Date) <= 15) |>
+  select(AirTemp, Rain_m, BP_HG, RelHumidity)
+
+ggpairs(
+  data = atmdf,
+  columns = 1:ncol(atmdf)) 
+
+```
+
+## Question 2
+
+For those atmospheric data, which pair of variables has the strongest correlation? What is the 95% confidence interval on that correlation coefficient?
+  
+```{r}
+
+# Calculate correlation matrix for the variables in atmdf
+cor_matrix <- cor(atmdf, use = "complete.obs")
+
+# Convert the correlation matrix to a data frame for easier identification of the strongest correlation
+library(dplyr)
+cor_df <- as.data.frame(as.table(cor_matrix)) %>%
+  filter(Var1 != Var2) %>% # Remove diagonal (self-correlations)
+  mutate(abs_correlation = abs(Freq)) %>% # Take absolute value of correlations
+  arrange(desc(abs_correlation))
+
+...
+
+```
+

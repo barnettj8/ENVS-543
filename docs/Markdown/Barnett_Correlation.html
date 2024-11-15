@@ -117,7 +117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>atmdf <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">month</span>(Date) <span class="sc">==</span> <span class="dv">2</span> <span class="sc">&amp;</span> <span class="fu">day</span>(Date) <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">&amp;</span> <span class="fu">day</span>(Date) <span class="sc">&lt;=</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(AirTemp, Rain_m, WindDir, BP_HG, RelHumidity)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(AirTemp, Rain_m, WindDir, BP_HG, RelHumidity, WindSpeed_kph)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> atmdf,</span>
@@ -138,22 +138,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate correlation matrix for the variables in atmdf</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>cor_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(atmdf, <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the correlation matrix to a data frame for easier identification of the strongest correlation</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>cor_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.table</span>(cor_matrix)) <span class="sc">%&gt;%</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Var1 <span class="sc">!=</span> Var2) <span class="sc">%&gt;%</span> <span class="co"># Remove diagonal (self-correlations)</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">abs_correlation =</span> <span class="fu">abs</span>(Freq)) <span class="sc">%&gt;%</span> <span class="co"># Take absolute value of correlations</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(abs_correlation)) <span class="co"># Sort by absolute correlation</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify the pair with the strongest correlation</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>strongest_pair <span class="ot">&lt;-</span> cor_df[<span class="dv">1</span>, <span class="fu">c</span>(<span class="st">"Var1"</span>, <span class="st">"Var2"</span>)]</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>strongest_corr_value <span class="ot">&lt;-</span> cor_df[<span class="dv">1</span>, <span class="st">"Freq"</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>cor_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.table</span>(cor_matrix)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Var1 <span class="sc">!=</span> Var2) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">abs_correlation =</span> <span class="fu">abs</span>(Freq)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(abs_correlation)) </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>strongest_pair <span class="ot">&lt;-</span> cor_df[<span class="dv">1</span>, <span class="fu">c</span>(<span class="st">"Var1"</span>, <span class="st">"Var2"</span>)]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>strongest_corr_value <span class="ot">&lt;-</span> cor_df[<span class="dv">1</span>, <span class="st">"Freq"</span>]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>cor_test_result <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(atmdf[[strongest_pair<span class="sc">$</span>Var1]], atmdf[[strongest_pair<span class="sc">$</span>Var2]])</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate 95% confidence interval for the strongest correlation</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>cor_test_result <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(atmdf[[strongest_pair<span class="sc">$</span>Var1]], atmdf[[strongest_pair<span class="sc">$</span>Var2]])</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the results</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The strongest correlation is between"</span>, strongest_pair<span class="sc">$</span>Var1, <span class="st">"and"</span>, strongest_pair<span class="sc">$</span>Var2, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The strongest correlation is between"</span>, strongest_pair<span class="sc">$</span>Var1, <span class="st">"and"</span>, strongest_pair<span class="sc">$</span>Var2, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>The strongest correlation is between 4 and 1 </code></pre>
 </div>
@@ -174,8 +170,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset the first 40 observations of AirTemp and BP_HG</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sample_data <span class="ot">&lt;-</span> data[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>, ]</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Visual check with Q-Q plots</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))  <span class="co"># Set up a 1x2 plot layout</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(sample_data<span class="sc">$</span>AirTemp, <span class="at">main =</span> <span class="st">"Q-Q Plot of AirTemp"</span>)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(sample_data<span class="sc">$</span>AirTemp, <span class="at">col =</span> <span class="st">"red"</span>)</span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
@@ -188,12 +184,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Statistical check with Shapiro-Wilk test</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>shapiro_test_AirTemp <span class="ot">&lt;-</span> <span class="fu">shapiro.test</span>(sample_data<span class="sc">$</span>AirTemp)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>shapiro_test_BP_HG <span class="ot">&lt;-</span> <span class="fu">shapiro.test</span>(sample_data<span class="sc">$</span>BP_HG)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Print Shapiro-Wilk test results</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Shapiro-Wilk test for AirTemp:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>shapiro_test_AirTemp <span class="ot">&lt;-</span> <span class="fu">shapiro.test</span>(sample_data<span class="sc">$</span>AirTemp)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>shapiro_test_BP_HG <span class="ot">&lt;-</span> <span class="fu">shapiro.test</span>(sample_data<span class="sc">$</span>BP_HG)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Shapiro-Wilk test for AirTemp:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Shapiro-Wilk test for AirTemp:</code></pre>
 </div>
@@ -219,18 +213,18 @@ data:  sample_data$BP_HG
 W = 0.89733, p-value = 0.001601</code></pre>
 </div>
 </div>
-<p>The Shapiro-Wilk test indicates that AirTemp is likely normally distributed (p = 0.2031), as we do not reject the null hypothesis of normality. However, BP_HG is not normally distributed (p = 0.0016), as the test shows a significant deviation from normality. Thus, normality-based analyses may be appropriate for AirTemp but not for BP_HG.</p>
+<p>The Shapiro-Wilk test indicates that AirTemp is likely normally distributed (p = 0.2031), as we do not reject the null hypothesis of normality. However, BP_HG is not normally distributed (p = 0.0016), as the test shows a significant deviation from normality.</p>
 </section>
 <section id="question-4" class="level2">
 <h2 class="anchored" data-anchor-id="question-4">Question 4</h2>
 <p>Given your findings in the last question, what kind of correlation statistic would be most appropriate for estimating the correlation between this subset of data?</p>
-<p>Given that AirTemp appears to be normally distributed but BP_HG does not, a non-parametric correlation statistic would be most appropriate. Specifically, the Spearman rank correlation or Kendall’s tau would be suitable choices, as they do not assume normality and are robust to non-normal distributions.</p>
+<p>Given that AirTemp appears to be normally distributed but BP_HG does not, a non-parametric correlation statistic would be most appropriate. The Spearman rank correlation could be a suitable choice, as it doesn’t assume normality.</p>
 </section>
 <section id="question-5" class="level2">
 <h2 class="anchored" data-anchor-id="question-5">Question 5</h2>
 <p>Look at a qqnorm() plot of the barometric pressure data you used in the previous example. Is there something that “looks” odd with these data? Explain why those data are the way they are.</p>
-<p>In the Q-Q plot for BP_HG (barometric pressure data), there’s an unusual pattern where all the points fall on a straight vertical line, indicating that all values are nearly identical or have very little variability. This is unusual because, in typical data, you would expect some spread in the quantiles.</p>
-<p>This pattern suggests that the BP_HG data might be nearly constant, possibly due to measurement limitations, a data entry error, or because it was recorded during a period with very stable atmospheric conditions, leading to almost identical barometric pressure readings. This lack of variability is likely why the Shapiro-Wilk test flagged BP_HG as non-normal—it essentially behaves like a single value, which does not conform to a normal distribution.</p>
+<p>In the Q-Q plot for BP_HG, there’s an unusual pattern where all the points fall on a straight vertical line, indicating that all values are nearly identical. This is unusual because, in typical data, you would expect more spread in the values</p>
+<p>This pattern suggests that the BP_HG data might be nearly constant, possibly due to measurement limitations, a data entry error, or because it was recorded during a period with very stable atmospheric conditions, leading to almost identical barometric pressure readings. This lack of variability is likely why the Shapiro-Wilk test flagged BP_HG as non-normal.</p>
 </section>
 <section id="question-6" class="level2">
 <h2 class="anchored" data-anchor-id="question-6">Question 6</h2>
@@ -238,27 +232,21 @@ W = 0.89733, p-value = 0.001601</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># For reproducibility</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Calculate the observed correlation</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>observed_corr <span class="ot">&lt;-</span> <span class="fu">cor</span>(sample_data<span class="sc">$</span>AirTemp, sample_data<span class="sc">$</span>BP_HG, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2-4: Permutation test</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>n_permutations <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>permuted_corrs <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_permutations)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_permutations) {</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Permute BP_HG values</span></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  permuted_BP_HG <span class="ot">&lt;-</span> <span class="fu">sample</span>(sample_data<span class="sc">$</span>BP_HG)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the correlation with AirTemp</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  permuted_corrs[i] <span class="ot">&lt;-</span> <span class="fu">cor</span>(sample_data<span class="sc">$</span>AirTemp, permuted_BP_HG, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5: Plot the distribution</span></span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(permuted_corrs, <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">main =</span> <span class="st">"Permutation Distribution of Correlation (Null Hypothesis)"</span>,</span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Correlation"</span>, <span class="at">xlim =</span> <span class="fu">range</span>(<span class="fu">c</span>(permuted_corrs, observed_corr)), <span class="at">col =</span> <span class="st">"lightblue"</span>, <span class="at">border =</span> <span class="st">"black"</span>)</span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> observed_corr, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Observed Correlation ="</span>, <span class="fu">round</span>(observed_corr, <span class="dv">3</span>)),</span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>observed_corr <span class="ot">&lt;-</span> <span class="fu">cor</span>(sample_data<span class="sc">$</span>AirTemp, sample_data<span class="sc">$</span>BP_HG, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>n_permutations <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>permuted_corrs <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_permutations)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_permutations) {</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  permuted_BP_HG <span class="ot">&lt;-</span> <span class="fu">sample</span>(sample_data<span class="sc">$</span>BP_HG)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  permuted_corrs[i] <span class="ot">&lt;-</span> <span class="fu">cor</span>(sample_data<span class="sc">$</span>AirTemp, permuted_BP_HG, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(permuted_corrs, <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">main =</span> <span class="st">"Permutation Distribution of Correlation (Null Hypothesis)"</span>,</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Correlation"</span>, <span class="at">xlim =</span> <span class="fu">range</span>(<span class="fu">c</span>(permuted_corrs, observed_corr)), <span class="at">col =</span> <span class="st">"lightblue"</span>, <span class="at">border =</span> <span class="st">"black"</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> observed_corr, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="st">"Observed Correlation ="</span>, <span class="fu">round</span>(observed_corr, <span class="dv">3</span>)),</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
