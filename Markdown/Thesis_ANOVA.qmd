@@ -1,5 +1,5 @@
 ---
-title: "Thesis ANOVA"
+title: "Thesis Lake Comparisons/Anovas"
 format: html
 editor: visual
 ---
@@ -24,6 +24,63 @@ anovaurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQITosV0R3R05ian-EG
 thes <- read_csv(anovaurl)
 
 ```
+
+## KD Comparison By Lakes
+
+```{r}
+
+library(ggplot2)
+
+# Create the box-and-whisker plot grouped by Lake
+ggplot(thes, aes(x = Lake, y = kd)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = "Light Attenuation (kd) by Lake",
+    x = "Lake",
+    y = "kd"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  )
+
+
+```
+
+
+```{r}
+
+library(ggplot2)
+library(multcompView)  # For Tukey HSD visualizations
+
+# Perform Tukey HSD test
+tukey_results <- TukeyHSD(aov(kd ~ Lake, data = thes))$Lake
+
+# Convert to a data frame
+tukey_df <- as.data.frame(tukey_results)
+tukey_df$Comparison <- rownames(tukey_df)
+
+# Add a column for significance
+tukey_df$Significant <- tukey_df$`p adj` < 0.05
+
+# Plot Tukey HSD results
+ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +  # Flip the axes for better readability
+  labs(
+    title = "Tukey HSD Results: kd by Lake",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
+                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
+  theme(legend.position = "bottom")
+
+```
+
+## Predictor Comparison By Lake
 
 ```{r}
 
@@ -193,4 +250,60 @@ ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = S
 
 
 ```
+
+## Regression Analysis
+
+AIC
+
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the full dataset and predictors
+response <- "kd"
+predictors <- c("CDOM_ab", "TSS", "CHLa_Corrected")
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+# Fit models for each combination and calculate AIC
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Create the formula for the current combination of predictors
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  # Fit the linear model
+  model <- lm(formula, data = thes)
+  
+  # Return the model, predictors, and AIC
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+# Convert results to a dataframe for easier analysis
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model (difference from the minimum AIC)
+results_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+print(results_df)
+
+```
+
 
