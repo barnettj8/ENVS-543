@@ -1,0 +1,401 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+
+```{r}
+library(tidyverse)
+
+url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQC8V8v0yeGHO-Ojzlf2jPfzfEoXLJPmX2ii_U2-kjh3ulpj1zAv1mhja2CYrKDm0UoT2TLlPiwqeiU/pub?gid=1048641840&single=true&output=csv"
+
+long <- read_csv(url)
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+# Filter data for Smith Mtn. Lake (Blackwater River)
+smith_mtn_data <- long %>%
+  filter(`Lake/Reservoir` == "Smith Mtn. Lake (Blackwater River)")
+
+# Perform regression for Smith Mtn. Lake (Blackwater River)
+model_smith_mtn <- lm(CHLa_mean ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the regression
+intercept <- coef(model_smith_mtn)[1]
+slope <- coef(model_smith_mtn)[2]
+r_squared <- summary(model_smith_mtn)$r.squared
+p_value <- summary(model_smith_mtn)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label
+label_smith_mtn <- paste0("y = ", round(slope, 4), "x ", "+ ", round(intercept, 2), "\n",
+                          "R² = ", round(r_squared, 2), "\n",
+                          "p = ", round(p_value, 4))
+
+# Plot for Smith Mtn. Lake (Blackwater River) with the regression line and annotation
+ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = CHLa_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  labs(x = "Distance (m)", y = "CHLa_mean", title = "Mean CHLa Regression for Smith Mtn. Lake (Blackwater River)") +
+  theme_minimal() +
+  geom_text(
+    aes(x = Inf, y = Inf, label = label_smith_mtn),
+    hjust = 1.1, vjust = 1.5,
+    size = 3,
+    color = "black"
+  )
+
+
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+# Filter data for Smith Mtn. Lake (Blackwater River)
+smith_mtn_data <- long %>%
+  filter(`Lake/Reservoir` == "Smith Mtn. Lake (Blackwater River)")
+
+# Perform regression for Smith Mtn. Lake (Blackwater River)
+model_smith_mtn <- lm(N_mean ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the regression
+intercept <- coef(model_smith_mtn)[1]
+slope <- coef(model_smith_mtn)[2]
+r_squared <- summary(model_smith_mtn)$r.squared
+p_value <- summary(model_smith_mtn)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label
+label_smith_mtn <- paste0("y = ", round(slope, 4), "x ", "+ ", round(intercept, 2), "\n",
+                          "R² = ", round(r_squared, 2), "\n",
+                          "p = ", round(p_value, 4))
+
+# Plot for Smith Mtn. Lake (Blackwater River) with the regression line and annotation
+ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = N_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  labs(x = "Distance (m)", y = "N_mean", title = "Mean N Regression for Smith Mtn. Lake (Blackwater River)") +
+  theme_minimal() +
+  geom_text(
+    aes(x = Inf, y = Inf, label = label_smith_mtn),
+    hjust = 1.1, vjust = 1.5,
+    size = 3,
+    color = "black"
+  )
+
+
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+# Filter data for Smith Mtn. Lake (Blackwater River)
+smith_mtn_data <- long %>%
+  filter(`Lake/Reservoir` == "Smith Mtn. Lake (Blackwater River)")
+
+# Perform regression for Smith Mtn. Lake (Blackwater River)
+model_smith_mtn <- lm(P_mean ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the regression
+intercept <- coef(model_smith_mtn)[1]
+slope <- coef(model_smith_mtn)[2]
+r_squared <- summary(model_smith_mtn)$r.squared
+p_value <- summary(model_smith_mtn)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label
+label_smith_mtn <- paste0("y = ", round(slope, 4), "x ", "+ ", round(intercept, 2), "\n",
+                          "R² = ", round(r_squared, 2), "\n",
+                          "p = ", round(p_value, 4))
+
+# Plot for Smith Mtn. Lake (Blackwater River) with the regression line and annotation
+ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = P_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  labs(x = "Distance (m)", y = "P_mean", title = "Mean P Regression for Smith Mtn. Lake (Blackwater River)") +
+  theme_minimal() +
+  geom_text(
+    aes(x = Inf, y = Inf, label = label_smith_mtn),
+    hjust = 1.1, vjust = 1.5,
+    size = 3,
+    color = "black"
+  )
+
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Filter data for Smith Mtn. Lake (Blackwater River)
+smith_mtn_data <- long %>%
+  filter(`Lake/Reservoir` == "Smith Mtn. Lake (Blackwater River)")
+
+# Perform regression for Smith Mtn. Lake (Blackwater River)
+model_smith_mtn <- lm(CHLa_slope ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the regression
+intercept <- coef(model_smith_mtn)[1]
+slope <- coef(model_smith_mtn)[2]
+r_squared <- summary(model_smith_mtn)$r.squared
+p_value <- summary(model_smith_mtn)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label
+label_smith_mtn <- paste0("y = ", round(slope, 4), "x ", "+ ", round(intercept, 2), "\n",
+                          "R² = ", round(r_squared, 2), "\n",
+                          "p = ", round(p_value, 4))
+
+# Plot for Smith Mtn. Lake (Blackwater River) with the regression line and annotation
+ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = CHLa_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  labs(x = "Distance (m)", y = "CHLa_slope", title = "CHLa_slope Regression for Smith Mtn. Lake (Blackwater River)") +
+  theme_minimal() +
+  geom_text(
+    aes(x = Inf, y = Inf, label = label_smith_mtn),
+    hjust = 1.1, vjust = 1.5,
+    size = 3,
+    color = "black"
+  )
+
+```
+
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+# Filter data for Smith Mtn. Lake (Blackwater River)
+smith_mtn_data <- long %>%
+  filter(`Lake/Reservoir` == "Smith Mtn. Lake (Blackwater River)")
+
+# Perform regression for Smith Mtn. Lake (Blackwater River)
+model_smith_mtn <- lm(N_slope ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the regression
+intercept <- coef(model_smith_mtn)[1]
+slope <- coef(model_smith_mtn)[2]
+r_squared <- summary(model_smith_mtn)$r.squared
+p_value <- summary(model_smith_mtn)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label
+label_smith_mtn <- paste0("y = ", round(slope, 4), "x ", "+ ", round(intercept, 2), "\n",
+                          "R² = ", round(r_squared, 2), "\n",
+                          "p = ", round(p_value, 4))
+
+# Plot for Smith Mtn. Lake (Blackwater River) with the regression line and annotation
+ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = N_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  labs(x = "Distance (m)", y = "N_slope", title = "N_slope Regression for Smith Mtn. Lake (Blackwater River)") +
+  theme_minimal() +
+  geom_text(
+    aes(x = Inf, y = Inf, label = label_smith_mtn),
+    hjust = 1.1, vjust = 1.5,
+    size = 3,
+    color = "black"
+  )
+
+```
+
+```{r}
+ 
+library(ggplot2)
+library(dplyr)
+
+# Filter data for Smith Mtn. Lake (Blackwater River)
+smith_mtn_data <- long %>%
+  filter(`Lake/Reservoir` == "Smith Mtn. Lake (Blackwater River)")
+
+# Perform regression for Smith Mtn. Lake (Blackwater River)
+model_smith_mtn <- lm(P_slope ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the regression
+intercept <- coef(model_smith_mtn)[1]
+slope <- coef(model_smith_mtn)[2]
+r_squared <- summary(model_smith_mtn)$r.squared
+p_value <- summary(model_smith_mtn)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label
+label_smith_mtn <- paste0("y = ", round(slope, 4), "x ", "+ ", round(intercept, 2), "\n",
+                          "R² = ", round(r_squared, 2), "\n",
+                          "p = ", round(p_value, 4))
+
+# Plot for Smith Mtn. Lake (Blackwater River) with the regression line and annotation
+ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = P_slope)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Line of best fit
+  labs(x = "Distance (m)", y = "P_slope", title = "P_slope Regression for Smith Mtn. Lake (Blackwater River)") +
+  theme_minimal() +
+  geom_text(
+    aes(x = Inf, y = Inf, label = label_smith_mtn),
+    hjust = 1.1, vjust = 1.5,
+    size = 3,
+    color = "black"
+  )
+
+```
+
+
+
+
+
+
+
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+library(gridExtra)  # This package helps to arrange multiple plots
+
+# Filter data for Smith Mtn. Lake (Blackwater River)
+smith_mtn_data <- long %>%
+  filter(`Lake/Reservoir` == "Smith Mtn. Lake (Blackwater River)")
+
+# Perform regression for CHLa_mean
+model_chla <- lm(CHLa_mean ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the CHLa_mean regression
+intercept_chla <- coef(model_chla)[1]
+slope_chla <- coef(model_chla)[2]
+r_squared_chla <- summary(model_chla)$r.squared
+p_value_chla <- summary(model_chla)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label for CHLa_mean
+label_chla <- paste0("y = ", round(slope_chla, 4), "x ", "+ ", round(intercept_chla, 2), "\n",
+                     "R² = ", round(r_squared_chla, 2), "\n",
+                     "p = ", round(p_value_chla, 4))
+
+# Perform regression for N_mean
+model_n <- lm(N_mean ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the N_mean regression
+intercept_n <- coef(model_n)[1]
+slope_n <- coef(model_n)[2]
+r_squared_n <- summary(model_n)$r.squared
+p_value_n <- summary(model_n)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label for N_mean
+label_n <- paste0("y = ", round(slope_n, 4), "x ", "+ ", round(intercept_n, 2), "\n",
+                  "R² = ", round(r_squared_n, 2), "\n",
+                  "p = ", round(p_value_n, 4))
+
+# Perform regression for P_mean
+model_p <- lm(P_mean ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the P_mean regression
+intercept_p <- coef(model_p)[1]
+slope_p <- coef(model_p)[2]
+r_squared_p <- summary(model_p)$r.squared
+p_value_p <- summary(model_p)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label for P_mean
+label_p <- paste0("y = ", round(slope_p, 4), "x ", "+ ", round(intercept_p, 2), "\n",
+                  "R² = ", round(r_squared_p, 2), "\n",
+                  "p = ", round(p_value_p, 4))
+
+# Perform regression for CHLa_slope
+model_chla_slope <- lm(CHLa_slope ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the CHLa_slope regression
+intercept_chla_slope <- coef(model_chla_slope)[1]
+slope_chla_slope <- coef(model_chla_slope)[2]
+r_squared_chla_slope <- summary(model_chla_slope)$r.squared
+p_value_chla_slope <- summary(model_chla_slope)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label for CHLa_slope
+label_chla_slope <- paste0("y = ", round(slope_chla_slope, 4), "x ", "+ ", round(intercept_chla_slope, 2), "\n",
+                           "R² = ", round(r_squared_chla_slope, 2), "\n",
+                           "p = ", round(p_value_chla_slope, 4))
+
+# Perform regression for N_slope
+model_n_slope <- lm(N_slope ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the N_slope regression
+intercept_n_slope <- coef(model_n_slope)[1]
+slope_n_slope <- coef(model_n_slope)[2]
+r_squared_n_slope <- summary(model_n_slope)$r.squared
+p_value_n_slope <- summary(model_n_slope)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label for N_slope
+label_n_slope <- paste0("y = ", round(slope_n_slope, 4), "x ", "+ ", round(intercept_n_slope, 2), "\n",
+                        "R² = ", round(r_squared_n_slope, 2), "\n",
+                        "p = ", round(p_value_n_slope, 4))
+
+# Perform regression for P_slope
+model_p_slope <- lm(P_slope ~ `Distance (m)`, data = smith_mtn_data)
+
+# Get coefficients and R² for the P_slope regression
+intercept_p_slope <- coef(model_p_slope)[1]
+slope_p_slope <- coef(model_p_slope)[2]
+r_squared_p_slope <- summary(model_p_slope)$r.squared
+p_value_p_slope <- summary(model_p_slope)$coefficients[2, 4]  # p-value for the slope
+
+# Create the equation label for P_slope
+label_p_slope <- paste0("y = ", round(slope_p_slope, 4), "x ", "+ ", round(intercept_p_slope, 2), "\n",
+                        "R² = ", round(r_squared_p_slope, 2), "\n",
+                        "p = ", round(p_value_p_slope, 4))
+
+# Plot for CHLa_mean
+plot_chla <- ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = CHLa_mean)) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  geom_text(aes(x = Inf, y = Inf, label = label_chla), hjust = 1.1, vjust = 1.5, size = 3, color = "black") +
+  labs(x = "Distance (m)", y = "CHLa_mean", title = "Regression for CHLa_mean (Smith Mtn. Lake)") +
+  theme_minimal()
+
+# Plot for N_mean
+plot_n <- ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = N_mean)) +
+  geom_point(color = "red") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  geom_text(aes(x = Inf, y = Inf, label = label_n), hjust = 1.1, vjust = 2.5, size = 3, color = "black") +
+  labs(x = "Distance (m)", y = "N_mean", title = "Regression for N_mean (Smith Mtn. Lake)") +
+  theme_minimal()
+
+# Plot for P_mean
+plot_p <- ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = P_mean)) +
+  geom_point(color = "green") +
+  geom_smooth(method = "lm", se = FALSE, color = "green") +
+  geom_text(aes(x = Inf, y = Inf, label = label_p), hjust = 1.1, vjust = 2.5, size = 3, color = "black") +
+  labs(x = "Distance (m)", y = "P_mean", title = "Regression for P_mean (Smith Mtn. Lake)") +
+  theme_minimal()
+
+# Plot for CHLa_slope
+plot_chla_slope <- ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = CHLa_slope)) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  geom_text(aes(x = Inf, y = Inf, label = label_chla_slope), hjust = 1.1, vjust = 1.5, size = 3, color = "black") +
+  labs(x = "Distance (m)", y = "CHLa_slope", title = "Regression for CHLa_slope (Smith Mtn. Lake)") +
+  theme_minimal()
+
+# Plot for N_slope
+plot_n_slope <- ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = N_slope)) +
+  geom_point(color = "red") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  geom_text(aes(x = Inf, y = Inf, label = label_n_slope), hjust = 1.1, vjust = 2.5, size = 3, color = "black") +
+  labs(x = "Distance (m)", y = "N_slope", title = "Regression for N_slope (Smith Mtn. Lake)") +
+  theme_minimal()
+
+# Plot for P_slope
+plot_p_slope <- ggplot(smith_mtn_data, aes(x = `Distance (m)`, y = P_slope)) +
+  geom_point(color = "green") +
+  geom_smooth(method = "lm", se = FALSE, color = "green") +
+  geom_text(aes(x = Inf, y = Inf, label = label_p_slope), hjust = 1.1, vjust = 2.5, size = 3, color = "black") +
+  labs(x = "Distance (m)", y = "P_slope", title = "Regression for P_slope (Smith Mtn. Lake)") +
+  theme_minimal()
+
+# Arrange all six plots in a 2x3 grid (2 rows, 3 columns)
+grid.arrange(plot_chla, plot_n, plot_p, plot_chla_slope, plot_n_slope, plot_p_slope, nrow = 2)
+
+
+```
+

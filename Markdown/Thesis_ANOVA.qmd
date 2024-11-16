@@ -1,0 +1,196 @@
+---
+title: "Thesis ANOVA"
+format: html
+editor: visual
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,      # Hide the code
+  warning = FALSE,   # Suppress warnings
+  message = FALSE    # Suppress messages
+)
+
+```
+
+
+```{r}
+
+library(tidyverse)
+
+anovaurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQITosV0R3R05ian-EG4t63j7WrelOlvvPOjiu9PWiiuKqfX-7yNO71oDoHFLGROfyG95oOHh0lIMGi/pub?gid=0&single=true&output=csv"
+
+thes <- read_csv(anovaurl)
+
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# Gather the variables into a long format for easier plotting
+long_data <- thes %>%
+  pivot_longer(cols = c(CDOM_ab, TSS, CHLa_Corrected, CHLa_Uncorrected), 
+               names_to = "Variable", 
+               values_to = "Value") %>%
+  mutate(
+    Variable = factor(
+      Variable,
+      levels = c("CDOM_ab", "TSS", "CHLa_Corrected", "CHLa_Uncorrected") # Set the desired order
+    )
+  )
+
+# Create the combined box-and-whisker plot
+ggplot(long_data, aes(x = Lake, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  facet_wrap(~ Variable, scales = "free_y") +  # Separate plots for each variable
+  labs(
+    title = "CDOM, TSS, Corrected and Uncorrected CHLa by Lake",
+    x = "Lake",
+    y = "Value"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Rotate and shrink x-axis labels
+    strip.text = element_text(size = 10)  # Adjust facet label size
+  )
+
+```
+
+
+
+```{r}
+
+library(ggplot2)
+library(multcompView)  # For Tukey HSD visualizations
+
+# Perform Tukey HSD test
+tukey_results <- TukeyHSD(aov(CDOM_ab ~ Lake, data = thes))$Lake
+
+# Convert to a data frame
+tukey_df <- as.data.frame(tukey_results)
+tukey_df$Comparison <- rownames(tukey_df)
+
+# Add a column for significance
+tukey_df$Significant <- tukey_df$`p adj` < 0.05
+
+# Plot Tukey HSD results
+ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +  # Flip the axes for better readability
+  labs(
+    title = "Tukey HSD Results: CDOM absorbance by Lake",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
+                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
+  theme(legend.position = "bottom")
+
+
+```
+
+
+```{r}
+
+library(ggplot2)
+library(multcompView)  # For Tukey HSD visualizations
+
+# Perform Tukey HSD test
+tukey_results <- TukeyHSD(aov(TSS ~ Lake, data = thes))$Lake
+
+# Convert to a data frame
+tukey_df <- as.data.frame(tukey_results)
+tukey_df$Comparison <- rownames(tukey_df)
+
+# Add a column for significance
+tukey_df$Significant <- tukey_df$`p adj` < 0.05
+
+# Plot Tukey HSD results
+ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +  # Flip the axes for better readability
+  labs(
+    title = "Tukey HSD Results: TSS by Lake",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
+                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
+  theme(legend.position = "bottom")
+
+```
+
+```{r}
+
+library(ggplot2)
+library(multcompView)  # For Tukey HSD visualizations
+
+# Perform Tukey HSD test
+tukey_results <- TukeyHSD(aov(CHLa_Corrected ~ Lake, data = thes))$Lake
+
+# Convert to a data frame
+tukey_df <- as.data.frame(tukey_results)
+tukey_df$Comparison <- rownames(tukey_df)
+
+# Add a column for significance
+tukey_df$Significant <- tukey_df$`p adj` < 0.05
+
+# Plot Tukey HSD results
+ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +  # Flip the axes for better readability
+  labs(
+    title = "Tukey HSD Results: Corrected CHLa by Lake",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
+                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
+  theme(legend.position = "bottom")
+
+```
+
+
+```{r}
+
+library(ggplot2)
+library(multcompView)  # For Tukey HSD visualizations
+
+# Perform Tukey HSD test
+tukey_results <- TukeyHSD(aov(CHLa_Uncorrected ~ Lake, data = thes))$Lake
+
+# Convert to a data frame
+tukey_df <- as.data.frame(tukey_results)
+tukey_df$Comparison <- rownames(tukey_df)
+
+# Add a column for significance
+tukey_df$Significant <- tukey_df$`p adj` < 0.05
+
+# Plot Tukey HSD results
+ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +  # Flip the axes for better readability
+  labs(
+    title = "Tukey HSD Results: Uncorrected CHLa by Lake",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
+                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
+  theme(legend.position = "bottom")
+
+
+```
+
