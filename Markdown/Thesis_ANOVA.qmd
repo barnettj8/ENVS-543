@@ -555,8 +555,11 @@ final_residual_df <- residual_df |>
     prop_kd_CHLa = (kd_CHLa/mean_kd)*100)|>
   select(Site, mean_kd, prop_kd_CDOM, prop_kd_TSS, prop_kd_CHLa)
 
-head(final_residual_df, 12)
+```
+The table below shows the average kd value for each station, along with the percentage of kd that is associated with each variable (CDOM, TSS, CHLa). It should be noted that the effects of CHLa were insignificant as the P-value > 0.05.
 
+```{r}
+head(final_residual_df, 12)
 ```
 
 
