@@ -53,24 +53,66 @@ summary( df.weather )
 Now, I'm going to `merge` these two `data.frame` objects using the common `key` I made `DateTime`.
 
 ```{r}
-merge( df.jfk, df.weather, by="DateTime" ) %>%
+merge( df.jfk, df.weather, by="DateTime" ) |>
   select( -DateTime ) -> df 
 
 summary( df )
 
 ```
 
-ADD AND ABSTRACT
-
-
-
-
-
 
 
 ## Activity
 
 What features of this data set may impact the departure delay for flights coming out of JFK on *ExpressJet* Airlines?
+
+
+## Abstract
+
+This study investigated the factors influencing departure delays for ExpressJet flights departing from JFK airport by performing linear regression analyses. Each variable in the dataset was tested as a potential predictor of departure delay, both individually and in combination. Single regression analysis with departure time as the predictor resulted in a significant relationship
+𝑝
+<
+0.05
+p<0.05), with an equation of 
+𝑦
+=
+0.0213
+𝑥
+−
+7.6108
+y=0.0213x−7.6108 and an 
+𝑅
+2
+R 
+2
+  of 0.034, indicating a weak explanation of variance.
+
+Multiple regressions revealed that significant predictors of departure delay (
+𝑝
+<
+0.05
+p<0.05) included dew point, humidity, wind direction, wind speed, precipitation, pressure, and visibility, in addition to departure time. Among these, visibility (
+𝑅
+2
+=
+0.0266
+R 
+2
+ =0.0266) and humidity (
+𝑅
+2
+=
+0.0188
+R 
+2
+ =0.0188) showed the strongest relationships. However, all 
+𝑅
+2
+R 
+2
+  values were low, suggesting that while these factors contribute to delays, other unmeasured variables might play a more substantial role. Overall, the study highlights environmental and temporal variables as contributing factors to departure delays but indicates the need for further research to improve predictive models.
+  
+## Regressions
 
 One Regression at a time:
 
@@ -103,15 +145,12 @@ Multiple Regressions at a time:
 
 ```{r}
 
-# Get all column names except `Departure Delay`
 predictors <- setdiff(names(df), c("Departure Delay", "Departure Time"))
 
-# Loop through each predictor and run the regression
 for (predictor in predictors) {
-  # Build the regression formula dynamically
+  
   formula <- as.formula(paste("`Departure Delay` ~", predictor))
   
-  # Fit the model
   fit <- lm(formula, data = df)
   summary_fit <- summary(fit)
   

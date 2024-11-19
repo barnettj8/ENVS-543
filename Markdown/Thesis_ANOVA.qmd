@@ -563,7 +563,7 @@ head(final_residual_df, 12)
 ```
 
 
-## AIC and Multiple Regression
+## Individual Values AIC and Multiple Regression
 
 ```{r}
 # Load necessary library
@@ -645,7 +645,7 @@ plot(model)
 
 
 ```
-
+ 
 # Residuals vs Fitted Plot
 The "Residuals vs Fitted" plot evaluates the assumptions of the linear regression model. Ideally, residuals (errors) should be randomly distributed around zero with no clear pattern, indicating a good fit of the model. In this plot:
 
@@ -681,3 +681,88 @@ The Residuals vs. Leverage plot evaluates the influence of individual data point
 3. The Cook's distance lines show that none of these points exceed the threshold (Cook's distance = 1), though they may still require closer inspection due to their relatively high leverage.
 
 Overall, while most points do not appear problematic, points with higher leverage (e.g., 16, 18, and 21) should be investigated to assess their impact on the model.
+
+
+## Station Average AIC and Multiple Regression
+
+```{r}
+# Load necessary library
+library(dplyr)
+
+# Define the full dataset and predictors
+response <- "mean_kd"
+predictors <- c("mean_CDOM_ab", "mean_TSS", "mean_CHLa_Corrected")
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+# Fit models for each combination and calculate AIC
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Create the formula for the current combination of predictors
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  # Fit the linear model
+  model <- lm(formula, data = mean_values)
+  
+  # Return the model, predictors, and AIC
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+# Convert results to a dataframe for easier analysis
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model (difference from the minimum AIC)
+results_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+print(results_df)
+
+```
+
+```{r}
+
+# Perform multiple regression
+model <- lm(mean_kd ~ mean_CDOM_ab + mean_TSS, data = mean_values)
+
+
+# Summarize the model to view results
+summary(model)
+
+# Extract coefficients
+coefs <- coef(model)
+
+# Create the regression equation as a string with coefficients rounded to 4 decimal places
+equation <- paste(
+  "kd =", round(coefs[1], 4),
+  "+", round(coefs[2], 4), "* mean_CDOM_ab",
+  "+", round(coefs[3], 4), "* mean_TSS"
+)
+
+# Print the equation
+equation
+
+# Increase plot size by reducing the layout to one plot per page
+par(mfrow = c(1, 1))
+plot(model)
+
+
+```
+
+
