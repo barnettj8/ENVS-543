@@ -1,0 +1,187 @@
+---
+title: "Regression Homework Activity"
+format: 
+  html:
+    code-tools: true
+    toc: false
+---
+
+
+```{r setup, include=FALSE}
+library( tidyverse )
+library( nycflights13 )
+```
+
+Since regression analysis is such a fundamental component of inferences, I thought it would be a good idea to try to work through a few more examples to give you some more practice.  
+
+For this we will use some data on flights into and out of Newark (EWR), JFK, and La Guardia airports in NYC metropolitan area.
+
+```{r}
+summary( flights ) 
+```
+
+We also have some data related to local weather conditions.
+
+```{r}
+summary( weather )
+```
+
+I'm going to make a synthetic data set consisting of flights out of JFK for the *ExpressJet* airlines.  Since the weather data is on the hour, I also make a synthetic varible `Month.Day.Hour` so that I can join the weather data to this one.
+
+```{r}
+flights %>%
+  filter( origin == "JFK", carrier == "EV") %>%
+  mutate( DateTime = paste(month,day,hour, sep=".")) %>%
+  select( DateTime, 
+          `Departure Delay` = dep_delay,
+          `Departure Time` = sched_dep_time) %>%
+  droplevels() -> df.jfk 
+summary( df.jfk )
+```
+
+Now I'll do the same with the weather data.
+
+```{r}
+weather %>%
+  filter( origin == "JFK") %>% 
+  mutate( DateTime = paste(month,day,hour, sep=".")) %>%
+  select( -origin, -year, -month, -day, -hour, -time_hour ) -> df.weather 
+summary( df.weather )
+```
+
+Now, I'm going to `merge` these two `data.frame` objects using the common `key` I made `DateTime`.
+
+```{r}
+merge( df.jfk, df.weather, by="DateTime" ) %>%
+  select( -DateTime ) -> df 
+
+summary( df )
+
+```
+
+
+## Activity
+
+What features of this data set may impact the departure delay for flights coming out of JFK on *ExpressJet* Airlines?
+
+One Regression at a time:
+
+```{r}
+fit <- lm(`Departure Delay` ~ `Departure Time`, data = df)
+summary_fit <- summary(fit)
+
+# Extract coefficients
+intercept <- round(coef(fit)[1], 4)
+slope <- round(coef(fit)[2], 4)
+
+# Extract R-squared and p-value
+r_squared <- round(summary_fit$r.squared, 4)
+p_value <- round(summary_fit$coefficients[2, 4], 4)
+
+# Create the regression equation
+regression_equation <- paste0(
+  "Response: Departure Delay vs Departure Time\n",
+  "y = ", slope, "x + ", intercept, "\n",
+  "R² = ", r_squared, ", p = ", p_value
+)
+
+# Print the results
+cat(regression_equation, "\n\n")
+
+
+```
+
+Multiple Regressions at a time:
+
+```{r}
+
+# Get all column names except `Departure Delay`
+predictors <- setdiff(names(df), c("Departure Delay", "Departure Time"))
+
+# Loop through each predictor and run the regression
+for (predictor in predictors) {
+  # Build the regression formula dynamically
+  formula <- as.formula(paste("`Departure Delay` ~", predictor))
+  
+  # Fit the model
+  fit <- lm(formula, data = df)
+  summary_fit <- summary(fit)
+  
+  # Extract coefficients
+  intercept <- round(coef(fit)[1], 4)
+  slope <- round(coef(fit)[2], 4)
+  
+  # Extract R-squared and p-value
+  r_squared <- round(summary_fit$r.squared, 4)
+  p_value <- round(summary_fit$coefficients[2, 4], 4)
+  
+  # Create the regression equation
+  regression_equation <- paste0(
+    "Response: Departure Delay vs ", predictor, "\n",
+    "y = ", slope, "x", " + ", intercept, "\n",
+    "R² = ", r_squared, ", p = ", p_value
+  )
+  
+  # Print the results
+  cat(regression_equation, "\n\n")
+}
+
+```
+
+
+The variables with significant P-values (below 0.05) are: Departure Time, Dew Point, Humidity, Wind Direction, Wind Speed, Precipitation, Pressure, and Visibility. This indicates that all of these variables have at least some influence over Departure Delays for ExpressJet flights coming out of JFK. The R2 values vary across predictors, with the largest explanation of delay variability coming from Departure Time and Visibility.
+
+## AIC Just for practice
+
+
+```{r}
+
+library(dplyr)
+
+response <- "Departure Delay"
+predictors <- setdiff(names(df), response)  # Exclude the response variable
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Wrap predictor names and response in backticks
+  predictor_set_escaped <- ifelse(length(predictor_set) > 0, 
+                                  paste0("`", predictor_set, "`"), 
+                                  "1")
+  formula <- as.formula(
+    paste0("`", response, "` ~ ", paste(predictor_set_escaped, collapse = " + "))
+  )
+  
+  # Fit the model
+  model <- lm(formula, data = df)
+  
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+min_AIC <- min(results_df$AIC)
+
+results_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+head(results_df, 10)
+
+
+```
+
