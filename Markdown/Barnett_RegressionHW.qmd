@@ -1,5 +1,6 @@
 ---
 title: "Regression Homework Activity"
+author: Jackson Barnett
 format: 
   html:
     code-tools: true
