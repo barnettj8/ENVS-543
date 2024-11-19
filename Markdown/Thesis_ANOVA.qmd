@@ -232,7 +232,7 @@ ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = S
 
 ```
 
-## Regression Analysis
+## Station Average Original Regression Analysis
 
 ```{r}
 
@@ -295,17 +295,112 @@ ggplot(mean_values, aes(x = mean_CDOM_ab, y = mean_kd)) +
       y = min(mean_kd), 
       label = reg_text
     ),
-    hjust = 1, size = 2.5 ) +
-  theme_minimal()
-
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  # Adds black axis lines
+  )
 
 
 ```
 
+```{r}
 
+mean_values <- thes %>%
+  group_by(Site) %>%
+  summarise(
+    mean_kd = mean(kd, na.rm = TRUE),
+    mean_TSS = mean(TSS, na.rm = TRUE)
+  )
+
+# Perform linear regression
+reg_model <- lm(mean_kd ~ mean_TSS, data = mean_values)
+
+# Extract regression statistics
+summary_model <- summary(reg_model)
+slope <- round(coef(reg_model)[2], 4)
+intercept <- round(coef(reg_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 4)
+
+# Create regression equation text
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+# Plot the regression
+ggplot(mean_values, aes(x = mean_TSS, y = mean_kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of Station Average kd and TSS",
+    x = "TSS (mg/L)",
+    y = "kd (m-1)"
+  ) +
+  geom_text(
+    aes(
+      x = max(mean_TSS), 
+      y = min(mean_kd), 
+      label = reg_text
+    ),
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  # Adds black axis lines
+  )
+```
 
 ```{r}
 
+mean_values <- thes %>%
+  group_by(Site) %>%
+  summarise(
+    mean_kd = mean(kd, na.rm = TRUE),
+    mean_CHLa_Corrected = mean(CHLa_Corrected, na.rm = TRUE)
+  )
+
+# Perform linear regression
+reg_model <- lm(mean_kd ~ mean_CHLa_Corrected, data = mean_values)
+
+# Extract regression statistics
+summary_model <- summary(reg_model)
+slope <- round(coef(reg_model)[2], 4)
+intercept <- round(coef(reg_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 4)
+
+# Create regression equation text
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+# Plot the regression
+ggplot(mean_values, aes(x = mean_CHLa_Corrected, y = mean_kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of Station Average kd and Corrected CHLa",
+    x = "CHLa (ug/L)",
+    y = "kd (m-1)"
+  ) +
+  geom_text(
+    aes(
+      x = max(mean_CHLa_Corrected), 
+      y = min(mean_kd), 
+      label = reg_text
+    ),
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  # Adds black axis lines
+  )
+```
+
+## Station Average Regressions Subtracting Residuals
+
+
+```{r}
 library(dplyr)
 library(ggplot2)
 
@@ -314,7 +409,9 @@ mean_values <- thes %>%
   group_by(Site) %>%
   summarise(
     mean_kd = mean(kd, na.rm = TRUE),
-    mean_CDOM_ab = mean(CDOM_ab, na.rm = TRUE)
+    mean_CDOM_ab = mean(CDOM_ab, na.rm = TRUE),
+    mean_CHLa_Corrected = mean(CHLa_Corrected, na.rm = TRUE),
+    mean_TSS = mean(TSS, na.rm = TRUE)
   )
 
 # Perform linear regression
@@ -328,7 +425,7 @@ r_squared <- round(summary_model$r.squared, 4)
 p_value <- round(summary_model$coefficients[2, 4], 4)
 
 # Create regression equation text
-reg_text <- paste0("y = ", intercept, " + ", slope, " * x\n",
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
                    "R² = ", r_squared, ", p = ", p_value)
 
 # Plot the regression
@@ -336,20 +433,131 @@ ggplot(mean_values, aes(x = mean_CDOM_ab, y = mean_kd)) +
   geom_point(size = 3, color = "blue") +
   geom_smooth(method = "lm", color = "red", se = TRUE) +
   labs(
-    title = "Regression of Mean kd vs Mean CDOM_ab",
-    x = "Mean CDOM_ab",
-    y = "Mean kd"
+    title = "Regression of Station Average kd and CDOM",
+    x = "CDOM Absorbance",
+    y = "kd (m-1)"
   ) +
-  annotate("text", x = max(mean_values$mean_CDOM_ab), 
-           y = min(mean_values$mean_kd), 
-           label = reg_text, hjust = 1, size = 4, color = "darkred") +
-  theme_minimal()
+  geom_text(
+    aes(
+      x = max(mean_CDOM_ab), 
+      y = min(mean_kd), 
+      label = reg_text
+    ),
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  # Adds black axis lines
+  )
 
 
 ```
 
+```{r}
+
+residual_df <- mean_values |>
+  group_by(Site) |>
+  mutate(
+    kd_CDOM = 0.1895*mean_CDOM_ab,
+    residual_kd = mean_kd - kd_CDOM)|>
+  select(Site, mean_kd, mean_CDOM_ab, mean_CHLa_Corrected, mean_TSS, kd_CDOM, residual_kd
+  )
+
+```
 
 
+```{r}
+
+reg_model <- lm(residual_kd ~ mean_TSS, data = residual_df)
+
+# Extract regression statistics
+summary_model <- summary(reg_model)
+slope <- round(coef(reg_model)[2], 4)
+intercept <- round(coef(reg_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 6)
+
+# Create regression equation text
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+# Plot the regression
+ggplot(residual_df, aes(x = mean_TSS, y = residual_kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of Residual kd after CDOM vs TSS",
+    x = "TSS (mg/L)",
+    y = "kd (m-1)"
+  ) +
+  geom_text(
+    aes(
+      x = max(mean_TSS), 
+      y = min(residual_kd), 
+      label = reg_text
+    ),
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  # Adds black axis lines
+  )
+```
+
+```{r}
+
+reg_model <- lm(residual_kd ~ mean_CHLa_Corrected, data = residual_df)
+
+# Extract regression statistics
+summary_model <- summary(reg_model)
+slope <- round(coef(reg_model)[2], 4)
+intercept <- round(coef(reg_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 6)
+
+# Create regression equation text
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+# Plot the regression
+ggplot(residual_df, aes(x = mean_CHLa_Corrected, y = residual_kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of Residual kd after CDOM vs CHLa",
+    x = "CHLa (ug/L)",
+    y = "kd (m-1)"
+  ) +
+  geom_text(
+    aes(
+      x = max(mean_CHLa_Corrected), 
+      y = min(residual_kd), 
+      label = reg_text
+    ),
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  # Adds black axis lines
+  )
+```
+
+```{r}
+
+final_residual_df <- residual_df |>
+  group_by(Site) |>
+  mutate(
+    kd_CDOM = 0.1895*mean_CDOM_ab,
+    prop_kd_CDOM = (kd_CDOM/mean_kd)*100,
+    kd_TSS = 0.1709*mean_TSS,
+    prop_kd_TSS = (kd_TSS/mean_kd)*100,
+    kd_CHLa = 0.0384*mean_CHLa_Corrected,
+    prop_kd_CHLa = (kd_CHLa/mean_kd)*100)|>
+  select(Site, mean_kd, prop_kd_CDOM, prop_kd_TSS, prop_kd_CHLa)
+
+head(final_residual_df, 12)
+
+```
 
 
 ## AIC and Multiple Regression
