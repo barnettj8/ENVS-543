@@ -238,8 +238,8 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </section>
-<section id="aic-and-multiple-regression" class="level2">
-<h2 class="anchored" data-anchor-id="aic-and-multiple-regression">AIC and Multiple Regression</h2>
+<section id="individual-values-aic-and-multiple-regression" class="level2">
+<h2 class="anchored" data-anchor-id="individual-values-aic-and-multiple-regression">Individual Values AIC and Multiple Regression</h2>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>                      Predictors       AIC Delta_AIC
@@ -347,6 +347,116 @@ F-statistic:  29.8 on 3 and 52 DF,  p-value: 2.376e-11</code></pre>
 <li>The Cook’s distance lines show that none of these points exceed the threshold (Cook’s distance = 1), though they may still require closer inspection due to their relatively high leverage.</li>
 </ol>
 <p>Overall, while most points do not appear problematic, points with higher leverage (e.g., 16, 18, and 21) should be investigated to assess their impact on the model.</p>
+<section id="station-average-aic-and-multiple-regression" class="level2">
+<h2 class="anchored" data-anchor-id="station-average-aic-and-multiple-regression">Station Average AIC and Multiple Regression</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     Predictors       AIC Delta_AIC
+1                       mean_CDOM_ab + mean_TSS -10.08482  0.000000
+2 mean_CDOM_ab + mean_TSS + mean_CHLa_Corrected  -8.15339  1.931433
+3            mean_CDOM_ab + mean_CHLa_Corrected  13.28724 23.372065
+4                                  mean_CDOM_ab  15.78368 25.868499
+5                                      mean_TSS  16.10691 26.191731
+6                mean_TSS + mean_CHLa_Corrected  17.95253 28.037357
+7                                                22.04268 32.127501
+8                           mean_CHLa_Corrected  22.41263 32.497452</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = mean_kd ~ mean_CDOM_ab + mean_TSS, data = mean_values)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.197936 -0.085580  0.003015  0.036066  0.258980 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   0.33748    0.11716   2.881   0.0182 *  
+mean_CDOM_ab  0.18363    0.01988   9.236  6.9e-06 ***
+mean_TSS      0.17105    0.01880   9.099  7.8e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1315 on 9 degrees of freedom
+Multiple R-squared:  0.9507,    Adjusted R-squared:  0.9398 
+F-statistic: 86.85 on 2 and 9 DF,  p-value: 1.307e-06</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "kd = 0.3375 + 0.1836 * mean_CDOM_ab + 0.171 * mean_TSS"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="residuals-vs-fitted-plot-1" class="level1">
+<h1>Residuals vs Fitted Plot</h1>
+<p>The “Residuals vs Fitted” plot evaluates the assumptions of the linear regression model. Ideally, residuals (errors) should be randomly distributed around zero with no clear pattern, indicating a good fit of the model. In this plot:</p>
+<ol type="1">
+<li>The residuals are relatively evenly distributed around the horizontal line at 0, but there is some minor curvature in the red loess smoother, hinting at potential non-linearity in the model.</li>
+<li>Points labeled as 3, 11, and 12 indicate observations with potential influence that might warrant further investigation.</li>
+<li>The variability of residuals is relatively consistent across the fitted values, suggesting no strong evidence of heteroscedasticity (changing variance).</li>
+</ol>
+<p>This plot suggests that the model generally performs well, though minor non-linearity might indicate room for improvement or refinement in the model specification.</p>
+</section>
+<section id="q-q-plot-1" class="level1">
+<h1>Q-Q Plot</h1>
+<p>The “Q-Q Residuals” plot evaluates whether the residuals from the linear regression model follow a normal distribution. Ideally, the points should align closely with the diagonal line, indicating normally distributed residuals. In this plot:</p>
+<ol type="1">
+<li>Most of the points align reasonably well with the diagonal line, suggesting that the residuals are approximately normally distributed.</li>
+<li>Points labeled 11, 3, and 12 deviate from the line, indicating potential outliers or observations with higher leverage that may not conform well to the normality assumption.</li>
+<li>The deviations are most pronounced at the tails (extreme values), which could indicate mild departures from normality.</li>
+</ol>
+<p>This plot suggests that the residuals are roughly normal, with some minor deviations that may warrant further investigation, particularly for the influential points.</p>
+</section>
+<section id="scale-location-plot-1" class="level1">
+<h1>Scale-Location Plot</h1>
+<p>The “Scale-Location” plot (also called Spread-Location plot) evaluates the homoscedasticity (constant variance) assumption in a linear regression model. Ideally, the points should appear randomly scattered around the red line, with no clear pattern, and a roughly constant spread. In this plot:</p>
+<ol type="1">
+<li>There is some increasing trend in the red loess smoother line, especially for higher fitted values, which suggests potential heteroscedasticity (non-constant variance).</li>
+<li>Observations labeled 11 and 12 show larger residuals, which may be influential points contributing to the observed trend.</li>
+<li>The variability in standardized residuals is not entirely consistent, with higher variance at larger fitted values.</li>
+</ol>
+<p>This plot indicates possible issues with heteroscedasticity in the model. This could mean that a transformation of the response variable or a different model might improve the fit.</p>
+</section>
+<section id="residuals-vs-leverage-plot-1" class="level1">
+<h1>Residuals vs Leverage Plot</h1>
+<p>The Residuals vs.&nbsp;Leverage plot evaluates the influence of individual data points on the regression model. In this plot:</p>
+<ol type="1">
+<li>Most points are clustered within the lower-leverage region, indicating that the majority of observations have minimal influence on the model.</li>
+<li>Points 10, 11, and 12 are positioned further from the cluster, suggesting higher leverage and potential influence on the model fit. Notably, point 11 stands out as having both higher leverage and a noticeable residual.</li>
+<li>The Cook’s distance lines show that none of these points exceed the threshold (Cook’s distance = 1), though points 10 and 11 approach the 0.5 Cook’s distance line, indicating moderate influence and requiring closer inspection.</li>
+</ol>
+<p>Overall, while most points do not appear problematic, points with higher leverage (e.g., 10, 11, and 12) should be investigated to assess their impact on the model.</p>
 </section>
 
 </main>
