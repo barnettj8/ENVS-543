@@ -164,7 +164,6 @@ $y_{ij} = \mu + \tau_{gender, i} + \epsilon_j$
 Independent of the diet, test the null hypothesis $H_O:$ *There is no difference in weight loss between genders* (e.g., \$\tau\*{gender-0} =\* \tau{gender-2} = 0.0 \$). Is there evidence for one gender being significantly different than another? How much of the variation is explained (another $R^2$ by gender)?
 
 ```{r}
-# partition effects?
 
 loss$gender <- as.factor(loss$gender)
 
@@ -191,9 +190,6 @@ So here we do something a bit different. We want to simultaneously ask the follo
 In $R$, this is done as:
 
 ```{r}
-# diet model
-
-#IS THIS NOT THE SAME AS BEFORE??
 
 tidy_diet <- tidy( fit.diet )
 tidy_diet
@@ -205,8 +201,6 @@ r2_Diet
 
 ```{r}
 # gender model
-
-# IS THIS NOT THE SAME AS BEFORE??
 
 tidy_gend <- tidy( fit.gender )
 tidy_gend
@@ -221,7 +215,7 @@ r2_gend
 
 fit.int <- aov(WeightLoss ~ Diet * gender, data = loss)
 
-anova(fit.int)
+anova_table <- anova(fit.int)
 
 tidy_int <- tidy( fit.int )
 tidy_int
@@ -231,66 +225,26 @@ tidy_int
 What is the $R^2$ for this model?
 
 ```{r}
-# best model variance explained
+#based on after class conversation
 
-r2_int <- tidy_int$sumsq[1] / sum( tidy_int$sumsq )
+ss_interaction <- anova_table["Diet:gender", "Sum Sq"]
+ss_total <- sum(anova_table[["Sum Sq"]])
+
+r2_int <- ss_interaction / ss_total
+
 r2_int
 
 
-
-
 ```
-```{r}
-#LOOKING FOR AIC??
 
-response <- "WeightLoss"
-predictors <- setdiff(names(loss), response)
-
-all_combinations <- unlist(
-  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
-  recursive = FALSE
-)
-
-model_results <- lapply(all_combinations, function(predictor_set) {
-  predictor_set_escaped <- ifelse(length(predictor_set) > 0, 
-                                  paste0("`", predictor_set, "`"), 
-                                  "1")
-  formula <- as.formula(
-    paste0("`", response, "` ~ ", paste(predictor_set_escaped, collapse = " + "))
-  )
-  
-  # Fit the model
-  model <- lm(formula, data = loss)
-  
-  list(
-    predictors = predictor_set,
-    model = model,
-    AIC = AIC(model)
-  )
-})
-
-results_df <- do.call(rbind, lapply(model_results, function(x) {
-  data.frame(
-    Predictors = paste(x$predictors, collapse = " + "),
-    AIC = x$AIC
-  )
-}))
-
-min_AIC <- min(results_df$AIC)
-
-results_df <- results_df %>%
-  mutate(Delta_AIC = AIC - min_AIC) %>%
-  arrange(Delta_AIC)  # Sort by delta AIC
-
-# Print the results with Delta AIC
-head(results_df, 10)
-
-
-
-```
 
 # Which Model is Best?
 
 How would you compare the models you generated? How do you interpret the findings?
 
 *Explain, in words, your findings and interpretation of these findings*
+
+
+The diet model was significant and able to explain approximately 12.85% of the variation in the weight loss data while the gender model was insignificant and could not explain much additional variation regardless. The model taking into account the influence of gender and diet interacting, however, was significant and explained approximately 7.2% of the variation in weight loss data. This indicates that, while gender alone is not influential for the amount of weight lost, there are significant interactions between diet types and genders that can affect weight loss. 
+
+
