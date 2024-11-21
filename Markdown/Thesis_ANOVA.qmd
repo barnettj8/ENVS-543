@@ -18,6 +18,9 @@ knitr::opts_chunk$set(
 ```{r}
 
 library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 
 anovaurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQITosV0R3R05ian-EG4t63j7WrelOlvvPOjiu9PWiiuKqfX-7yNO71oDoHFLGROfyG95oOHh0lIMGi/pub?gid=0&single=true&output=csv"
 
@@ -25,212 +28,217 @@ thes <- read_csv(anovaurl)
 
 ```
 
-## KD Comparison By Lakes
-
 ```{r}
-
-library(ggplot2)
-
-# Create the box-and-whisker plot grouped by Lake
-ggplot(thes, aes(x = Lake, y = kd)) +
-  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
-  labs(
-    title = "Light Attenuation (kd) by Lake",
-    x = "Lake",
-    y = "kd"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
-  )
-
-
-```
-
-```{r}
-
-library(multcompView)  # For Tukey HSD visualizations
-
-# Perform Tukey HSD test
-tukey_results <- TukeyHSD(aov(kd ~ Lake, data = thes))$Lake
-
-# Convert to a data frame
-tukey_df <- as.data.frame(tukey_results)
-tukey_df$Comparison <- rownames(tukey_df)
-
-# Add a column for significance
-tukey_df$Significant <- tukey_df$`p adj` < 0.05
-
-# Plot Tukey HSD results
-ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
-  geom_pointrange() +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  coord_flip() +  # Flip the axes for better readability
-  labs(
-    title = "Tukey HSD Results: kd by Lake",
-    x = "Comparison",
-    y = "Difference in Means"
-  ) +
-  theme_minimal() +
-  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
-                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
-  theme(legend.position = "bottom")
-
-```
-
-## Predictor Comparison By Lake
-
-```{r}
-
-library(dplyr)
-library(tidyr)
-
 # Gather the variables into a long format for easier plotting
 long_data <- thes %>%
-  pivot_longer(cols = c(CDOM_ab, TSS, CHLa_Corrected, CHLa_Uncorrected), 
+  pivot_longer(cols = c(kd, CDOM_ab, TSS, CHLa_Uncorrected), 
                names_to = "Variable", 
                values_to = "Value") %>%
   mutate(
     Variable = factor(
       Variable,
-      levels = c("CDOM_ab", "TSS", "CHLa_Corrected", "CHLa_Uncorrected") # Set the desired order
+      levels = c("kd", "CDOM_ab", "TSS", "CHLa_Uncorrected") # Set the desired order
     )
   )
 
-# Create the combined box-and-whisker plot
-ggplot(long_data, aes(x = Lake, y = Value)) +
+```
+
+
+## Comparisons Across All Stations
+
+```{r}
+# Define custom y-axis titles (units) for each variable
+custom_y_labels <- c(
+  kd = "kd (m⁻¹)",
+  CDOM_ab = "CDOM (Absorbance)",
+  TSS = "TSS (mg/L)",
+  CHLa_Uncorrected = "Uncorrected CHLa (µg/L)"
+)
+
+# Update the plot
+ggplot(long_data, aes(x = Site, y = Value)) +
   geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
-  facet_wrap(~ Variable, scales = "free_y") +  # Separate plots for each variable
+  facet_wrap(
+    ~ Variable, 
+    scales = "free_y", 
+    labeller = as_labeller(custom_y_labels)  # Apply custom y-axis labels
+  ) +
   labs(
-    title = "CDOM, TSS, Corrected and Uncorrected CHLa by Lake",
-    x = "Lake",
-    y = "Value"
+    title = "kd, CDOM, TSS, and Uncorrected CHLa by Site",
+    x = NULL,
+    y = NULL  # Remove the default y-axis title
   ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Rotate and shrink x-axis labels
-    strip.text = element_text(size = 10)  # Adjust facet label size
+    panel.grid.major = element_blank(),
+    # Add black outline for chart area
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+    strip.text = element_blank(),  # Remove facet titles
+    axis.title.y = element_blank(),  # Remove the shared y-axis title
+    axis.text.y = element_text(size = 8),  # Adjust y-axis text size
+    strip.background = element_blank(),  # Remove background color of facet labels
+    strip.text.x = element_text(size = 10)  # Optional: Adjust facet label font size
   )
 
 ```
 
+
+## Inter-Site Differences
+
 ```{r}
 
-# Perform Tukey HSD test
-tukey_results <- TukeyHSD(aov(CDOM_ab ~ Lake, data = thes))$Lake
+swift_creek_data <- thes |> filter(Lake == "Swift Creek")
 
-# Convert to a data frame
-tukey_df <- as.data.frame(tukey_results)
-tukey_df$Comparison <- rownames(tukey_df)
+variables <- c("CDOM_ab", "kd", "TSS", "CHLa_Uncorrected")
 
-# Add a column for significance
-tukey_df$Significant <- tukey_df$`p adj` < 0.05
+# Create an empty list to store results
+tukey_combined <- list()
 
-# Plot Tukey HSD results
-ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
-  geom_pointrange() +
+for (var in variables) {
+  aov_result <- aov(as.formula(paste(var, "~ Site")), data = swift_creek_data)
+
+  tukey_results <- TukeyHSD(aov_result)$Site
+  
+  # Convert to a data frame and add the variable name
+  tukey_df <- as.data.frame(tukey_results)
+  tukey_df$Comparison <- rownames(tukey_df)
+  tukey_df$Variable <- var
+  tukey_df$Significant <- tukey_df$`p adj` < 0.05
+  
+  # Store the results
+  tukey_combined[[var]] <- tukey_df
+}
+
+# Combine all Tukey results into a single data frame
+tukey_combined_df <- do.call(rbind, tukey_combined)
+
+ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  coord_flip() +  # Flip the axes for better readability
+  coord_flip() +
+  facet_wrap(~ Variable, scales = "free_y") +
   labs(
-    title = "Tukey HSD Results: CDOM absorbance by Lake",
+    title = "Swift Creek Res: Inter-Site Differences",
     x = "Comparison",
     y = "Difference in Means"
   ) +
   theme_minimal() +
-  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
-                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
-  theme(legend.position = "bottom")
+  scale_color_manual(
+    values = c("TRUE" = "blue", "FALSE" = "darkgrey"),
+    labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")
+  ) +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 10),  # Adjust facet label size
+    axis.text.y = element_text(size = 6)  # Make y-axis text smaller
+  )
+
+
+```
+
+
+```{r}
+
+sandy_data <- thes |> filter(Lake == "Sandy River")
+
+variables <- c("CDOM_ab", "kd", "TSS", "CHLa_Uncorrected")
+
+# Create an empty list to store results
+tukey_combined <- list()
+
+for (var in variables) {
+  aov_result <- aov(as.formula(paste(var, "~ Site")), data = sandy_data)
+
+  tukey_results <- TukeyHSD(aov_result)$Site
+  
+  # Convert to a data frame and add the variable name
+  tukey_df <- as.data.frame(tukey_results)
+  tukey_df$Comparison <- rownames(tukey_df)
+  tukey_df$Variable <- var
+  tukey_df$Significant <- tukey_df$`p adj` < 0.05
+  
+  # Store the results
+  tukey_combined[[var]] <- tukey_df
+}
+
+# Combine all Tukey results into a single data frame
+tukey_combined_df <- do.call(rbind, tukey_combined)
+
+ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +
+  facet_wrap(~ Variable, scales = "free_y") +
+  labs(
+    title = "Sandy River Res: Inter-Site Differences",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(
+    values = c("TRUE" = "blue", "FALSE" = "darkgrey"),
+    labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")
+  ) +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 10),  # Adjust facet label size
+    axis.text.y = element_text(size = 6)  # Make y-axis text smaller
+  )
 
 
 ```
 
 ```{r}
 
-# Perform Tukey HSD test
-tukey_results <- TukeyHSD(aov(TSS ~ Lake, data = thes))$Lake
+briery_data <- thes |> filter(Lake == "Briery Creek")
 
-# Convert to a data frame
-tukey_df <- as.data.frame(tukey_results)
-tukey_df$Comparison <- rownames(tukey_df)
+variables <- c("CDOM_ab", "kd", "TSS", "CHLa_Uncorrected")
 
-# Add a column for significance
-tukey_df$Significant <- tukey_df$`p adj` < 0.05
+# Create an empty list to store results
+tukey_combined <- list()
 
-# Plot Tukey HSD results
-ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
-  geom_pointrange() +
+for (var in variables) {
+  aov_result <- aov(as.formula(paste(var, "~ Site")), data = briery_data)
+
+  tukey_results <- TukeyHSD(aov_result)$Site
+  
+  # Convert to a data frame and add the variable name
+  tukey_df <- as.data.frame(tukey_results)
+  tukey_df$Comparison <- rownames(tukey_df)
+  tukey_df$Variable <- var
+  tukey_df$Significant <- tukey_df$`p adj` < 0.05
+  
+  # Store the results
+  tukey_combined[[var]] <- tukey_df
+}
+
+# Combine all Tukey results into a single data frame
+tukey_combined_df <- do.call(rbind, tukey_combined)
+
+ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  coord_flip() +  # Flip the axes for better readability
+  coord_flip() +
+  facet_wrap(~ Variable, scales = "free_y") +
   labs(
-    title = "Tukey HSD Results: TSS by Lake",
+    title = "Briery Creek Res: Inter-Site Differences",
     x = "Comparison",
     y = "Difference in Means"
   ) +
   theme_minimal() +
-  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
-                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
-  theme(legend.position = "bottom")
-
-```
-
-```{r}
-
-# Perform Tukey HSD test
-tukey_results <- TukeyHSD(aov(CHLa_Corrected ~ Lake, data = thes))$Lake
-
-# Convert to a data frame
-tukey_df <- as.data.frame(tukey_results)
-tukey_df$Comparison <- rownames(tukey_df)
-
-# Add a column for significance
-tukey_df$Significant <- tukey_df$`p adj` < 0.05
-
-# Plot Tukey HSD results
-ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
-  geom_pointrange() +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  coord_flip() +  # Flip the axes for better readability
-  labs(
-    title = "Tukey HSD Results: Corrected CHLa by Lake",
-    x = "Comparison",
-    y = "Difference in Means"
+  scale_color_manual(
+    values = c("TRUE" = "blue", "FALSE" = "darkgrey"),
+    labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")
   ) +
-  theme_minimal() +
-  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
-                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
-  theme(legend.position = "bottom")
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 10),  # Adjust facet label size
+    axis.text.y = element_text(size = 6)  # Make y-axis text smaller
+  )
 
 ```
 
-```{r}
-
-# Perform Tukey HSD test
-tukey_results <- TukeyHSD(aov(CHLa_Uncorrected ~ Lake, data = thes))$Lake
-
-# Convert to a data frame
-tukey_df <- as.data.frame(tukey_results)
-tukey_df$Comparison <- rownames(tukey_df)
-
-# Add a column for significance
-tukey_df$Significant <- tukey_df$`p adj` < 0.05
-
-# Plot Tukey HSD results
-ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
-  geom_pointrange() +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  coord_flip() +  # Flip the axes for better readability
-  labs(
-    title = "Tukey HSD Results: Uncorrected CHLa by Lake",
-    x = "Comparison",
-    y = "Difference in Means"
-  ) +
-  theme_minimal() +
-  scale_color_manual(values = c("TRUE" = "blue", "FALSE" = "gray"),
-                     labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")) +
-  theme(legend.position = "bottom")
-
-
-```
 
 ## Station Average Original Regression Analysis
 
@@ -239,12 +247,12 @@ ggplot(tukey_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = S
 library(dplyr)
 
 # Calculate means for each Site
-mean_values <- thes %>%
-  group_by(Site) %>%
+mean_values <- thes |>
+  group_by(Site) |>
   summarise(
     mean_kd = mean(kd, na.rm = TRUE),
     mean_CDOM_ab = mean(CDOM_ab, na.rm = TRUE),
-    mean_CHLa_Corrected = mean(CHLa_Corrected, na.rm = TRUE),
+    mean_CHLa_Uncorrected = mean(CHLa_Uncorrected, na.rm = TRUE),
     mean_TSS = mean(TSS, na.rm = TRUE)
   )
 
@@ -255,9 +263,6 @@ print(mean_values)
 ```
 
 ```{r}
-library(dplyr)
-library(ggplot2)
-
 # Calculate mean values for each Site
 mean_values <- thes %>%
   group_by(Site) %>%
@@ -357,11 +362,11 @@ mean_values <- thes %>%
   group_by(Site) %>%
   summarise(
     mean_kd = mean(kd, na.rm = TRUE),
-    mean_CHLa_Corrected = mean(CHLa_Corrected, na.rm = TRUE)
+    mean_CHLa_Uncorrected = mean(CHLa_Uncorrected, na.rm = TRUE)
   )
 
 # Perform linear regression
-reg_model <- lm(mean_kd ~ mean_CHLa_Corrected, data = mean_values)
+reg_model <- lm(mean_kd ~ mean_CHLa_Uncorrected, data = mean_values)
 
 # Extract regression statistics
 summary_model <- summary(reg_model)
@@ -375,17 +380,17 @@ reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
                    "R² = ", r_squared, ", p = ", p_value)
 
 # Plot the regression
-ggplot(mean_values, aes(x = mean_CHLa_Corrected, y = mean_kd)) +
+ggplot(mean_values, aes(x = mean_CHLa_Uncorrected, y = mean_kd)) +
   geom_point(size = 3, color = "blue") +
   geom_smooth(method = "lm", color = "red", se = TRUE) +
   labs(
-    title = "Regression of Station Average kd and Corrected CHLa",
+    title = "Regression of Station Average kd and Uncorrected CHLa",
     x = "CHLa (ug/L)",
     y = "kd (m-1)"
   ) +
   geom_text(
     aes(
-      x = max(mean_CHLa_Corrected), 
+      x = max(mean_CHLa_Uncorrected), 
       y = min(mean_kd), 
       label = reg_text
     ),
@@ -401,8 +406,6 @@ ggplot(mean_values, aes(x = mean_CHLa_Corrected, y = mean_kd)) +
 
 
 ```{r}
-library(dplyr)
-library(ggplot2)
 
 # Calculate mean values for each Site
 mean_values <- thes %>%

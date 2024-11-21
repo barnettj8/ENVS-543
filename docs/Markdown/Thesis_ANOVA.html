@@ -69,17 +69,8 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="kd-comparison-by-lakes" class="level2">
-<h2 class="anchored" data-anchor-id="kd-comparison-by-lakes">KD Comparison By Lakes</h2>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
+<section id="comparisons-across-all-stations" class="level2">
+<h2 class="anchored" data-anchor-id="comparisons-across-all-stations">Comparisons Across All Stations</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -90,8 +81,8 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </section>
-<section id="predictor-comparison-by-lake" class="level2">
-<h2 class="anchored" data-anchor-id="predictor-comparison-by-lake">Predictor Comparison By Lake</h2>
+<section id="inter-site-differences" class="level2">
+<h2 class="anchored" data-anchor-id="inter-site-differences">Inter-Site Differences</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -119,13 +110,26 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
+</section>
+<section id="station-average-original-regression-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="station-average-original-regression-analysis">Station Average Original Regression Analysis</h2>
 <div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 5
+   Site         mean_kd mean_CDOM_ab mean_CHLa_Uncorrected mean_TSS
+   &lt;chr&gt;          &lt;dbl&gt;        &lt;dbl&gt;                 &lt;dbl&gt;    &lt;dbl&gt;
+ 1 2-BRI010.78     1.10         1.75                  16.4     2.77
+ 2 2-BRI013.12     1.36         1.99                  23.1     3.64
+ 3 2-DYC000.19     1.63         2.06                  14.3     4.6 
+ 4 2-MBN000.96     1.38         2.16                  18.3     3.75
+ 5 2-SDY004.27     1.33         2.21                  16.3     4.03
+ 6 2-SDY005.85     1.48         2.18                  23.3     4.93
+ 7 2-SFT031.08     1.58         2.17                  14.9     4.6 
+ 8 2-SFT033.42     1.63         1.98                  12.1     5.4 
+ 9 2-SFT034.38     1.87         2.08                  12.9     7.2 
+10 5ANTW127.14     2.80         3.18                  34.5    10.8 
+11 Chickahominy    2.56         6.45                  15.6     4.52
+12 Harrison        2.36         7.88                  16.2     4.54</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -137,26 +141,13 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-</section>
-<section id="station-average-original-regression-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="station-average-original-regression-analysis">Station Average Original Regression Analysis</h2>
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 12 × 5
-   Site         mean_kd mean_CDOM_ab mean_CHLa_Corrected mean_TSS
-   &lt;chr&gt;          &lt;dbl&gt;        &lt;dbl&gt;               &lt;dbl&gt;    &lt;dbl&gt;
- 1 2-BRI010.78     1.10         1.75                13.7     2.77
- 2 2-BRI013.12     1.36         1.99                19.3     3.64
- 3 2-DYC000.19     1.63         2.06                12.2     4.6 
- 4 2-MBN000.96     1.38         2.16                15.5     3.75
- 5 2-SDY004.27     1.33         2.21                13.9     4.03
- 6 2-SDY005.85     1.48         2.18                20.9     4.93
- 7 2-SFT031.08     1.58         2.17                12.7     4.6 
- 8 2-SFT033.42     1.63         1.98                10.5     5.4 
- 9 2-SFT034.38     1.87         2.08                11.1     7.2 
-10 5ANTW127.14     2.80         3.18                30.0    10.8 
-11 Chickahominy    2.56         6.45                12.6     4.52
-12 Harrison        2.36         7.88                13.6     4.54</code></pre>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell">
@@ -168,6 +159,9 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
+</section>
+<section id="station-average-regressions-subtracting-residuals" class="level2">
+<h2 class="anchored" data-anchor-id="station-average-regressions-subtracting-residuals">Station Average Regressions Subtracting Residuals</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -181,18 +175,6 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="station-average-regressions-subtracting-residuals" class="level2">
-<h2 class="anchored" data-anchor-id="station-average-regressions-subtracting-residuals">Station Average Regressions Subtracting Residuals</h2>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
 <p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
@@ -202,16 +184,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -232,7 +205,7 @@ ul.task-list li input[type="checkbox"] {
  7 2-SFT031.08     1.58         26.0        49.8         30.9
  8 2-SFT033.42     1.63         23.0        56.7         24.7
  9 2-SFT034.38     1.87         21.1        65.8         22.8
-10 5ANTW127.14     2.80         21.5        66.1         41.2
+10 5ANTW127.14     2.80         21.5        66.1         39.6
 11 Chickahominy    2.56         47.9        30.3         19.0
 12 Harrison        2.36         63.2        32.8         22.0</code></pre>
 </div>
@@ -243,14 +216,14 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>                      Predictors       AIC Delta_AIC
-1 CDOM_ab + TSS + CHLa_Corrected  65.25681   0.00000
-2       CDOM_ab + CHLa_Corrected  84.73114  19.47433
-3                  CDOM_ab + TSS  93.52291  28.26610
-4           TSS + CHLa_Corrected 106.98502  41.72821
-5                            TSS 121.85070  56.59389
-6                 CHLa_Corrected 122.24838  56.99156
-7                        CDOM_ab 128.08863  62.83182
-8                                149.49918  84.24237</code></pre>
+1 CDOM_ab + TSS + CHLa_Corrected  65.24482   0.00000
+2       CDOM_ab + CHLa_Corrected  85.74421  20.49939
+3                  CDOM_ab + TSS  93.52291  28.27809
+4           TSS + CHLa_Corrected 110.37012  45.12530
+5                            TSS 121.85070  56.60588
+6                        CDOM_ab 128.08863  62.84381
+7                 CHLa_Corrected 128.95374  63.70892
+8                                149.49918  84.25435</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -261,50 +234,50 @@ lm(formula = kd ~ CDOM_ab + TSS + CHLa_Corrected, data = thes)
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--0.86629 -0.25937 -0.03616  0.23781  0.97465 
+-0.86793 -0.25812 -0.03592  0.23036  0.97839 
 
 Coefficients:
                Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)    0.389642   0.172533   2.258 0.028145 *  
-CDOM_ab        0.235405   0.030009   7.844 2.24e-10 ***
-TSS            0.101222   0.024811   4.080 0.000155 ***
-CHLa_Corrected 0.014258   0.009154   1.558 0.125418    
+(Intercept)    0.394589   0.163156   2.418   0.0191 *  
+CDOM_ab        0.234555   0.028412   8.255 4.38e-11 ***
+TSS            0.100671   0.023917   4.209 9.95e-05 ***
+CHLa_Corrected 0.014227   0.009063   1.570   0.1224    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.4113 on 52 degrees of freedom
-  (16 observations deleted due to missingness)
-Multiple R-squared:  0.6322,    Adjusted R-squared:  0.611 
-F-statistic:  29.8 on 3 and 52 DF,  p-value: 2.376e-11</code></pre>
+Residual standard error: 0.4074 on 53 degrees of freedom
+  (15 observations deleted due to missingness)
+Multiple R-squared:  0.6694,    Adjusted R-squared:  0.6507 
+F-statistic: 35.78 on 3 and 53 DF,  p-value: 8.849e-13</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "kd = 0.3896 + 0.2354 * CDOM_ab + 0.1012 * TSS + 0.0143 * CHLa_Corrected"</code></pre>
+<pre><code>[1] "kd = 0.3946 + 0.2346 * CDOM_ab + 0.1007 * TSS + 0.0142 * CHLa_Corrected"</code></pre>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-18-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-18-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-4.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-18-4.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -351,15 +324,15 @@ F-statistic:  29.8 on 3 and 52 DF,  p-value: 2.376e-11</code></pre>
 <h2 class="anchored" data-anchor-id="station-average-aic-and-multiple-regression">Station Average AIC and Multiple Regression</h2>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>                                     Predictors       AIC Delta_AIC
-1                       mean_CDOM_ab + mean_TSS -10.08482  0.000000
-2 mean_CDOM_ab + mean_TSS + mean_CHLa_Corrected  -8.15339  1.931433
-3            mean_CDOM_ab + mean_CHLa_Corrected  13.28724 23.372065
-4                                  mean_CDOM_ab  15.78368 25.868499
-5                                      mean_TSS  16.10691 26.191731
-6                mean_TSS + mean_CHLa_Corrected  17.95253 28.037357
-7                                                22.04268 32.127501
-8                           mean_CHLa_Corrected  22.41263 32.497452</code></pre>
+<pre><code>                                     Predictors        AIC Delta_AIC
+1                       mean_CDOM_ab + mean_TSS -10.084823   0.00000
+2 mean_CDOM_ab + mean_TSS + mean_CHLa_Corrected  -8.168103   1.91672
+3            mean_CDOM_ab + mean_CHLa_Corrected  13.725794  23.81062
+4                                  mean_CDOM_ab  15.783676  25.86850
+5                                      mean_TSS  16.106908  26.19173
+6                mean_TSS + mean_CHLa_Corrected  17.938558  28.02338
+7                                                22.042678  32.12750
+8                           mean_CHLa_Corrected  22.600067  32.68489</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -390,28 +363,28 @@ F-statistic: 86.85 on 2 and 9 DF,  p-value: 1.307e-06</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-22-4.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Thesis_ANOVA_files/figure-html/unnamed-chunk-20-4.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
