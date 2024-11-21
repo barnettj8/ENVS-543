@@ -292,7 +292,7 @@ y_{ij} = \mu + \tau_{Diet, i} + \epsilon_j
 \]</span></p>
 <p>Test the null hypothesis, <span class="math inline">\(H_O:\)</span> <em>There is no effect of diet on weight loss</em> (e.g., <span class="math inline">\(\tau_{Diet-1} = \tau_{Diet-2} = \tau_{Diet-3} = 0.0\)</span>). Is there evidence for one diet producing more weight loss than the others? Create an <code>aov</code> analysis and assign it to the variable <code>fit.diet</code> and examine its contents.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define mode</span></span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define mode?</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>loss<span class="sc">$</span>Diet <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(loss<span class="sc">$</span>Diet)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>fit.diet <span class="ot">&lt;-</span> <span class="fu">aov</span>(WeightLoss <span class="sc">~</span> Diet, <span class="at">data =</span> loss)</span>
@@ -371,7 +371,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p><span class="math inline">\(y_{ij} = \mu + \tau_{gender, i} + \epsilon_j\)</span></p>
 <p>Independent of the diet, test the null hypothesis <span class="math inline">\(H_O:\)</span> <em>There is no difference in weight loss between genders</em> (e.g., $*{gender-0} =* = 0.0 $). Is there evidence for one gender being significantly different than another? How much of the variation is explained (another <span class="math inline">\(R^2\)</span> by gender)?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># partition effects???????????????????</span></span>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># partition effects?</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>loss<span class="sc">$</span>gender <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(loss<span class="sc">$</span>gender)</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1121,7 +1121,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb50-113"><a href="#cb50-113" aria-hidden="true" tabindex="-1"></a>Test the null hypothesis, $H_O:$ *There is no effect of diet on weight loss* (e.g., $\tau_{Diet-1} = \tau_{Diet-2} = \tau_{Diet-3} = 0.0$). Is there evidence for one diet producing more weight loss than the others? Create an <span class="in">`aov`</span> analysis and assign it to the variable <span class="in">`fit.diet`</span> and examine its contents.</span>
 <span id="cb50-114"><a href="#cb50-114" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-117"><a href="#cb50-117" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb50-118"><a href="#cb50-118" aria-hidden="true" tabindex="-1"></a><span class="co"># Define mode</span></span>
+<span id="cb50-118"><a href="#cb50-118" aria-hidden="true" tabindex="-1"></a><span class="co"># Define mode?</span></span>
 <span id="cb50-119"><a href="#cb50-119" aria-hidden="true" tabindex="-1"></a>loss<span class="sc">$</span>Diet <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(loss<span class="sc">$</span>Diet)</span>
 <span id="cb50-120"><a href="#cb50-120" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-121"><a href="#cb50-121" aria-hidden="true" tabindex="-1"></a>fit.diet <span class="ot">&lt;-</span> <span class="fu">aov</span>(WeightLoss <span class="sc">~</span> Diet, <span class="at">data =</span> loss)</span>
@@ -1175,7 +1175,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb50-177"><a href="#cb50-177" aria-hidden="true" tabindex="-1"></a>Independent of the diet, test the null hypothesis $H_O:$ *There is no difference in weight loss between genders* (e.g., \$\tau<span class="sc">\*</span>{gender-0} =<span class="sc">\*</span> \tau{gender-2} = 0.0 \$). Is there evidence for one gender being significantly different than another? How much of the variation is explained (another $R^2$ by gender)?</span>
 <span id="cb50-178"><a href="#cb50-178" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-181"><a href="#cb50-181" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb50-182"><a href="#cb50-182" aria-hidden="true" tabindex="-1"></a><span class="co"># partition effects???????????????????</span></span>
+<span id="cb50-182"><a href="#cb50-182" aria-hidden="true" tabindex="-1"></a><span class="co"># partition effects?</span></span>
 <span id="cb50-183"><a href="#cb50-183" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-184"><a href="#cb50-184" aria-hidden="true" tabindex="-1"></a>loss<span class="sc">$</span>gender <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(loss<span class="sc">$</span>gender)</span>
 <span id="cb50-185"><a href="#cb50-185" aria-hidden="true" tabindex="-1"></a></span>

@@ -109,7 +109,7 @@ $$
 Test the null hypothesis, $H_O:$ *There is no effect of diet on weight loss* (e.g., $\tau_{Diet-1} = \tau_{Diet-2} = \tau_{Diet-3} = 0.0$). Is there evidence for one diet producing more weight loss than the others? Create an `aov` analysis and assign it to the variable `fit.diet` and examine its contents.
 
 ```{r}
-# Define mode
+# Define mode?
 loss$Diet <- as.factor(loss$Diet)
 
 fit.diet <- aov(WeightLoss ~ Diet, data = loss)
@@ -164,7 +164,7 @@ $y_{ij} = \mu + \tau_{gender, i} + \epsilon_j$
 Independent of the diet, test the null hypothesis $H_O:$ *There is no difference in weight loss between genders* (e.g., \$\tau\*{gender-0} =\* \tau{gender-2} = 0.0 \$). Is there evidence for one gender being significantly different than another? How much of the variation is explained (another $R^2$ by gender)?
 
 ```{r}
-# partition effects???????????????????
+# partition effects?
 
 loss$gender <- as.factor(loss$gender)
 
