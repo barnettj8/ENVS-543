@@ -1,0 +1,199 @@
+---
+title: "Nonparametric & Counting Statistics"
+format: html
+editor: visual
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = TRUE,     
+  warning = FALSE,   
+  message = FALSE    
+)
+
+```
+
+```{r}
+
+library(tidyverse)
+
+```
+
+```{r}
+
+gradurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTx5dgCEWR1teOIpwkHCKVC9iYS4EOMQxxx1w0wV17A5oA2ixw4biRwGvJYOkZo0e87epfzEpCO6WyI/pub?gid=37680348&single=true&output=csv"
+
+dogurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeeiC1OXH9eN30Q3bcLDuQRGwYoEoz0L5T5ugwjmpLk93WNoT9svRx0-WsE2nb1h3zFv_vn-EF3ir8/pub?gid=51859750&single=true&output=csv"
+
+ntuurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdVpcK7A9FxmsJcEiVNgFzjjSbbYRNSxlwg6PMNuD-0leya6YokVBVlWUDlEjHo_0ipO_WdM02Tbvd/pub?gid=1084196212&single=true&output=csv"
+
+grad <- read_csv(gradurl)
+
+dog <- read_csv(dogurl)
+
+ntu <- read_csv(ntuurl)
+
+```
+
+## Question 1
+
+The FDA has suggested a change in a medication that has been shown to have detrimental side effects in half of the patients.  A clinical trial was conducted with nineteen patients; only three reported side effects.  Did the change make a significant difference?  
+
+```{r}
+
+patients <- 19
+
+sideeffects <- 3
+
+p <- 0.5
+
+test_result <- binom.test(sideeffects, patients, p = p, alternative = "less")
+
+print(test_result)
+
+
+```
+
+```{r}
+
+library(ggplot2)
+observed_proportion <- sideeffects / patients
+
+ggplot(data.frame(x = c("Observed", "Expected"), 
+                  y = c(observed_proportion, p)), aes(x = x, y = y, fill = x)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Proportion of Patients with Side Effects",
+       x = "Group", 
+       y = "Proportion") +
+  scale_fill_manual(values = c("blue", "red")) +
+  theme_minimal()
+
+```
+
+
+
+An exact binomial test would be appropriate in this case because the situation involves a binomial experiment, where each patient either experiences the side effect or does not, and the goal is to determine if the proportion of patients reporting side effects differs significantly from the expected proportion under the original medication. The results of the binomial test provide strong evidence that the change in medication significantly reduced the occurrence of side effects. The p-value of 0.002213 is well below the standard significance level of 0.05, suggesting that the observed reduction in side effects (3 out of 19 patients) is highly unlikely to have occurred by chance if the true proportion of side effects remained at 50%. Additionally, the 95% confidence interval for the true proportion of side effects after the change is between 0.0000 and 0.3594, excluding the 50% threshold, further supporting the claim that the rate of side effects has decreased. The sample estimate for the proportion of patients with side effects is approximately 15.8%, considerably lower than the expected 50% before the change.
+
+Given these findings, we reject the null hypothesis that the proportion of side effects is 50% and conclude that the medication change has led to a significant reduction in side effects. The results indicate that the change is effective in reducing the occurrence of detrimental side effects, providing a promising outcome for the new medication regimen. Further studies with larger sample sizes may help validate these findings and explore the long-term effects of the medication change.
+
+
+## Question 2
+
+Two different environmental remediation treatments are evaluated for the impacts on turbidity (measured using the Nephelometric Turbidity Unit or NTU).  For regulatory reasons, turbidity is binned into four groups based on NTU: 0-15 ntu, 16-22 ntu, 23-30 ntu, and 31+ ntu.  Do both treatments have the same impact on turbidity?  Explain.
+
+
+```{r}
+ntu$NTU_category <- cut(ntu$NTU, 
+                         breaks = c(0, 15, 22, 30, Inf), 
+                         labels = c("0-15 NTU", "16-22 NTU", "23-30 NTU", "31+ NTU"),
+                         right = TRUE)
+
+contingency_table <- table(ntu$Treatment, ntu$NTU_category)
+
+chi_test <- chisq.test(contingency_table)
+
+chi_test
+
+
+
+```
+
+```{r}
+
+library(ggplot2)
+ggplot(ntu, aes(x = NTU_category, fill = Treatment)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Distribution of Turbidity by Treatment",
+       x = "Turbidity Category (NTU)",
+       y = "Count") +
+  theme_minimal()
+
+```
+
+
+A Chi-Square test would be appropriate in this case because it is used to assess whether there is a significant difference between the observed frequencies of categorical data across different groups, such as the binned turbidity levels in this scenario. The results of the Pearson's Chi-squared test indicate a significant difference in the distribution of turbidity categories between the two environmental remediation treatments, Treatment A and Treatment B. The test statistic (X-squared = 17.286) is substantial, and the p-value (0.0006172) is much smaller than the standard significance level of 0.05, leading us to reject the null hypothesis. This suggests that the turbidity outcomes are not equally distributed across the two treatment groups, meaning the treatments have different effects on turbidity levels. Specifically, the treatments do not produce similar turbidity results, and there appears to be a significant relationship between the treatment type and the turbidity category.
+
+Given the statistical significance of the test, the next step would involve further investigation to explore which specific turbidity categories contribute most to this difference. While the Chi-squared test confirms a significant association, it does not provide insight into the direction or magnitude of the effect, so further analysis (e.g., calculating effect sizes like Cramér's V) could be beneficial. Overall, the findings imply that the treatments have differing impacts on turbidity, which could be important for understanding their efficacy and guiding future decisions in environmental remediation efforts.
+
+```{r}
+
+fisher_test <- fisher.test(contingency_table)
+fisher_test
+
+```
+Fisher's Exact Test is used to determine if there are nonrandom associations between two categorical variables, specifically in situations where sample sizes are small or where expected frequencies are lower as in this situation. The results from Fisher's Exact Test show a p-value of 0.00058, which is significantly smaller than the standard threshold of 0.05. This indicates strong evidence against the null hypothesis, which suggests that there is a significant association between the type of treatment (Treatment A vs. Treatment B) and the turbidity categories (0-15 NTU, 16-22 NTU, 23-30 NTU, 31+ NTU). Unlike the Chi-squared test, Fisher's Exact Test does not rely on large sample sizes or the assumption of expected frequencies being greater than 5, making it more appropriate when sample sizes are small or when some cells in the contingency table have low expected counts. Since we observed a warning regarding low expected counts in the Chi-squared test, Fisher’s Exact Test was chosen to provide a more reliable assessment.
+
+Given the highly significant p-value (0.00058), the results support the conclusion that the distribution of turbidity categories differs between the two treatments. This means that Treatment A and Treatment B have distinct impacts on turbidity. Fisher's Exact Test was particularly appropriate in this case because it avoids the limitations of the Chi-squared test when dealing with small sample sizes or sparse data. While the Chi-squared test may have been misleading due to the assumption of sufficiently large expected counts, Fisher's Exact Test provides an accurate result, confirming the significant difference between the two treatments.
+
+
+## Question 3
+
+A dozen graduate students tried to determine if there was a relationship between their undergraduate GPA and their scores on the Graduate Records Examination.  Look at these data and determine the extent to which they are related.  Explain.
+
+```{r}
+
+correlation_result <- cor.test(grad$GPA, grad$GRE)
+
+correlation_result
+
+plot(grad$GPA, grad$GRE, main="Scatter plot of GPA vs GRE Scores", xlab="GPA", ylab="GRE Score")
+abline(lm(grad$GRE ~ grad$GPA), col="red")  
+
+```
+
+For this analysis, the Pearson's correlation test was performed. This analysis was chosen becuase the data seemed to be linearly related when plotted and this test can tell us both the correlation as well as the significance of the correlation. The Pearson’s correlation analysis reveals a moderate positive correlation (r = 0.666) between undergraduate GPA and GRE scores, indicating that higher GPAs are generally associated with higher GRE scores. The t-statistic of 2.8238 and p-value of 0.01804 are both statistically significant, allowing us to reject the null hypothesis that there is no relationship between the two variables. The 95% confidence interval for the correlation coefficient (0.149, 0.897) does not include zero, further supporting the existence of a significant linear relationship between GPA and GRE scores.
+
+While the correlation is statistically significant, the relationship is moderate, suggesting that other factors could also influence GRE scores. Further research could investigate additional variables that might contribute to GRE outcomes, helping to provide a more comprehensive understanding of the factors affecting test performance.
+
+## Question 4
+
+You are looking at fruit yield on dogwood.  You designed an experiment with four different treatments and measured the total yield in germinated seeds.  Are there differences in yield?  Explain.
+
+```{r}
+
+fit.dog <- aov( Seeds ~ Treatment, data = dog)
+
+anova(fit.dog)
+
+
+```
+```{r}
+tuk <- TukeyHSD(fit.dog)
+tuk
+
+```
+
+```{r}
+
+library(ggplot2)
+ggplot(dog, aes(x = Treatment, y = Seeds, fill = Treatment)) +
+  geom_boxplot() +
+  labs(title = "Distribution of Seed Yields by Treatment",
+       x = "Treatment",
+       y = "Seed Yield (Seeds)") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+```
+
+
+```{r}
+tuk_df <- as.data.frame(tuk$Treatment)
+tuk_df$comparison <- rownames(tuk_df)
+
+ggplot(tuk_df, aes(x = comparison, y = diff, ymin = lwr, ymax = upr)) +
+  geom_pointrange() +
+  labs(title = "Tukey HSD Pairwise Comparisons",
+       x = "Treatment Comparison",
+       y = "Difference in Seed Yield") +
+  theme_minimal() +
+  geom_hline(yintercept = 0)
+
+
+```
+
+
+An ANOVA should be used as it compares the means of three or more groups to determine if there are statistically significant differences between them. In this case, it allows us to assess whether the four different treatments result in different fruit yields by comparing the average yields across treatments. The One-Way ANOVA shows a significant effect of treatment on seed yield, with an F-value of 30.711 and a p-value of 2.809e-09, indicating that at least one treatment produces a statistically different yield from the others. Post-hoc analysis using Tukey's HSD test reveals that Treatment D consistently yields fewer seeds compared to Treatments A, B, and C. Specifically, Treatment D has a highly significant negative difference in seed yield compared to Treatment A (p = 0.0000016), B (p = 0.0015), and C (p = 0.0000000), with an average yield reduction of 10.68, 6.53, and 15.84 seeds, respectively.
+
+In contrast, Treatment C yields significantly more seeds than Treatments A and B, with differences of 5.16 and 9.31 seeds, respectively (p = 0.0225 and p = 0.00002). The difference between Treatment B and A is marginally non-significant (p = 0.0514), suggesting no clear advantage between these two. Overall, the results indicate that Treatment C is the most effective in promoting seed yield, while Treatment D performs the worst, producing significantly fewer seeds than the other treatments.
