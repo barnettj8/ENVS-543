@@ -1,0 +1,380 @@
+---
+title: "Final Exam"
+author: "Jackson Barnett"
+format: html
+editor: visual
+---
+
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = TRUE,     
+  warning = FALSE,   
+  message = FALSE    
+)
+
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(raster)
+library(sf)
+library(ggplot2)
+library(kableExtra)
+library(knitr)
+```
+
+```{r}
+read_csv ( "Arapat_Locations.csv" ) |>
+  st_as_sf( coords=c("Longitude","Latitude"), crs=4326 ) -> location
+
+samples <- read_csv ( "Arapat_Samples.csv" )
+
+suitrast <- raster("Suitability_now.tif") #epsg 4326
+
+glacrast <- raster("Suitability_lgm.asc") #epsg 4326
+
+```
+
+
+```{r}
+
+head(location)
+head(samples)
+
+```
+
+```{r}
+#Sites on habitat suitability raster
+
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+par(mar = c(2, 2, 1, 1))
+
+plot(suitrast)
+plot( location["Site"], 
+      pch=16, 
+      add=TRUE)
+
+text(location$geometry, labels = location$Site, pos = 4, cex = 0.7, col = "blue")
+
+```
+
+
+```{r}
+#Sites on glacial maximum habitat raster
+
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+par(mar = c(2, 2, 1, 1))
+
+plot(glacrast)
+plot( location["Site"], 
+      pch=16, 
+      add=TRUE)
+
+text(location$geometry, labels = location$Site, pos = 4, cex = 0.7, col = "blue")
+
+```
+
+
+Determine the extent to which changing climate may have impacted sex ratio divergence among locations in the Sonora Desert bark beetle, Araptus attenuatus.
+
+
+# Question 1
+Do sampled populations of the beetle have different sex ratios? You can consider the plant to be replicated within each site.
+
+Using an ANOVA to test whether sex ratios differ across samples of beetles might seem intuitive, but it isn't appropriate for this specific scenario. Here’s why: The sex of each beetle is binary (Male or Female). ANOVA is designed for continuous dependent variables, not categorical or proportion data. Using ANOVA directly on binary data violates assumptions of normality and homoscedasticity.
+
+To calculate sex ratios, you essentially work with proportions (e.g., proportion of males out of total beetles). Proportions are bounded between 0 and 1, and they follow a binomial distribution—not the normal distribution that ANOVA assumes.
+
+```{r}
+
+samples$Sex_binary <- ifelse(samples$Sex == "Male", 1, 0)
+
+site_summary <- aggregate(Sex_binary ~ Site, samples, function(x) {
+  c(males = sum(x), total = length(x))
+})
+
+site_summary <- do.call(data.frame, site_summary)
+colnames(site_summary) <- c("Site", "Males", "Total")
+
+
+```
+
+```{r}
+
+site_contingency <- xtabs(~ Site + Sex, data = samples)
+
+chisq.test(site_contingency)
+
+```
+Q1 METHODS
+
+To determine whether the sampled populations of beetles exhibit differences in sex ratios, we analyzed data collected from beetles sampled across multiple sites. At each site, beetles were randomly sampled from several plants, with each plant serving as a replicate within the site. The sex of each beetle was recorded as either male or female.
+
+To test for differences in sex ratios among sites, we first summarized the data by calculating the number of males and the total number of beetles sampled at each site. A contingency table was then constructed to capture the counts of males and females across all sites. A Pearson’s Chi-squared test was applied to this contingency table to assess whether the observed sex ratios differed significantly among sites.
+
+Q1 RESULTS
+
+The Chi-squared test revealed a significant difference in sex ratios among the sampled sites. With a X2 value of 68.38, 30 degrees of freedom, and a p-value of 7.968e-05, this result indicates that the proportions of males and females were not consistent across the sampled sites. This indicates that there are variations in sex ratios among the populations.
+
+
+# Question 2
+Which sites have sex ratios that deviate from equal proportions of males and females at the site?
+
+```{r}
+
+site_summary$mfratio <- site_summary$Males / (site_summary$Total - site_summary$Males)
+site_summary$mfratio <- round(site_summary$mfratio, 4)
+
+site_summary$p_value <- mapply(function(males, total) {
+  binom.test(males, total, p = 0.5)$p.value
+}, site_summary$Males, site_summary$Total)
+
+significant_sites <- subset(site_summary, p_value < 0.05)
+
+significant_sites |>
+  kable(caption = "Sex Ratios Differing Significantly from Equal Proportions") |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE, 
+                position = "center")
+
+```
+
+Q2 METHODS
+
+To identify which sites have sex ratios that deviate significantly from an equal proportion of males and females (50:50), we conducted a series of binomial tests. For each site, we tested whether the observed number of males significantly differed from the expected number under the assumption of equal proportions. Binomial tests were performed using the total number of beetles sampled at each site and the observed count of males. The resulting p-values from these tests were used to determine significance, with p < 0.05 indicating a site where the sex ratio significantly deviated from equality.
+
+Q2 RESULTS
+
+Site 17, 20,21,29, and 9 all significantly deviated from the equal proportion of males to females (50:50). P values for these deviated sites ranged from 0.0002 to 0.02 (REFER TO KABLE TABLE).
+
+# Question 3
+
+Is there a functional relationship between the habitat suitability at the sampling locations and the sex ratio? Since all of our suitability measurements are taken from raster data with a cell size of 1.0 km2 (e.g., all plants are in the same grid cell), collapse the sex ratio estimates to a single value per site.
+
+
+```{r}
+
+site_sumgeom <- merge(location, site_summary[, c("Site", "mfratio")], by = "Site", all.x = TRUE)
+
+```
+
+```{r}
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+par(mar = c(2, 2, 1, 1))
+
+plot(suitrast)
+plot( site_sumgeom["Site"], 
+      pch=16,
+      col = "darkgrey",
+      add=TRUE)
+
+text(site_sumgeom$geometry, labels = site_sumgeom$mfratio, pos = 4, cex = 0.5, col = "blue")
+
+```
+
+```{r}
+
+suitrast <- projectRaster(suitrast, crs=4326)
+
+site_sumgeom$habitat_suitability <- extract(suitrast, st_coordinates(site_sumgeom))
+
+```
+
+
+```{r}
+# Test for normality
+hist(site_sumgeom$habitat_suitability, 
+     main = "Histogram of Habitat Suitability", 
+     xlab = "Habitat Suitability", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 20) 
+
+hist(site_sumgeom$mfratio, 
+     main = "Histogram of Male-Female Ratio", 
+     xlab = "Male-Female Ratio", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 20) 
+
+
+```
+
+
+```{r}
+
+cor.test(site_sumgeom$habitat_suitability, site_sumgeom$mfratio)
+
+lm_model <- lm(mfratio ~ habitat_suitability, data = site_sumgeom)
+
+slope <- coef(lm_model)[2]  
+r_squared <- summary(lm_model)$r.squared
+intercept <- coef(lm_model)[1]
+p_value <- summary(lm_model)$coefficients[2, 4]  
+
+```
+
+
+
+```{r}
+
+ggplot(site_sumgeom, aes(x = habitat_suitability, y = mfratio)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(x = "Habitat Suitability", y = "Male-to-Female Ratio") +
+  theme_minimal() +
+  annotate("text", 
+           x = max(site_sumgeom$habitat_suitability) * 0.8, 
+           y = max(site_sumgeom$mfratio) * 0.9,
+           label = paste("y = ", round(slope, 2), "x", " + ", round(intercept, 2), 
+                         "\nR² = ", round(r_squared, 2),
+                         "\np-value = ", round(p_value, 4)),
+           hjust = 0, vjust = 1, size = 3, color = "black")
+      
+```
+
+Q3 METHODS
+
+
+Q3 RESULTS
+
+
+# Question 4
+
+Does the inclusion of Phenotype A and Phenotype B improve the functional relationship over habitat suitability alone?
+
+```{r}
+view(samples)
+
+
+```
+
+
+# Question 5
+
+Using the data from the last glacial maximum and the sampling locations, has the suitability changed at each location (e.g., was it as suitable 20,000 years ago as today)?
+
+```{r}
+
+glacrast <- projectRaster(glacrast, crs=4326)
+
+location$PresentSuit <- extract(suitrast, st_coordinates(location))
+
+location$GlacSuit <- extract(glacrast, st_coordinates(location))
+
+#check for normality with histograms
+hist(location$PresentSuit, 
+     main = "Histogram of Present Habitat Suitability", 
+     xlab = "Habitat Suitability", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 20) 
+
+hist(location$GlacSuit, 
+     main = "Histogram of Glacial Melt Habitat Suitability", 
+     xlab = "Habitat Suitability", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 20) 
+
+location$SuitDiff<- location$PresentSuit- location$GlacSuit
+
+
+```
+
+```{r}
+# I WOULD ASSUME WE USE A TTEST HERE, BUT WE DID NOT DO TTEST IN CLASS
+
+t_test <- t.test(location$PresentSuit, location$GlacSuit, paired = TRUE)
+print(t_test)
+
+```
+
+```{r}
+
+ggplot(location, aes(x = GlacSuit, y = PresentSuit)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    x = "Suitability (Glacial Melt)",
+    y = "Suitability (Present)",
+    title = "Habitat Suitability: Present vs Glacial Melt"
+  ) +
+  theme_minimal()
+
+
+```
+Scatterplot: Points above the dashed 1:1 line indicate areas where present-day suitability is higher than during the LGM, and points below the line indicate the opposite.
+
+
+MAYBE CREATE A NEW MAP SHOWING THE DIFFERENCES??????????
+
+
+Q5 METHODS
+
+To investigate whether habitat suitability has changed at sampling locations between the Last Glacial Maximum (~20,000 years ago) and the present day, we used two raster datasets representing habitat suitability for the two time periods. Sampling locations were provided as a spatial dataset containing geographic coordinates. Suitability values were extracted from each raster at the sampling locations, and the differences in suitability values between the present day and the LGM were calculated.
+
+A paired t-test was conducted to determine whether the mean difference in suitability values between the two time periods was significantly different from zero. The null hypothesis stated that there was no difference in habitat suitability between the present day and the LGM, while the alternative hypothesis stated that the mean difference was not equal to zero.
+
+Q5 RESULTS
+
+Suitability values were successfully extracted for 31 sampling locations from both the present-day and LGM raster datasets. The paired t-test yielded a t-statistic of −1.9272 with 30 degrees of freedom and a p-value of 0.06347. The mean difference in suitability was −0.040, with a 95% confidence interval of [−0.082,0.002].
+
+The results indicate that the difference in habitat suitability between the present day and the LGM was not statistically significant at the 
+α=0.05 level. However, the mean difference suggests a slight trend toward lower suitability in the present day compared to the LGM.
+
+
+# Question 6
+
+Predict the distribution of the historical sex ratio by applying the model you developed for current conditions to the suitability estimated from the last glacial maximum.  Across the landscape, do you detect any trends that may be due to the differences in climate, as measured by our estimates of habitat suitability?
+
+```{r}
+
+location$MFestimate <- (-0.73* location$GlacSuit + 1.47)
+
+
+```
+```{r}
+
+color_palette <- colorRampPalette(c("red", "green"))  
+
+num_colors <- 100
+color_values <- color_palette(num_colors)
+
+color_assigned <- color_values[cut(location$MFestimate, breaks = num_colors, include.lowest = TRUE)]
+
+
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+par(mar = c(2, 2, 1, 1))
+
+plot( suitrast, col="gray", legend=FALSE, xlab="Longitude", ylab="Latitude")
+
+plot( location["MFestimate"], 
+      pch=16,
+      col = color_assigned,
+      add=TRUE)
+
+legend("bottomleft", 
+       legend = c("Low", "High"), 
+       fill = c(color_values[1], color_values[num_colors]),
+       title = " Predicted MFratio")
+
+```
+
+
+
+## NEED METHODS AND RESULTS SECTIONS
+
+
+
