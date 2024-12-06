@@ -61,16 +61,13 @@ text(beetles$geometry, labels = beetles$Site, pos = 4, cex = 0.7, col = "blue")
 
 Use the click() function to crop the raster and filter the sites to include only the sampling locations that are in the Cape regions (e.g., south of site labeled #75). Plot the raster of elevation and all cape region locales with sex-ratio represented as the size of the plot symbol
 
-
-
 Normally, we would copy this into the console to define a new extent using the click function:
 
-alt <- crop( rast, baja_extent )
-plot(alt)
+alt \<- crop( rast, baja_extent ) plot(alt)
 
 text(beetles$geometry, labels = beetles$Site, pos = 4, cex = 0.7, col = "blue")
 
-cape_extent <- click(n = 2)
+cape_extent \<- click(n = 2)
 
 The code below is a rendered approximation of the output that would be seen when the click function is used in the console. The cape_extent would be used for this typically.
 
@@ -134,8 +131,7 @@ baja_map +
 
 The peninsula of Baja California is divided into the States of Baja California Norte and Baja California Sur. The border between these states is at 28° Latitude. Divide the sample locations into groups based on which state they are located in and plot the average sex ratio of the sample sites partitioned by each site.
 
-
-This question seemed like it could have been interpereted in a few different ways, so there are three different plots of the average sex ratio partitioned by the sample sites below. I am assuming the third plot is the one that was expected. 
+This question seemed like it could have been interpereted in a few different ways, so there are three different plots of the average sex ratio partitioned by the sample sites below. I am assuming the third plot is the one that was expected.
 
 ```{r}
 # Extract coordinates to create a new data frame
@@ -165,7 +161,6 @@ ggplot(average_sex_ratio, aes(x = State, y = Average_MFRatio, fill = State)) +
     axis.text.x = element_text(size = 6))
 ```
 
-
 ```{r}
 
 # Calculate the average sex ratio by site and state
@@ -187,7 +182,6 @@ ggplot(average_sex_ratio, aes(x = Site, y = Average_MFRatio, fill = State)) +
 
 
 ```
-
 
 ```{r}
 baja_extent <- extent( c(-115, -109, 23, 30 ) )
@@ -213,8 +207,6 @@ legend("bottomleft",
        title = "State") 
 
 ```
-
-
 
 ## Question 4
 
@@ -258,6 +250,7 @@ Is there a relationship between the observed sex ratio and the elevation at that
 # cat("P =", p_value, "\n")
 
 ```
+
 ```{r}
 
 library(raster)
@@ -299,9 +292,9 @@ p_value <- cor_test_result$p.value
 cat("r =", r, "\n")
 cat("P =", p_value, "\n")
 ```
+
 ## Results
 
 The correlation analysis between elevation and the male-to-female ratio (MFRatio) yielded a correlation coefficient of r=−0.103, indicating a very weak negative correlation between the two variables. This suggests that as elevation increases, there is a slight tendency for the MFRatio to decrease; however, the relationship is negligible and likely not meaningful in practical terms.
 
 Further examination of the statistical significance of this correlation revealed a p-value of P=0.580. This value exceeds the conventional threshold of 0.05, leading us to fail to reject the null hypothesis. Consequently, we conclude that there is insufficient evidence to support a statistically significant relationship between elevation and MFRatio in the sampled data. In summary, variations in elevation do not appear to have a substantial effect on the MFRatio within this dataset.
-

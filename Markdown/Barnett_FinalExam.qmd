@@ -24,6 +24,8 @@ library(sf)
 library(ggplot2)
 library(kableExtra)
 library(knitr)
+library(gtools)
+
 ```
 
 ```{r}
@@ -193,6 +195,8 @@ mtext("Habitat Suitability", side = 4, line = 3.5)
 
 site_sumgeom$habitat_suitability <- extract(suitrast, st_coordinates(site_sumgeom))
 
+head(site_sumgeom)
+
 ```
 
 
@@ -203,14 +207,14 @@ hist(site_sumgeom$habitat_suitability,
      xlab = "Habitat Suitability", 
      col = "lightblue", 
      border = "black", 
-     breaks = 20) 
+     breaks = 10) 
 
 hist(site_sumgeom$mfratio, 
      main = "Histogram of Male-Female Ratio", 
      xlab = "Male-Female Ratio", 
      col = "lightblue", 
      border = "black", 
-     breaks = 20) 
+     breaks = 10) 
 
 
 ```
@@ -258,12 +262,100 @@ Q3 RESULTS
 
 Does the inclusion of Phenotype A and Phenotype B improve the functional relationship over habitat suitability alone?
 
+DO regressions and AIC I THINK? But I would have to take the averages of the pheonotypes for each site since there are 100 entries for each phenotype for each site. 
+
 ```{r}
-head(samples)
+
+avgsamp <- samples |>
+  group_by(Site) |>
+  summarize(
+    Avg_PhenotypeA = mean(PhenotypeA, na.rm = TRUE),
+    Avg_PhenotypeB = mean(PhenotypeB, na.rm = TRUE))
+
+#Check for normality
+hist(avgsamp$Avg_PhenotypeA, 
+     main = "Histogram of Average PhenotypeA", 
+     xlab = "PhenotypeA", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 10) 
+
+hist(avgsamp$Avg_PhenotypeB, 
+     main = "Histogram of Average PhenotypeB", 
+     xlab = "PhenotypeB", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 10) 
 
 
 ```
 
+
+```{r}
+
+avgsamp <- avgsamp |>
+  left_join(site_sumgeom, by = "Site")
+
+head(avgsamp)
+
+response <- avgsamp$habitat_suitability
+predictors <- c(avgsamp$Avg_PhenotypeA, avgsamp$Avg_PhenotypeB, avgsamp$mfratio)
+
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE)
+
+model_results <- lapply(all_combinations, function(predictor_set) {
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  model <- lm(formula, data = avgsamp)
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model))})
+
+```
+
+
+```{r}
+
+predictors <- c("mfratio", "Avg_PhenotypeA", "Avg_PhenotypeB")
+
+predictor_combinations <- list()
+for (i in 1:length(predictors)) {
+  combinations <- combn(predictors, i, simplify = FALSE)
+  predictor_combinations <- c(predictor_combinations, combinations)}
+
+model_results <- list()
+
+for (combo in predictor_combinations) {
+  formula_str <- paste("habitat_suitability ~", paste(combo, collapse = " + "))
+  formula_with_interaction <- as.formula(paste(formula_str, collapse = ""))
+  model <- lm(formula_with_interaction, data = avgsamp)
+  model_aic <- AIC(model)
+  model_r2 <- summary(model)$r.squared
+  model_results[[paste(combo, collapse = "_")]] <- list(
+    AIC = model_aic,
+    R2 = model_r2)}
+
+model_aics <- sapply(model_results, function(x) x$AIC)
+model_r2s <- sapply(model_results, function(x) x$R2)
+model_names <- names(model_results)
+
+results_df <- data.frame(
+  AIC = model_aics,
+  R2 = model_r2s)
+
+kable(results_df, caption = "AIC and R-squared Values for Each Model")|>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE, 
+                position = "center")
+
+
+```
+
+
+The output presents the AIC values for various linear regression models, each with different combinations of predictors. The model with only mfratio as the predictor has an AIC of -10.602889, while the models with Avg_PhenotypeA and Avg_PhenotypeB as individual predictors have AICs of -4.901224 and -5.185298, respectively. The models with pairs of predictors, such as mfratio and Avg_PhenotypeA, have an AIC of -8.773598, while the combination of mfratio and Avg_PhenotypeB has the lowest AIC of -9.897566, indicating it as the best-fitting model. The model with Avg_PhenotypeA and Avg_PhenotypeB has an AIC of -3.219780, and the model with all three predictors (mfratio, Avg_PhenotypeA, and Avg_PhenotypeB) has an AIC of -8.051844. In summary, the best model according to the AIC criterion is the one with mfratio and Avg_PhenotypeB, while the model with Avg_PhenotypeA and Avg_PhenotypeB provides the worst fit.
 
 # Question 5
 
@@ -283,14 +375,14 @@ hist(location$PresentSuit,
      xlab = "Habitat Suitability", 
      col = "lightblue", 
      border = "black", 
-     breaks = 20) 
+     breaks = 10) 
 
 hist(location$GlacSuit, 
      main = "Histogram of Glacial Melt Habitat Suitability", 
      xlab = "Habitat Suitability", 
      col = "lightblue", 
      border = "black", 
-     breaks = 20) 
+     breaks = 10) 
 
 location$SuitDiff<- location$PresentSuit- location$GlacSuit
 
