@@ -38,14 +38,6 @@ glacrast <- raster("Suitability_lgm.asc") #epsg 4326
 
 ```
 
-
-```{r}
-
-head(location)
-head(samples)
-
-```
-
 ```{r}
 #Sites on habitat suitability raster
 
@@ -121,7 +113,7 @@ To test for differences in sex ratios among sites, we first summarized the data 
 
 Q1 RESULTS
 
-The Chi-squared test revealed a significant difference in sex ratios among the sampled sites. With a X2 value of 68.38, 30 degrees of freedom, and a p-value of 7.968e-05, this result indicates that the proportions of males and females were not consistent across the sampled sites. This indicates that there are variations in sex ratios among the populations.
+The Chi-squared test revealed a significant difference in sex ratios among the sampled sites. With a X2 value of 68.38, 30 degrees of freedom, and a p-value of 7.968e-05. This result indicates that the proportions of males and females were not consistent across the sampled sites. Instead, this shows that there are variations in sex ratios among the populations.
 
 
 # Question 2
@@ -152,7 +144,7 @@ To identify which sites have sex ratios that deviate significantly from an equal
 
 Q2 RESULTS
 
-Site 17, 20,21,29, and 9 all significantly deviated from the equal proportion of males to females (50:50). P values for these deviated sites ranged from 0.0002 to 0.02 (REFER TO KABLE TABLE).
+---Site 17, 20,21,29, and 9 all significantly deviated from the equal proportion of males to females (50:50). P values for these deviated sites ranged from 0.0002 to 0.02 (REFER TO KABLE TABLE).
 
 # Question 3
 
@@ -160,6 +152,8 @@ Is there a functional relationship between the habitat suitability at the sampli
 
 
 ```{r}
+
+suitrast <- projectRaster(suitrast, crs=4326)
 
 site_sumgeom <- merge(location, site_summary[, c("Site", "mfratio")], by = "Site", all.x = TRUE)
 
@@ -179,11 +173,23 @@ plot( site_sumgeom["Site"],
 
 text(site_sumgeom$geometry, labels = site_sumgeom$mfratio, pos = 4, cex = 0.5, col = "blue")
 
+
+legend("bottomleft", 
+       legend = "Male-Female Ratio", 
+       pch = 16, 
+       col = "darkgrey", 
+       bty = "n", 
+       pt.cex = 1.5,
+       text.col = "blue",
+       cex = 0.8)
+
+mtext("Habitat Suitability", side = 4, line = 3.5)
+
+
+
 ```
 
 ```{r}
-
-suitrast <- projectRaster(suitrast, crs=4326)
 
 site_sumgeom$habitat_suitability <- extract(suitrast, st_coordinates(site_sumgeom))
 
@@ -253,7 +259,7 @@ Q3 RESULTS
 Does the inclusion of Phenotype A and Phenotype B improve the functional relationship over habitat suitability alone?
 
 ```{r}
-view(samples)
+head(samples)
 
 
 ```
@@ -321,28 +327,103 @@ MAYBE CREATE A NEW MAP SHOWING THE DIFFERENCES??????????
 
 Q5 METHODS
 
-To investigate whether habitat suitability has changed at sampling locations between the Last Glacial Maximum (~20,000 years ago) and the present day, we used two raster datasets representing habitat suitability for the two time periods. Sampling locations were provided as a spatial dataset containing geographic coordinates. Suitability values were extracted from each raster at the sampling locations, and the differences in suitability values between the present day and the LGM were calculated.
+To investigate whether habitat suitability has changed at sampling locations between the last glacial maximum (~20,000 years ago) and the present day, we used two raster datasets representing habitat suitability for the two time periods. Sampling locations were provided as a spatial dataset containing geographic coordinates. Suitability values were extracted from each raster at the sampling locations, and the differences in suitability values between the present day and the glacial maximum were calculated.
 
-A paired t-test was conducted to determine whether the mean difference in suitability values between the two time periods was significantly different from zero. The null hypothesis stated that there was no difference in habitat suitability between the present day and the LGM, while the alternative hypothesis stated that the mean difference was not equal to zero.
+A paired t-test was conducted to determine whether the mean difference in suitability values between the two time periods was significantly different from zero. The null hypothesis stated that there was no difference in habitat suitability between the present day and the last glacial maximum, while the alternative hypothesis stated that the mean difference was not equal to zero.
 
 Q5 RESULTS
 
-Suitability values were successfully extracted for 31 sampling locations from both the present-day and LGM raster datasets. The paired t-test yielded a t-statistic of −1.9272 with 30 degrees of freedom and a p-value of 0.06347. The mean difference in suitability was −0.040, with a 95% confidence interval of [−0.082,0.002].
+Suitability values were successfully extracted for 31 sampling locations from both the present-day and last glacial maxiumum raster datasets. The paired t-test yielded a t-statistic of −1.9272 with 30 degrees of freedom and a p-value of 0.06347. The mean difference in suitability was −0.040, with a 95% confidence interval of −0.082,0.002.
 
 The results indicate that the difference in habitat suitability between the present day and the LGM was not statistically significant at the 
-α=0.05 level. However, the mean difference suggests a slight trend toward lower suitability in the present day compared to the LGM.
+α=0.05 level. However, the mean difference suggests a slight trend toward lower suitability in the present day compared to the last glacial maximum
 
 
 # Question 6
 
-Predict the distribution of the historical sex ratio by applying the model you developed for current conditions to the suitability estimated from the last glacial maximum.  Across the landscape, do you detect any trends that may be due to the differences in climate, as measured by our estimates of habitat suitability?
+Predict the distribution of the historical sex ratio by applying the model you developed for current conditions to the suitability estimated from the last glacial maximum. Across the landscape, do you detect any trends that may be due to the differences in climate, as measured by our estimates of habitat suitability?
 
 ```{r}
 
 location$MFestimate <- (-0.73* location$GlacSuit + 1.47)
 
+location$PresEstimate <- (-0.73* location$PresentSuit + 1.47)
+
+location$MFdifference <- (location$PresEstimate - location$MFestimate)
 
 ```
+
+
+```{r}
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+par(mar = c(2, 2, 1, 1))
+
+plot(suitrast)
+plot( location["Site"], 
+      pch=16,
+      col = "darkgrey",
+      add=TRUE)
+
+text(location$geometry, labels = round(location$MFestimate, 4), pos = 4, cex = 0.5, col = "blue")
+
+
+legend("bottomleft", 
+       legend = "Glacial Male-Female Ratio", 
+       pch = 16, 
+       col = "darkgrey", 
+       bty = "n", 
+       pt.cex = 1.5,
+       text.col = "blue",
+       cex = 0.8)
+
+mtext("Habitat Suitability", side = 4, line = 3.5)
+
+```
+
+
+```{r}
+
+# Define the plot extent for Baja
+baja_extent <- extent(c(-115, -109, 23, 30))
+
+# Set plot margins
+par(mar = c(2, 2, 1, 1))
+
+# Plot the habitat suitability raster (suitrast) in gray without a legend
+plot(suitrast)
+
+# Plot the location data points with sizes based on MFestimate values
+# Use MFestimate to determine point size (scaled to a reasonable range)
+# We will scale MFestimate to make sure the points are not too large or too small
+scaled_sizes <- (location$MFestimate - min(location$MFestimate)) / 
+                (max(location$MFestimate) - min(location$MFestimate)) * 2 + 0.5  # Scaled from 0.5 to 2
+
+# Plot the location data points with open circles and sizes based on MFestimate
+plot(location["Site"], 
+     pch = 1,  # Open circle
+     col = "blue", 
+     cex = scaled_sizes,  # Size of points based on MFestimate
+     add = TRUE)
+
+# Add a legend that explains the point size
+# We need to show a range of point sizes
+legend("bottomleft", 
+       legend = c("Low MFestimate", "High MFestimate"), 
+       pch = 1,  # Open circle in the legend
+       col = "blue", 
+       pt.cex = c(0.5, 2),  # Minimum and maximum point sizes for the legend
+       bty = "n", 
+       text.col = "blue",
+       cex = 0.8)
+
+# Add a label for habitat suitability (or any other info you want)
+mtext("Habitat Suitability", side = 4, line = 3.5)
+
+```
+
+
 ```{r}
 
 color_palette <- colorRampPalette(c("red", "green"))  
@@ -350,7 +431,9 @@ color_palette <- colorRampPalette(c("red", "green"))
 num_colors <- 100
 color_values <- color_palette(num_colors)
 
-color_assigned <- color_values[cut(location$MFestimate, breaks = num_colors, include.lowest = TRUE)]
+zero_color <- color_values[ceiling(num_colors / 2)]
+
+color_assigned <- color_values[cut(location$MFdifference, breaks = num_colors, include.lowest = TRUE)]
 
 
 baja_extent <- extent( c(-115, -109, 23, 30 ) )
@@ -360,17 +443,18 @@ par(mar = c(2, 2, 1, 1))
 
 plot( suitrast, col="gray", legend=FALSE, xlab="Longitude", ylab="Latitude")
 
-plot( location["MFestimate"], 
+plot( location["MFdifference"], 
       pch=16,
       col = color_assigned,
       add=TRUE)
 
 legend("bottomleft", 
-       legend = c("Low", "High"), 
-       fill = c(color_values[1], color_values[num_colors]),
-       title = " Predicted MFratio")
+       legend = c("Glacier Est Higher", "Equal", "Present Est Higher"),
+       fill = c(color_values[1], zero_color, color_values[num_colors]),
+       title = "Present MF - Glacier MF")
 
 ```
+
 
 
 
