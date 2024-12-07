@@ -1,0 +1,38 @@
+---
+title: "Beetle Document"
+format: html
+editor: visual
+---
+
+
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,     
+  warning = FALSE,   
+  message = FALSE )
+
+```
+
+## Methods
+
+To determine the extent to which changing climate may have impacted sex ratio divergence among locations in the Sonora Desert bark beetle, Araptus attenuatus, multiple statistical analyses were performed. We analyzed data collected from beetles sampled across multiple sites. At each site, beetles were randomly sampled from several plants, with each plant serving as a replicate within the site. The sex of each beetle was recorded as either male or female.
+
+Q1 To test for differences in sex ratios among sites, we first summarized the data by calculating the number of males and the total number of beetles sampled at each site. A contingency table was then constructed to capture the counts of males and females across all sites. A Pearson’s Chi-squared test was applied to this contingency table to assess whether the observed sex ratios differed significantly among sites.
+
+Q2 To identify which sites have sex ratios that deviate significantly from an equal proportion of males and females (50:50), we conducted a series of binomial tests. For each site, we tested whether the observed number of males significantly differed from the expected number under the assumption of equal proportions. Binomial tests were performed using the total number of beetles sampled at each site and the observed count of males. The resulting p-values from these tests were used to determine significance, with p < 0.05 indicating a site where the sex ratio significantly deviated from equality.
+
+Q3 METHODS
+
+Q4 METHODS
+
+Q5 To investigate whether habitat suitability has changed at sampling locations between the last glacial maximum (~20,000 years ago) and the present day, we used two raster datasets representing habitat suitability for the two time periods. Suitability values were extracted from each raster at the sampling locations, and the differences in suitability values between the present day and the glacial maximum were calculated. NORMALITY!!!!!!!
+
+A paired t-test was conducted to determine whether the mean difference in suitability values between the two time periods was significantly different from zero. The null hypothesis stated that there was no difference in habitat suitability between the present day and the last glacial maximum, while the alternative hypothesis stated that the mean difference was not equal to zero.
+
+Q6 METHODS
+
+
+## Results
+

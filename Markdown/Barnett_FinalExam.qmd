@@ -293,32 +293,6 @@ hist(avgsamp$Avg_PhenotypeB,
 
 ```{r}
 
-avgsamp <- avgsamp |>
-  left_join(site_sumgeom, by = "Site")
-
-head(avgsamp)
-
-response <- avgsamp$habitat_suitability
-predictors <- c(avgsamp$Avg_PhenotypeA, avgsamp$Avg_PhenotypeB, avgsamp$mfratio)
-
-all_combinations <- unlist(
-  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
-  recursive = FALSE)
-
-model_results <- lapply(all_combinations, function(predictor_set) {
-  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
-  
-  model <- lm(formula, data = avgsamp)
-  list(
-    predictors = predictor_set,
-    model = model,
-    AIC = AIC(model))})
-
-```
-
-
-```{r}
-
 predictors <- c("mfratio", "Avg_PhenotypeA", "Avg_PhenotypeB")
 
 predictor_combinations <- list()
