@@ -10,7 +10,7 @@ editor: visual
 knitr::opts_chunk$set(
   echo = FALSE,     
   warning = FALSE,   
-  message = FALSE )
+  message = FALSE)
 
 ```
 
@@ -40,32 +40,26 @@ glacrast <- raster("Suitability_lgm.asc") #epsg 4326
 
 ## Methods
 
-To determine the extent to which changing climate may have impacted sex ratio divergence among locations in the Sonora Desert bark beetle, Araptus attenuatus, multiple statistical analyses were performed. We analyzed data collected from beetles sampled across multiple sites. At each site, beetles were randomly sampled from several plants, with each plant serving as a replicate within the site. The sex of each beetle was recorded as either male or female.
+To determine the extent to which changing climate may have impacted sex ratio divergence among locations in the Sonora Desert bark beetle, Araptus attenuatus, multiple statistical analyses were performed. We analyzed data collected from 100 beetles sampled across 31 sites. At each site, beetles were randomly sampled from several plants, with each plant serving as a replicate within the site. The sex of each beetle was recorded as either male or female, along with phenotype data.
 
-Q1 
 To test for differences in sex ratios among sites, we first summarized the data by calculating the number of males and the total number of beetles sampled at each site. A contingency table was then constructed to capture the counts of males and females across all sites. A Pearson’s Chi-squared test was applied to this contingency table to assess whether the observed sex ratios differed significantly among sites.
 
-Q2 
 To identify which sites have sex ratios that deviate significantly from an equal proportion of males and females (50:50), we conducted a series of binomial tests. For each site, we tested whether the observed number of males significantly differed from the expected number under the assumption of equal proportions. Binomial tests were performed using the total number of beetles sampled at each site and the observed count of males. The resulting p-values from these tests were used to determine significance, with p < 0.05 indicating a site where the sex ratio significantly deviated from equality.
 
-Q3 
 To investigate the relationship between habitat suitability and the male-to-female sex ratio of beetles at the sampling locations, we utilized raster habitat suitability data, sampling locations, and sex ratio estimates aggregated to a single value per site. Habitat suitability measurements were derived from a raster dataset with a spatial resolution of 1 km², while sex ratios were calculated from raw data as the male-to-female ratio for each site. The habitat suitability raster was re-projected to the EPSG:4326 coordinate system to align with the spatial reference system of the sampling locations. Sampling locations, containing latitude and longitude information, were overlaid onto the habitat suitability raster, and suitability values corresponding to each site were extracted using site coordinates.
 
 To assess the functional relationship, exploratory data analysis was first conducted by examining histograms of habitat suitability and male-to-female sex ratios to evaluate the normality of the distributions. A Pearson correlation test was then performed to quantify the strength and direction of the relationship between habitat suitability and sex ratio. Additionally, a linear regression model was fitted to predict the male-to-female ratio using habitat suitability as the explanatory variable. The model's slope, intercept, R2, and p-value were recorded. Finally, a scatterplot was created to visualize the relationship between habitat suitability and the male-to-female ratio, with a fitted regression line and annotated model parameters.
 
-Q4 
 To investigate whether the inclusion of Phenotype A and Phenotype B improves the functional relationship between habitat suitability and the male-to-female sex ratio, we expanded our analysis to include these additional predictors. First, we aggregated the raw beetle dataset by site, calculating the average values of Phenotype A and Phenotype B for each site. These averages were then combined with the previously calculated male-to-female ratio and habitat suitability values for each site to form a unified dataset.
 
 Histograms of the average Phenotype A and Phenotype B values were examined to evaluate the normality of these predictors. Using this dataset, we constructed multiple linear regression models with habitat suitability as the dependent variable and different combinations of the three predictors—male-to-female ratio, average Phenotype A, and average Phenotype B—as independent variables.
 
 To identify the best-fitting model, we assessed all possible combinations of predictors, ranging from single-variable models to a full model including all three predictors and their additive effects. For each model, we calculated the Akaike Information Criterion (AIC) and the coefficient of determination R2 as metrics for model performance. Lower AIC values indicated better model fit, while higher R2 values indicated greater explanatory power. Results for all models were tabulated for comparison.
 
-Q5 
 To investigate whether habitat suitability has changed at sampling locations between the last glacial maximum (~20,000 years ago) and the present day, we used two raster datasets representing habitat suitability for the two time periods. Suitability values were extracted from each raster at the sampling locations, and the differences in suitability values between the present day and the glacial maximum were calculated. NORMALITY!!!!!!!
 
 A paired t-test was conducted to determine whether the mean difference in suitability values between the two time periods was significantly different from zero. The null hypothesis stated that there was no difference in habitat suitability between the present day and the last glacial maximum, while the alternative hypothesis stated that the mean difference was not equal to zero.
 
-Q6 
 To investigate changes in male-to-female ratios (MF ratios) across the landscape, we used a model derived from the relationship between current habitat suitability and MF ratio ( MF Ratio = − 0.73 * Habitat Suitability + 1.47 ). This model was applied to historical habitat suitability estimates from the Last Glacial Maximum raster and to present-day habitat suitability to predict sex ratios for both time periods at each sampling location. The difference between the two estimates (MFdifference = PresEstimate − MFestimate) was calculated to identify trends potentially driven by climatic changes over time.
 
 To visualize these patterns, we mapped the spatial distribution of the predicted differences (MFdifference) using a color-coded scale. A custom color palette ranging from red (higher historical MF ratios) to green (higher present-day MF ratios) was created, with a neutral color (centered at zero difference) representing equal MF ratios. Predicted values were binned into 100 levels, with each bin assigned a corresponding color. These visualizations were overlaid on the habitat suitability raster to contextualize the patterns of sex ratio shifts across the landscape. A second visualization was use to view the extent of predicted historical sex ratios. Symbol size on the map represented the magnitude of the predicted historical sex ratios.
@@ -73,10 +67,7 @@ To visualize these patterns, we mapped the spatial distribution of the predicted
 
 ## Results
 
-
-Q1 NEED A Q1 VISUALIZATION!!!!!!!!!!!
-
-The Chi-squared test revealed a significant difference in sex ratios among the sampled sites. With a X2 value of 68.38, 30 degrees of freedom, and a p-value of 7.968e-05. This result indicates that the proportions of males and females were not consistent across the sampled sites. Instead, this shows that there are variations in sex ratios among the populations.
+The Chi-squared test revealed a significant difference in sex ratios among the sampled sites. With a X2 value of 68.38, 30 degrees of freedom, and a p-value of 7.968e-05. This result indicates that the proportions of males and females were not consistent across the sampled sites. Instead, this shows that there are variations in sex ratios among the populations. Visualization of this can be seen in Figure 1 which shows the proportions of male and female beetles at each site. 
 
 ```{r}
 
@@ -92,7 +83,7 @@ colnames(site_summary) <- c("Site", "Males", "Total")
 
 ```
 
-```{r}
+```{r, results = 'hide'}
 
 site_contingency <- xtabs(~ Site + Sex, data = samples)
 
@@ -101,9 +92,29 @@ chisq.test(site_contingency)
 ```
 
 
-Q2
+```{r}
 
-NEED Q2 RESULTS WRITE UP!!!!!!!!!!!!
+site_summary$Males_Prop <- site_summary$Males / site_summary$Total
+site_summary$Females_Prop <- 1 - site_summary$Males_Prop
+
+site_summary_long <- reshape(site_summary, 
+                             varying = c("Males_Prop", "Females_Prop"),
+                             v.names = "Proportion", 
+                             timevar = "Sex", 
+                             times = c("Male", "Female"), 
+                             direction = "long")
+
+ggplot(site_summary_long, aes(x = Site, y = Proportion, fill = Sex)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "Figure 1: Sex Ratios by Site", y = "Proportion", x = "Site") +
+  scale_fill_manual(values = c("blue", "pink")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+Six sites exhibited significant deviations from equal male-to-female proportions (mfratio=1), as indicated by their p-values (Table 1). Site 18 had the highest male-to-female ratio (mfratio=2.2258,p=0.0002), while Site 9 was the only site with a female-biased ratio (mfratio=0.5873,p=0.0120). Sites 17, 20, and 29 all displayed an mfratio=1.6316 with p=0.0210, and Site 21 exhibited a ratio of 1.7027 (p=0.0120). These results suggest a heterogeneous distribution of sex ratio imbalances across locations, with certain sites displaying pronounced male or female biases. 
 
 ```{r}
 
@@ -117,14 +128,13 @@ site_summary$p_value <- mapply(function(males, total) {
 significant_sites <- subset(site_summary, p_value < 0.05)
 
 significant_sites |>
-  kable(caption = "Sex Ratios Differing Significantly from Equal Proportions") |>
+  kable(caption = "Table 1: Sex Ratios Differing Significantly from Equal Proportions") |>
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = FALSE, 
                 position = "center")
 
 ```
 
-Q3
 The data was determined to be normal based on visual analysis of histogram plots (REFER TO FIGURES IN THE APPENDIX). The primary correlation analysis revealed a significant negative correlation between habitat suitability and the male-to-female sex ratio (r=−0.41, p=0.0215, 95% CI: [−0.67,−0.07]). This suggests that as habitat suitability increases, the male-to-female ratio decreases. The linear regression model further supported this relationship, with the equation:Male-Female Ratio = -0.73 * Habitat Suitability + 1.47
 
 The regression model explained 16.9% of the variation in sex ratio (R2 = 0.169), and the slope of the relationship was statistically significant (p=0.0215).
@@ -139,11 +149,11 @@ site_sumgeom <- merge(location, site_summary[, c("Site", "mfratio")], by = "Site
 
 ```
 
-```{r}
+```{r, results = 'hide'}
 baja_extent <- extent( c(-115, -109, 23, 30 ) )
 baja_extent
 
-par(mar = c(2, 2, 1, 1))
+par(mar = c(2, 2, 2, 1))
 
 plot(suitrast)
 plot( site_sumgeom["Site"], 
@@ -165,6 +175,7 @@ legend("bottomleft",
 
 mtext("Habitat Suitability", side = 4, line = 3.5)
 
+mtext("Figure 2: Plot of Male-Female Ratio Over Habitat Suitability", side = 3, line = 1, cex = 0.8, font = 2)
 
 
 ```
@@ -175,7 +186,7 @@ site_sumgeom$habitat_suitability <- extract(suitrast, st_coordinates(site_sumgeo
 
 ```
 
-```{r}
+```{r, results = 'hide'}
 
 cor.test(site_sumgeom$habitat_suitability, site_sumgeom$mfratio)
 
@@ -193,7 +204,7 @@ p_value <- summary(lm_model)$coefficients[2, 4]
 ggplot(site_sumgeom, aes(x = habitat_suitability, y = mfratio)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(x = "Habitat Suitability", y = "Male-to-Female Ratio") +
+  labs(x = "Habitat Suitability", y = "Male-to-Female Ratio", title = "Figure 3: Scatterplot of MF Ratio to Habitat Suitability") +
   theme_minimal() +
   annotate("text", 
            x = max(site_sumgeom$habitat_suitability) * 0.8, 
@@ -205,7 +216,6 @@ ggplot(site_sumgeom, aes(x = habitat_suitability, y = mfratio)) +
       
 ```
 
-Q4
 Again, to compare the functionality of different models with habitat suitability, the data were first assessed for normality via histograms (REFER TO IN THE APPENDIX!!!). The results of the model comparison are summarized in (REFER TO TABLE!!), which displays the AIC and R2 values for each combination of predictors. The single-variable model with the male-to-female ratio had the lowest AIC (-10.60) among all single-predictor models and an R2 of 0.169, indicating a modest explanatory power. The addition of Phenotype A or Phenotype B to the model increased R2 but at the cost of higher AIC values when these predictors were used independently.
 
 The best-performing model, based on the lowest AIC value (-10.6), was the model that included only male-to-female ratio. This indicates that the inclusion of Phenotypes A and B do not improve the functional relationship over habitat suitability either on their own or in any combination. 
@@ -252,7 +262,7 @@ results_df <- data.frame(
   AIC = model_aics,
   R2 = model_r2s)
 
-kable(results_df, caption = "AIC and R-squared Values for Each Model")|>
+kable(results_df, caption = "Table 2: AIC and R-squared Values for Each Model")|>
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = FALSE, 
                 position = "center")
@@ -260,9 +270,125 @@ kable(results_df, caption = "AIC and R-squared Values for Each Model")|>
 ```
 
 
-Q5
+Suitability values were successfully extracted for 31 sampling locations from both the present-day and last glacial maxiumum raster datasets. A paired t-test yielded a t-statistic of −1.9272 with 30 degrees of freedom and a p-value of 0.06347. The mean difference in suitability was −0.040, with a 95% confidence interval of −0.082,0.002.
+
+The results indicate that the difference in habitat suitability between the present day and the last glacial maximum was not statistically significant at the α=0.05 level. However, the mean difference suggests a slight trend toward lower suitability in the present day compared to the last glacial maximum. Figure ____ shows a scatterplot comparing suitability between the two periods. Points above the dashed 1:1 line indicate areas where present-day suitability is higher than during the last glacial maximum, and points below the line indicate the opposite.
+
+```{r}
+
+glacrast <- projectRaster(glacrast, crs=4326)
+
+location$PresentSuit <- extract(suitrast, st_coordinates(location))
+
+location$GlacSuit <- extract(glacrast, st_coordinates(location))
+
+location$SuitDiff<- location$PresentSuit- location$GlacSuit
+
+```
+
+```{r, results = 'hide'}
+
+t_test <- t.test(location$PresentSuit, location$GlacSuit, paired = TRUE)
+print(t_test)
+
+```
+
+```{r}
+
+ggplot(location, aes(x = GlacSuit, y = PresentSuit)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    x = "Suitability (Glacial Melt)",
+    y = "Suitability (Present)",
+    title = "Figure 4: Habitat Suitability- Present vs Glacial Melt"
+  ) +
+  theme_minimal()
+
+```
 
 
+The analysis comparing habitat suitability during the Last Glacial Maximum and present-day conditions revealed notable patterns in male-female (MF) ratio estimates across sites. Table ____ (Appendix) summarizes the predicted present and glacial habitat suitability alongside the respective MF estimates for each site. The suitability and MF estimates exhibit variability across the landscape, with some sites experiencing higher suitability during glacial periods and others showing increased suitability in present conditions. These findings suggest that shifts in climate likely played a role in driving habitat suitability changes and influenced associated sex ratio distributions at some sites while leaving others relatively unaffected.
+
+Figures ____ and ____ display a comparison of MF ratio estimates according to each site location. Figure ___ is plotted over the present habitat suitability data and the size circle on at each site indicates the relative proportions of males to females in our glacial estimates. This figure visualizes how some larger historical estimates for MF ratio do not match up with present habitat suitability. This indicates a change over time. Figure ___ shows if each site had a historical MF estimate that is higher or lower than the present Findings. This figure shows that the majority of sites, particularly in the northern portion of the area, have seen a reduction in MF ratio since the last glacial maximum. 
+
+The observed trends highlight the potential influence of past climatic shifts on species distributions and demographic patterns. Sites with minimal differences between glacial and present MF estimates may represent areas of relative climatic stability, whereas sites with larger discrepancies may reflect the sensitivity of habitat suitability to climate variations. Such patterns underline the importance of climate in shaping ecological and population dynamics, offering insights into how future climatic changes might further impact habitat and demographic structures.
+
+```{r}
+
+location$MFestimate <- (-0.73* location$GlacSuit + 1.47)
+
+location$PresEstimate <- (-0.73* location$PresentSuit + 1.47)
+
+location$MFdifference <- (location$PresEstimate - location$MFestimate)
+
+```
+
+
+```{r, results= 'hide'}
+
+baja_extent <- extent(c(-115, -109, 23, 30))
+
+par(mar = c(2, 2, 2, 1))
+
+plot(suitrast)
+
+scaled_sizes <- (location$MFestimate - min(location$MFestimate)) / 
+                (max(location$MFestimate) - min(location$MFestimate)) * 2 + 0.5 
+
+plot(location["Site"], 
+     pch = 1,  
+     col = "blue", 
+     cex = scaled_sizes,  
+     add = TRUE)
+
+legend("bottomleft", 
+       legend = c("Low MFestimate", "High MFestimate"), 
+       pch = 1,
+       col = "blue", 
+       pt.cex = c(0.5, 2),
+       bty = "n", 
+       text.col = "blue",
+       cex = 0.8)
+
+mtext("Habitat Suitability", side = 4, line = 3.5)
+
+mtext("Figure 5: Glacier MF Ratio Estimates on Present Suitability", side = 3, line = 1, cex = 0.8, font = 2)
+
+```
+
+```{r, results= 'hide'}
+
+color_palette <- colorRampPalette(c("red", "green"))  
+
+num_colors <- 100
+color_values <- color_palette(num_colors)
+
+zero_color <- color_values[ceiling(num_colors / 2)]
+
+color_assigned <- color_values[cut(location$MFdifference, breaks = num_colors, include.lowest = TRUE)]
+
+
+baja_extent <- extent( c(-115, -109, 23, 30 ) )
+baja_extent
+
+par(mar = c(2, 2, 2, 1))
+
+plot( suitrast, col="gray", legend=FALSE, xlab="Longitude", ylab="Latitude")
+
+plot( location["MFdifference"], 
+      pch=16,
+      col = color_assigned,
+      add=TRUE)
+
+legend("bottomleft", 
+       legend = c("Glacier Est Higher", "Equal", "Present Est Higher"),
+       fill = c(color_values[1], zero_color, color_values[num_colors]),
+       title = "Present MF - Glacier MF")
+
+mtext("Figure 6: Comparison of Historical to Present MF Ratios", side = 3, line = 1, cex = 0.8, font = 2)
+
+```
 
 ## Appendix
 
@@ -270,14 +396,14 @@ Q5
 
 # Test for normality
 hist(site_sumgeom$habitat_suitability, 
-     main = "Histogram of Habitat Suitability", 
+     main = "Figure 7: Histogram of Habitat Suitability", 
      xlab = "Habitat Suitability", 
      col = "lightblue", 
      border = "black", 
      breaks = 10) 
 
 hist(site_sumgeom$mfratio, 
-     main = "Histogram of Male-Female Ratio", 
+     main = "Figure 8: Histogram of Male-Female Ratio", 
      xlab = "Male-Female Ratio", 
      col = "lightblue", 
      border = "black", 
@@ -285,18 +411,42 @@ hist(site_sumgeom$mfratio,
 
 #Check for normality
 hist(avgsamp$Avg_PhenotypeA, 
-     main = "Histogram of Average PhenotypeA", 
+     main = "Figure 9: Histogram of Average PhenotypeA", 
      xlab = "PhenotypeA", 
      col = "lightblue", 
      border = "black", 
      breaks = 10) 
 
 hist(avgsamp$Avg_PhenotypeB, 
-     main = "Histogram of Average PhenotypeB", 
+     main = "Figure 10: Histogram of Average PhenotypeB", 
      xlab = "PhenotypeB", 
      col = "lightblue", 
      border = "black", 
      breaks = 10) 
+
+hist(location$PresentSuit, 
+     main = "Figure 11: Histogram of Present Habitat Suitability", 
+     xlab = "Habitat Suitability", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 10) 
+
+hist(location$GlacSuit, 
+     main = "Figure 12: Histogram of Glacial Melt Habitat Suitability", 
+     xlab = "Habitat Suitability", 
+     col = "lightblue", 
+     border = "black", 
+     breaks = 10) 
+
+
+table_data <- st_drop_geometry(location)
+
+table_data <- table_data[, c("Site", "PresentSuit", "PresEstimate", "GlacSuit", "MFestimate")]
+
+kable(table_data,col.names = c("Site", "Present Suitability", "Present MF Estimate", "Glacial Suitability", "Glacial MF Estimate"), caption = "Figure 13: Comparison of Present and Glacial Suitability and Estimated Male-Female Ratios Across Sites") |>
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = FALSE, 
+                  position = "center")
 
 
 ```

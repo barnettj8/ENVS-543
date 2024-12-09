@@ -71,6 +71,30 @@ site_contingency <- xtabs(~ Site + Sex, data = samples)
 chisq.test(site_contingency)
 
 ```
+
+```{r}
+
+site_summary$Males_Prop <- site_summary$Males / site_summary$Total
+site_summary$Females_Prop <- 1 - site_summary$Males_Prop
+
+site_summary_long <- reshape(site_summary, 
+                             varying = c("Males_Prop", "Females_Prop"),
+                             v.names = "Proportion", 
+                             timevar = "Sex", 
+                             times = c("Male", "Female"), 
+                             direction = "long")
+
+ggplot(site_summary_long, aes(x = Site, y = Proportion, fill = Sex)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(title = "Sex Ratios by Site", y = "Proportion", x = "Site", caption = "Figure 1") +
+  scale_fill_manual(values = c("blue", "pink")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+
 Q1 METHODS
 
 To determine whether the sampled populations of beetles exhibit differences in sex ratios, we analyzed data collected from beetles sampled across multiple sites. At each site, beetles were randomly sampled from several plants, with each plant serving as a replicate within the site. The sex of each beetle was recorded as either male or female.
@@ -110,7 +134,7 @@ To identify which sites have sex ratios that deviate significantly from an equal
 
 Q2 RESULTS
 
----Site 17, 20,21,29, and 9 all significantly deviated from the equal proportion of males to females (50:50). P values for these deviated sites ranged from 0.0002 to 0.02 (REFER TO KABLE TABLE).
+Six sites exhibited significant deviations from equal male-to-female proportions (mfratio=1), as indicated by their p-values (Table 1). Site 18 had the highest male-to-female ratio (mfratio=2.2258,p=0.0002), while Site 9 was the only site with a female-biased ratio (mfratio=0.5873,p=0.0120). Sites 17, 20, and 29 all displayed an mfratio=1.6316 with p=0.0210, and Site 21 exhibited a ratio of 1.7027 (p=0.0120). These results suggest a heterogeneous distribution of sex ratio imbalances across locations, with certain sites displaying pronounced male or female biases. 
 
 # Question 3
 
@@ -469,6 +493,21 @@ legend("bottomleft",
        title = "Present MF - Glacier MF")
 
 ```
+
+
+```{r}
+
+table_data <- st_drop_geometry(location)
+
+table_data <- table_data[, c("Site", "PresentSuit", "PresEstimate", "GlacSuit", "MFestimate")]
+
+kable(table_data,col.names = c("Site", "Present Suitability", "Present MF Estimate", "Glacial Suitability", "Glacial MF Estimate"), caption = "Comparison of Present and Glacial Suitability and Estimated Male-Female Ratios Across Sites") |>
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = FALSE, 
+                  position = "center")
+
+```
+
 
 Q6 METHODS
 
