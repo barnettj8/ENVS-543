@@ -1,0 +1,401 @@
+---
+title: "Amani Streams"
+format: html
+editor: visual
+---
+
+```{r}
+
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+
+```
+
+## Plotting the Data
+
+```{r}
+
+data <- read.csv("AmaniStreamSummaryData.csv")
+
+head(data)
+
+```
+
+```{r}
+
+summary_data <- data |>
+  mutate(StreamType = recode(StreamType, "Forest" = "Control")) |>
+  group_by(StreamType) |>
+  summarise(
+    mean_Family_Rich = mean(Family_Rich),
+    se_Family_Rich = sd(Family_Rich) / 2,  # since n = 4, sqrt(4) = 2
+    mean_EPT_Spp = mean(EPT_Spp),
+    se_EPT_Spp = sd(EPT_Spp) / 2,  
+    mean_EstSpp = mean(EstSpp),
+    se_EstSpp = sd(EstSpp) / 2, 
+    mean_ObsSpp = mean(ObsSpp),
+    se_ObsSpp = sd(ObsSpp) / 2
+  )
+
+
+head(summary_data)
+
+```
+
+```{r}
+
+# Panel 1: Family Richness 
+plot1 <- ggplot(summary_data, aes(x = StreamType, y = mean_Family_Rich, fill = StreamType)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.5, width = 0.4) + 
+  geom_errorbar(aes(ymin = mean_Family_Rich - se_Family_Rich, ymax = mean_Family_Rich + se_Family_Rich), 
+                width = 0.25, position = position_dodge(0.8), color = "black") +
+  labs(title = NULL, x = NULL, y = "Family Richness") +
+  scale_fill_manual(values = c("darkgrey", "white")) +
+  scale_y_continuous(limits = c(0, 25), breaks = seq(0, 25, by = 5), expand = c(0, 0)) +  
+  scale_x_discrete(labels = c("Control" = "Control", "Tea" = "Tea")) + 
+  theme_minimal(base_size = 14) + 
+  theme(axis.text.x = element_text(size = 10), 
+        axis.title.x = element_blank(),  
+        axis.title.y = element_text(size = 10), 
+        axis.text.y = element_text(size = 10), 
+        plot.title = element_text(size = 12), 
+        legend.position = "none",  
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black", size = 0.5),
+        axis.ticks.y = element_line(color = "black", size = 0.5)) + 
+  coord_cartesian(clip = "off")
+
+
+
+```
+
+```{r}
+# Panel 2: EPT Richness
+plot2 <- ggplot(summary_data, aes(x = StreamType, y = mean_EPT_Spp, fill = StreamType)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.5, width = 0.4) +
+  geom_errorbar(aes(ymin = mean_EPT_Spp - se_EPT_Spp, ymax = mean_EPT_Spp + se_EPT_Spp), 
+                width = 0.25, position = position_dodge(0.8), color = "black") +
+  labs(title = NULL, x = NULL, y = "EPT Richness") +
+  scale_fill_manual(values = c("darkgrey", "white")) +
+  scale_y_continuous(limits = c(0, 10), breaks = seq(0, 10, by = 2), expand = c(0, 0)) +  
+  scale_x_discrete(labels = c("Control" = "Control", "Tea" = "Tea")) +
+  theme_minimal(base_size = 14) + 
+  theme(axis.text.x = element_text(size = 10),  
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 10),
+        axis.text.y = element_text(size = 10), 
+        plot.title = element_text(size = 12),  
+        legend.position = "none",  
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black", size = 0.5),
+        axis.ticks.y = element_line(color = "black", size = 0.5)) + 
+  coord_cartesian(clip = "off")
+
+
+```
+
+```{r}
+
+# Panel 3: Estimated Number of Species 
+plot3 <- ggplot(summary_data, aes(x = StreamType, y = mean_EstSpp, fill = StreamType)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.5, width = 0.4) +
+  geom_errorbar(aes(ymin = mean_EstSpp - se_EstSpp, ymax = mean_EstSpp + se_EstSpp), 
+                width = 0.25, position = position_dodge(0.8), color = "black") +
+  labs(title = NULL, x = NULL, y = "Estimated Number of Species") +
+  scale_fill_manual(values = c("darkgrey", "white")) +
+  scale_y_continuous(limits = c(0, 60), breaks = seq(0, 60, by = 10), expand = c(0, 0)) + 
+  scale_x_discrete(labels = c("Control" = "Control", "Tea" = "Tea")) +
+  theme_minimal(base_size = 14) + 
+  theme(axis.text.x = element_text(size = 10),  
+        axis.title.x = element_blank(), 
+        axis.title.y = element_text(size = 10), 
+        axis.text.y = element_text(size = 10),
+        plot.title = element_text(size = 12),  
+        legend.position = "none",
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black", size = 0.5),
+        axis.ticks.y = element_line(color = "black", size = 0.5)) + 
+  coord_cartesian(clip = "off")
+
+```
+
+```{r}
+
+# Panel 4: Species Observed
+plot4 <- ggplot(summary_data, aes(x = StreamType, y = mean_ObsSpp, fill = StreamType)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.5, width = 0.4) +
+  geom_errorbar(aes(ymin = mean_ObsSpp - se_ObsSpp, ymax = mean_ObsSpp + se_ObsSpp), 
+                width = 0.25, position = position_dodge(0.8), color = "black") +
+  labs(title = NULL, x = NULL, y = "Species Observed") +
+  scale_fill_manual(values = c("darkgrey", "white")) +
+  scale_x_discrete(labels = c("Control" = "Control", "Tea" = "Tea")) +   scale_y_continuous(expand = c(0, 0), breaks = seq(0, max(summary_data$mean_ObsSpp), by = 10)) +
+  theme_minimal(base_size = 14) + 
+  theme(axis.text.x = element_text(size = 10),
+        axis.title.x = element_blank(), 
+        axis.title.y = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        plot.title = element_text(size = 12),
+        legend.position = "none", 
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black", size = 0.5),
+        axis.ticks.y = element_line(color = "black", size = 0.5)) + 
+  coord_cartesian(clip = "off")
+
+
+```
+
+
+```{r}
+
+# Combine 4 plots
+grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow = 2)
+
+```
+
+## Statistical Tests with the Data
+
+# Checking for Normality (everything is normal)
+
+```{r}
+# Checking Distribution/Normality
+
+shapiro.test(data$Family_Rich)
+shapiro.test(data$EPT_Spp)
+shapiro.test(data$EstSpp)
+shapiro.test(data$ObsSpp)
+```
+
+# Family Richness 
+
+```{r}
+#  Family Richness
+t_test_family_rich <- t.test(Family_Rich ~ StreamType, data = data, alternative = "greater")
+t_test_family_rich
+
+# The t-test for Family Richness yielded a p-value of 0.0367, that control family richness is statistically significantly greater than in tea streams.
+
+```
+
+```{r}
+
+# Mann-Whitney test for Family Richness
+mann_whitney_family_rich <- wilcox.test(Family_Rich ~ StreamType, data = data, alternative = "greater")
+mann_whitney_family_rich
+
+# Since the p-value is less than 0.05 (0.04071), the result indicates that there is a statistically significant difference in Family_Richness between the two groups (Forest greater than tea).
+
+```
+
+# EPT Richness (no significance ttest, significant Mann-Whitney)
+
+
+```{r}
+t_test_ept_spp <- t.test(EPT_Spp ~ StreamType, data = data, alternative = "greater")
+t_test_ept_spp
+
+# significance (p= 0.04271)
+# The t-test for ept richness yielded a p-value of 0.04271, that control ept richness is statistically significantly greater than in tea streams.
+```
+
+
+```{r}
+# Mann-Whitney test for EPT Richness
+mann_whitney_ept_spp <- wilcox.test(EPT_Spp ~ StreamType, data = data, alternative = "greater")
+mann_whitney_ept_spp
+
+#The p-value = 0.02042 suggests that there is a significant difference between the "Forest" and "Tea" groups in terms of EPT richness. Since the p-value is less than 0.05, we reject the null hypothesis and conclude that the distribution of EPT species is not the same between the two stream types.
+
+```
+
+
+# Estimated Species (no significance)
+
+```{r}
+# Estimated Species
+t_test_est_spp <- t.test(EstSpp ~ StreamType, data = data, alternative = "greater")
+t_test_est_spp
+
+# The t-test for EST Species Richness yielded a p-value of 0.03897, that control family richness is statistically significantly greater than in tea streams.
+
+```
+
+```{r}
+# Mann-Whitney test for Estimated Species Richness
+mann_whitney_est_spp <- wilcox.test(EstSpp ~ StreamType, data = data, alternative = "greater")
+mann_whitney_est_spp
+
+# The mann-whitney for est species Richness yielded a p-value of 0.02857, that control est species richness is statistically significantly greater than in tea streams.
+
+```
+
+
+# Observed Species
+
+```{r}
+# Observed Species
+t_test_obs_spp <- t.test(ObsSpp ~ StreamType, data = data, alternative = "greater")
+t_test_obs_spp
+
+# The t-test for observed species yielded a p-value of 0.0338, that control family richness is statistically significantly greater than in tea streams.
+
+```
+
+```{r}
+# Mann-Whitney test for Species Observed
+mann_whitney_obs_spp <- wilcox.test(ObsSpp ~ StreamType, data = data, alternative = "greater")
+mann_whitney_obs_spp
+
+# The mann-whitney for species observed yielded a p-value of 0.04071, that control species observed is statistically significantly greater than in tea streams.
+
+```
+
+
+## Abundance (no significance)
+
+```{r}
+# Abundance
+t_test_abund <- t.test(Abund ~ StreamType, data = data, alternative = "greater")
+t_test_abund
+
+# The t-test for abundance yielded a p-value of 0.05452, that control family richness is marginally greater than in tea streams, not quite significant.
+
+```
+
+
+```{r}
+# Mann-Whitney test for Abundance
+mann_whitney_abund <- wilcox.test(Abund ~ StreamType, data = data, alternative = "greater")
+mann_whitney_abund
+
+#Since the p-value is marginally greater than 0.05, we fail to reject the null hypothesis, there is technically no difference between the means.
+
+
+```
+
+# Dissolved Oxygen (no significance ttest, significant Mann Whitney)
+
+```{r}
+
+t_test_do <- t.test(DO ~ StreamType, data = data, alternative = "greater")
+t_test_do
+
+# The t-test for dissolved oxygen yielded a p-value of 0.03785, that control dissolved oxygen is statistically significantly greater than in tea streams.
+
+```
+
+
+```{r}
+# Mann-Whitney test for Dissolved Oxygen
+mann_whitney_do <- wilcox.test(DO ~ StreamType, data = data, alternative = "greater")
+mann_whitney_do
+
+# Reject the null hypothesis: Since the p-value (0.01429) is less than 0.05, we reject the null hypothesis and conclude that there is a statistically significant difference in the distributions of DO between the "Forest" and "Tea" groups.
+
+```
+
+## Linear Regressions with Est. Spp (no significant relationships)
+
+# DO
+
+```{r}
+
+lm_do <- lm(DO ~ EstSpp, data = data)
+
+summary(lm_do)
+```
+
+```{r}
+ggplot(data, aes(x = EstSpp, y = DO)) +
+  geom_point() +  # Plot the data points
+  geom_smooth(method = "lm", col = "blue") +  # Add the linear regression line
+  labs(title = "Linear Regression of DO on EstSPP",
+       x = "Estimated Species (EstSpp)",
+       y = "Dissolved Oxygen (DO)") +
+  theme_minimal()
+```
+
+# Elevation
+
+```{r}
+
+lm_elev <- lm(Elevation ~ EstSpp, data = data)
+
+summary(lm_elev)
+```
+
+```{r}
+ggplot(data, aes(x = EstSpp, y = Elevation)) +
+  geom_point() +  # Plot the data points
+  geom_smooth(method = "lm", col = "blue") +  # Add the linear regression line
+  labs(title = "Linear Regression of elevation on EstSpp",
+       x = "Estimated Species (EstSpp)",
+       y = "Elevation") +
+  theme_minimal()
+```
+#Stream Width
+
+```{r}
+
+lm_width <- lm(Stream_width ~ EstSpp, data = data)
+
+summary(lm_width)
+
+```
+
+
+```{r}
+ggplot(data, aes(x = EstSpp, y = Stream_width)) +
+  geom_point() +  # Plot the data points
+  geom_smooth(method = "lm", col = "blue") +  # Add the linear regression line
+  labs(title = "Linear Regression of stream width on EstSpp",
+       x = "Estimated Species (EstSpp)",
+       y = "Stream Width") +
+  theme_minimal()
+```
+
+# Canopy
+
+```{r}
+
+lm_canopy <- lm(Canopy ~ EstSpp, data = data)
+
+summary(lm_canopy)
+```
+
+```{r}
+ggplot(data, aes(x = EstSpp, y = Canopy)) +
+  geom_point() +  # Plot the data points
+  geom_smooth(method = "lm", col = "blue") +  # Add the linear regression line
+  labs(title = "Linear Regression of canopy on EstSpp",
+       x = "Estimated Species (EstSpp)",
+       y = "canopy") +
+  theme_minimal()
+```
+
+# Flow rate
+
+```{r}
+
+lm_flow <- lm(Flow_rate ~ EstSpp, data = data)
+
+summary(lm_flow)
+
+```
+
+```{r}
+ggplot(data, aes(x = EstSpp, y = Flow_rate)) +
+  geom_point() +  # Plot the data points
+  geom_smooth(method = "lm", col = "blue") +  # Add the linear regression line
+  labs(title = "Linear Regression of flow rate on EstSpp",
+       x = "Estimated Species (EstSpp)",
+       y = "Flow Rate") +
+  theme_minimal()
+```
+
+

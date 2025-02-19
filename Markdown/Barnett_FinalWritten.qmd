@@ -1,5 +1,5 @@
 ---
-title: "Final Exam Written Document"
+title: "Analyzing Sex Ratio Variation in Araptus attenuatus: Statistical and Spatial Approaches"
 author: Jackson Barnett
 format: html
 editor: visual

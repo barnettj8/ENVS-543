@@ -1,0 +1,623 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+
+```{r}
+
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+
+```
+
+
+```{r}
+
+df <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQeVffI4KdQsMH33-buZOJATrT7VgdoXy8hpayOgQNfB3o35qdNg7_3PLYCCqRBYxN4bIUQImc0xK15/pub?gid=0&single=true&output=csv")
+
+head(df)
+
+```
+## Tests for normality (data not normal?)
+
+```{r}
+# Load required libraries
+library(ggplot2)
+library(car)
+
+# List of variables to check
+vars_to_check <- c("kd", "cdom_ab", "TSS", "chla_corrected", "chla_uncorrected", "secchi", "DOC")
+
+# Function to test for normality
+test_normality <- function(df, variables) {
+  normality_results <- lapply(variables, function(var) {
+    if (is.numeric(df[[var]])) {
+      shapiro.test(df[[var]])$p.value  # Shapiro-Wilk test p-value
+    } else {
+      NA
+    }
+  })
+  names(normality_results) <- variables
+  return(normality_results)
+}
+
+# Function to test for heteroscedasticity
+test_heteroscedasticity <- function(model) {
+  bptest(model)$p.value  # Breusch-Pagan test p-value
+}
+
+# Test normality
+normality_results <- test_normality(df, vars_to_check)
+print("Shapiro-Wilk normality test p-values:")
+print(normality_results)
+
+# Run regression model
+tot_cdom_model <- lm(kd ~ cdom_ab, data = df)
+
+# Test for heteroscedasticity
+library(lmtest)
+heteroscedasticity_p_value <- test_heteroscedasticity(tot_cdom_model)
+print(paste("Breusch-Pagan test p-value:", heteroscedasticity_p_value))
+
+# If needed, transform variables if normality assumptions are violated
+
+
+```
+
+```{r}
+# Load required library
+library(ggplot2)
+
+# List of variables to plot
+vars_to_plot <- c("kd", "cdom_ab", "TSS", "chla_corrected", "chla_uncorrected", "secchi", "DOC")
+
+# Create histograms
+for (var in vars_to_plot) {
+  p <- ggplot(df, aes_string(x = var)) +
+    geom_histogram(color = "black", fill = "blue", bins = 30, alpha = 0.7) +
+    labs(title = paste("Histogram of", var), x = var, y = "Frequency") +
+    theme_minimal()
+  
+  print(p)  # Print the plot
+}
+
+```
+
+# All data Regressions
+
+```{r}
+
+tot_cdom_model <- lm(kd ~ cdom_ab, data = df)
+
+summary_model <- summary(tot_cdom_model)
+slope <- round(coef(tot_cdom_model)[2], 4)
+intercept <- round(coef(tot_cdom_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+ggplot(df, aes(x = cdom_ab, y = kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of all site kd and CDOM",
+    x = "CDOM Absorbance",
+    y = "kd (m-1)"
+  ) +
+  geom_text(
+    aes(
+      x = max(cdom_ab), 
+      y = min(kd), 
+      label = reg_text
+    ),
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1) )
+
+
+```
+
+
+```{r}
+# Run regression model for kd ~ TSS
+tot_TSS_model <- lm(kd ~ TSS, data = df)
+
+summary_model <- summary(tot_TSS_model)
+slope <- round(coef(tot_TSS_model)[2], 4)
+intercept <- round(coef(tot_TSS_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+ggplot(df, aes(x = TSS, y = kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of all site kd and TSS",
+    x = "Total Suspended Solids (TSS)",
+    y = "kd (m-1)"
+  ) +
+   geom_text(
+    aes(
+      x = max(cdom_ab), 
+      y = min(kd), 
+      label = reg_text
+    ),
+    hjust = 1, vjust = -1, size = 3 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  
+  )
+
+```
+
+
+```{r}
+
+tot_chla_model <- lm(kd ~ chla_uncorrected, data = df)
+
+summary_model <- summary(tot_chla_model)
+slope <- round(coef(tot_chla_model)[2], 4)
+intercept <- round(coef(tot_chla_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+ggplot(df, aes(x = chla_uncorrected, y = kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of all site kd and Chla (Uncorrected)",
+    x = "Chlorophyll-a (Uncorrected)",
+    y = "kd (m-1)"
+  ) +
+  annotate("text", 
+           x = max(df$chla_uncorrected, na.rm = TRUE) * 0.9,  
+           y = max(df$kd, na.rm = TRUE) * 0.1, 
+           label = reg_text, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  
+  )
+
+
+```
+
+```{r}
+
+tot_chla_model <- lm(kd ~ chla_corrected, data = df)
+
+summary_model <- summary(tot_chla_model)
+slope <- round(coef(tot_chla_model)[2], 4)
+intercept <- round(coef(tot_chla_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+ggplot(df, aes(x = chla_corrected, y = kd)) +
+  geom_point(size = 3, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of all site kd and Chla (Corrected)",
+    x = "Chlorophyll-a (Corrected)",
+    y = "kd (m-1)"
+  ) +
+  annotate("text", 
+           x = max(df$chla_corrected, na.rm = TRUE) * 0.9,  
+           y = max(df$kd, na.rm = TRUE) * 0.1, 
+           label = reg_text, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1)  
+  )
+
+
+```
+
+## Station Average Normality Tests
+
+```{r}
+
+library(dplyr)
+
+# Calculate means for each Site
+mean_values <- df |>
+  group_by(Site) |>
+  summarise(
+    mean_kd = mean(kd, na.rm = TRUE),
+    mean_cdom_ab = mean(cdom_ab, na.rm = TRUE),
+    mean_TSS = mean(TSS, na.rm = TRUE),
+    mean_chala_corrected = mean(chla_corrected, na.rm = TRUE),
+    mean_chla_uncorrected = mean(chla_uncorrected, na.rm = TRUE))
+    
+head(mean_values)
+```
+
+```{r}
+
+# List of variables to check
+library(lmtest)
+
+# Variables to check
+vars_to_check <- c("mean_kd", "mean_cdom_ab", "mean_TSS", "mean_chala_corrected", "mean_chla_uncorrected")
+
+# Function to test for normality
+test_normality <- function(df, variables) {
+  normality_results <- lapply(variables, function(var) {
+    if (is.numeric(df[[var]])) {
+      shapiro.test(df[[var]])$p.value  # Shapiro-Wilk test p-value
+    } else {
+      NA
+    }
+  })
+  names(normality_results) <- variables
+  return(normality_results)
+}
+
+# Function to test for heteroscedasticity
+test_heteroscedasticity <- function(model) {
+  bptest(model)$p.value  # Breusch-Pagan test p-value
+}
+
+# Test normality
+normality_results <- test_normality(mean_values, vars_to_check)
+print("Shapiro-Wilk normality test p-values:")
+print(normality_results)
+
+# Run regression model
+tot_mean_cdom_model <- lm(mean_kd ~ mean_cdom_ab, data = mean_values)
+
+# Test for heteroscedasticity
+heteroscedasticity_p_value <- test_heteroscedasticity(tot_mean_cdom_model)
+print(paste("Breusch-Pagan test p-value:", heteroscedasticity_p_value))
+
+
+```
+
+```{r}
+
+library(ggplot2)
+
+# List of mean variables to plot
+vars_to_plot <- c("mean_kd", "mean_cdom_ab", "mean_TSS", "mean_chala_corrected", "mean_chla_uncorrected")
+
+# Create histograms
+for (var in vars_to_plot) {
+  p <- ggplot(mean_values, aes_string(x = var)) +
+    geom_histogram(color = "black", fill = "blue", bins = 30, alpha = 0.7) +
+    labs(title = paste("Histogram of", var), x = var, y = "Frequency") +
+    theme_minimal()
+  
+  print(p)  # Print the plot
+}
+
+
+```
+
+
+## Station Average Original Regression Analysis
+
+```{r}
+
+# Assumption in using the station averages is that each station is independent from the others. Some may not see this as the case since certain lakes have multiple stations with data (i.e. can stations from the same lake be considered independent from each other?) For the sake of this analysis, stations are considered independent as they have been identified by DEQ as distinct and separated monitoring locations within the reservoirs. 
+
+```
+
+```{r}
+
+model <- lm(mean_kd ~ mean_cdom_ab, data = mean_values)
+
+# Check residual normality
+shapiro.test(residuals(model))
+
+# QQ plot for visual check
+qqnorm(residuals(model))
+qqline(residuals(model), col = "red")
+
+# Check heteroscedasticity
+library(lmtest)
+bptest(model)
+
+
+```
+
+
+
+```{r}
+
+tot_mean_cdom_model <- lm(mean_kd ~ mean_cdom_ab, data = mean_values)
+
+summary_model <- summary(tot_mean_cdom_model)
+slope <- round(coef(tot_mean_cdom_model)[2], 4)
+intercept <- round(coef(tot_mean_cdom_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+ggplot(mean_values, aes(x = mean_cdom_ab, y = mean_kd, color = Site)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of mean kd and mean CDOM Absorbance",
+    x = "Mean CDOM Absorbance",
+    y = "Mean kd (m-1)",
+    color = "Site"
+  ) +
+  annotate("text", 
+           x = max(mean_values$mean_cdom_ab, na.rm = TRUE) * 0.9,  
+           y = max(mean_values$mean_kd, na.rm = TRUE) * 0.1, 
+           label = reg_text, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1),
+    legend.text = element_text(size = 6)
+  )
+
+
+
+```
+
+```{r}
+
+tot_mean_model <- lm(mean_kd ~ mean_TSS, data = mean_values)
+
+summary_model <- summary(tot_mean_model)
+slope <- round(coef(tot_mean_model)[2], 4)
+intercept <- round(coef(tot_mean_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+ggplot(mean_values, aes(x = mean_TSS, y = mean_kd, color = Site)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of mean kd and mean TSS",
+    x = "Mean Total Suspended Solids (TSS)",
+    y = "Mean kd (m-1)",
+    color = "Site"
+  ) +
+  annotate("text", 
+           x = max(mean_values$mean_TSS, na.rm = TRUE) * 0.9,  
+           y = max(mean_values$mean_kd, na.rm = TRUE) * 0.1, 
+           label = reg_text, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1),
+    legend.text = element_text(size = 6)
+  )
+
+
+
+```
+
+```{r}
+
+tot_mean_chla_uncorrected_model <- lm(mean_kd ~ mean_chla_uncorrected, data = mean_values)
+
+summary_model <- summary(tot_mean_chla_uncorrected_model)
+slope <- round(coef(tot_mean_chla_uncorrected_model)[2], 4)
+intercept <- round(coef(tot_mean_chla_uncorrected_model)[1], 4)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text <- paste0("y = ", slope, "x", " + ", intercept, "\n",
+                   "R² = ", r_squared, ", p = ", p_value)
+
+ggplot(mean_values, aes(x = mean_chla_uncorrected, y = mean_kd, color = Site)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Regression of mean kd and mean Chla Uncorrected",
+    x = "Mean Chla Uncorrected",
+    y = "Mean kd (m-1)",
+    color = "Site"
+  ) +
+  annotate("text", 
+           x = max(mean_values$mean_chla_uncorrected, na.rm = TRUE) * 0.9,  
+           y = max(mean_values$mean_kd, na.rm = TRUE) * 0.1, 
+           label = reg_text, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1),
+    legend.text = element_text(size = 6)
+  )
+
+```
+
+
+```{r}
+
+#Need to do the same for DOC once I get all the data!
+
+```
+
+# R plots
+
+```{r}
+
+# Load the necessary package for arranging multiple plots
+library(patchwork)
+
+# Plot 1: mean_kd vs mean_TSS
+tot_mean_TSS_model <- lm(mean_kd ~ mean_TSS, data = mean_values)
+
+summary_model <- summary(tot_mean_TSS_model)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text_TSS <- paste0("R² = ", r_squared, ", p = ", p_value)
+
+plot_TSS <- ggplot(mean_values, aes(x = mean_TSS, y = mean_kd)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  annotate("text", 
+           x = max(mean_values$mean_TSS, na.rm = TRUE) * 0.9,  
+           y = max(mean_values$mean_kd, na.rm = TRUE) * 0.1, 
+           label = reg_text_TSS, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1))
+
+# Plot 2: mean_kd vs mean_cdom_ab
+tot_mean_cdom_model <- lm(mean_kd ~ mean_cdom_ab, data = mean_values)
+
+summary_model <- summary(tot_mean_cdom_model)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text_cdom <- paste0("R² = ", r_squared, ", p = ", p_value)
+
+plot_cdom <- ggplot(mean_values, aes(x = mean_cdom_ab, y = mean_kd)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  annotate("text", 
+           x = max(mean_values$mean_cdom_ab, na.rm = TRUE) * 0.9,  
+           y = max(mean_values$mean_kd, na.rm = TRUE) * 0.1, 
+           label = reg_text_cdom, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1))
+
+# Plot 3: mean_kd vs mean_chla_uncorrected
+tot_mean_chla_uncorrected_model <- lm(mean_kd ~ mean_chla_uncorrected, data = mean_values)
+
+summary_model <- summary(tot_mean_chla_uncorrected_model)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text_chla_uncorrected <- paste0("R² = ", r_squared, ", p = ", p_value)
+
+plot_chla_uncorrected <- ggplot(mean_values, aes(x = mean_chla_uncorrected, y = mean_kd)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  annotate("text", 
+           label = reg_text_chla_uncorrected, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1),
+  )
+
+# Combine all three plots into one figure
+combined_plot <- plot_TSS + plot_cdom + plot_chla_uncorrected + 
+  plot_layout(ncol = 3)
+
+combined_plot
+
+
+```
+
+```{r}
+
+# Load the necessary package for arranging multiple plots
+library(patchwork)
+
+# Plot 1: mean_kd vs mean_TSS
+tot_mean_TSS_model <- lm(mean_kd ~ mean_TSS, data = mean_values)
+
+summary_model <- summary(tot_mean_TSS_model)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text_TSS <- paste0("R² = ", r_squared, ", p = ", p_value)
+
+plot_TSS <- ggplot(mean_values, aes(x = mean_TSS, y = mean_kd)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  annotate("text", 
+           x = max(mean_values$mean_TSS, na.rm = TRUE) * 0.9,  
+           y = max(mean_values$mean_kd, na.rm = TRUE) * 0.1, 
+           label = reg_text_TSS, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1),
+    panel.grid = element_blank(),  # Remove gridlines
+    axis.title.y = element_blank(),  # Remove y-axis labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add transparent box around the plot
+  )
+
+# Plot 2: mean_kd vs mean_cdom_ab
+tot_mean_cdom_model <- lm(mean_kd ~ mean_cdom_ab, data = mean_values)
+
+summary_model <- summary(tot_mean_cdom_model)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text_cdom <- paste0("R² = ", r_squared, ", p = ", p_value)
+
+plot_cdom <- ggplot(mean_values, aes(x = mean_cdom_ab, y = mean_kd)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  annotate("text", 
+           x = max(mean_values$mean_cdom_ab, na.rm = TRUE) * 0.9,  
+           y = max(mean_values$mean_kd, na.rm = TRUE) * 0.1, 
+           label = reg_text_cdom, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1),
+    panel.grid = element_blank(),  # Remove gridlines
+    axis.title.y = element_blank(),  # Remove y-axis labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add transparent box around the plot
+  )
+
+# Plot 3: mean_kd vs mean_chla_uncorrected
+tot_mean_chla_uncorrected_model <- lm(mean_kd ~ mean_chla_uncorrected, data = mean_values)
+
+summary_model <- summary(tot_mean_chla_uncorrected_model)
+r_squared <- round(summary_model$r.squared, 4)
+p_value <- round(summary_model$coefficients[2, 4], 8)
+
+reg_text_chla_uncorrected <- paste0("R² = ", r_squared, ", p = ", p_value)
+
+plot_chla_uncorrected <- ggplot(mean_values, aes(x = mean_chla_uncorrected, y = mean_kd)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", color = "black", se = TRUE) +
+  annotate("text", 
+           label = reg_text_chla_uncorrected, 
+           hjust = 1, vjust = 0, size = 3, color = "black") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(color = "black", size = 1),
+    panel.grid = element_blank(),  # Remove gridlines
+    axis.title.y = element_blank(),  # Remove y-axis labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add transparent box around the plot
+  )
+
+# Combine all three plots into one figure
+combined_plot <- plot_TSS + plot_cdom + plot_chla_uncorrected + 
+  plot_layout(ncol = 3)
+
+combined_plot
+
+
+```
+
+

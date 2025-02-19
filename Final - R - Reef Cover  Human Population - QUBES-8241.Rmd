@@ -1,0 +1,148 @@
+---
+title: "Reef Cover & Human Population"
+author: "David Sale"
+date: "4/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Importing and Setting Up the Data
+
+```{r}
+#First, we will need to load in the libraries that will be used for this analysis. Make sure to install any packages (install.packages) that you do not already have before running this code.
+
+library(readr)
+library(tidyverse)
+library(ggplot2)
+
+#Once these are loaded, we can pull in the data. We will pull the data directly from its online repository, rather than downloading it to our devices. There should be 1,708 rows of data. 
+
+url <- "https://datadryad.org/stash/downloads/file_stream/38147"
+read_csv(url) -> reef_cover
+summary(reef_cover)
+
+```
+
+```{r}
+#These data contain two primary pieces of information: (1) the percentage of a reef that is covered in hard coral or macroalgae, and (2) the number of humans living proximate to that reef. Let's create a new variable that isolates reefs that have no recorded human population living within 50 kilometers. We will use this variable later. 
+
+reef_cover %>%
+  mutate(isolated_reef = as.factor(if_else(human50km==0, "Yes", "No"))) -> reef_cover
+
+reef_cover %>%
+  group_by(isolated_reef) %>%
+  summarize(avg_coral = mean(HARD_CORAL), avg_algae = mean(MACROALGAE))
+
+```
+
+# Exploring the Data
+
+```{r}
+#Because we have many different variables, it can be helpful to take a quick look at how the variables of interest compare. Pairwise comparisons are a useful way to describe a pattern of mean differences between groups of variables. Here, we are especially interested in the relationships between the cover variables (macroalgae and hard coral) and population variables (humans within 50 km and 100 km). 
+
+reef_cover %>%
+  deplyr::select(MACROALGAE, HARD_CORAL, human50km, human100km) %>%
+  pairs(pch=19)
+
+```
+
+```{r}
+#Now, let's isolate just the two variables that we will be studying: hard coral cover and human population within 50 km of the reef. On the x-axis we have human population within 50 km, and on the y-axis we have the percentage of reef covered in hard coral. Consider what this is showing about the relationship between these two variables. 
+
+ggplot(reef_cover, aes(x=human50km, y=HARD_CORAL)) + geom_point() + stat_smooth(method ="lm")
+
+```
+
+```{r}
+#Many data analysis techniques were derived on the assumption that data are distributed normally. Before we can identify which method may be most appropriate, it is important to test for normality and see how our data behave. We can do this visually at first before running a statistical test. 
+
+hist(reef_cover$HARD_CORAL)
+hist(reef_cover$human50km)
+
+#Neither hard coral nor human population within 50 km looks to be distributed normally. Human population is particularly skewed. We can use a statistical test to verify the visual distribution. 
+
+shapiro.test(reef_cover$HARD_CORAL)
+shapiro.test(reef_cover$human50km)
+
+```
+
+#Getting the Data Ready
+
+```{r}
+#To run an effective analysis, it will be helpful to transform the data so that it conforms better to assumptions of normality. However, remember this transformation with analyzing the results, as the units will no longer correspond to the original properties.
+
+sqrt(reef_cover$HARD_CORAL) -> transformed_HARD_CORAL
+hist(transformed_HARD_CORAL)
+
+```
+
+```{r}
+#We will do the same thing with human population. However, because those data are more unevenly distributed and skewed toward zero, we will use a different transformation. 
+
+log(reef_cover$human50km + 1) -> transformed_HUMAN_50km
+hist(transformed_HUMAN_50km)
+
+```
+
+```{r}
+#Let's visualize how these transformed variables are plotted on a point chart, just like we did before we transformed it. Consider how this differs from the original plot. The data points are more evenly distributed, which suggests that our transformations were effective. However, notice the relatively flat regression line that is fit through the data points. 
+
+ggplot(reef_cover, aes(x=log(reef_cover$human50km + 1), y=sqrt(reef_cover$HARD_CORAL))) + geom_point() + xlab("Logarithm of human population density within 50 km") + ylab("Transformed hard coral cover") + stat_smooth(method ="lm")
+
+```
+
+#Running the Analysis 
+
+```{r}
+#Now that the data conform to our assumptions, we can run a Pearson's product-moment correlation between the transformed hard coral coverage and transformed population density. Once the model is derived, consider each statistic in the output, with particular attention to the p-value and correlation coefficient. 
+
+cor.test(transformed_HARD_CORAL, transformed_HUMAN_50km) -> correlation_reef
+correlation_reef
+
+```
+
+```{r}
+#A linear regression model is another test that can inform our understanding of the relationship between the two variables here. Given the weak correlation, further exploration of this relationship is warranted, especially given that our initial results are different from those reported by Bruno and Valdivia. 
+
+lm(transformed_HARD_CORAL ~ transformed_HUMAN_50km) -> model1
+summary(model1)
+plot(model1)
+```
+
+
+```{r}
+#For an additional exploration of the data, let's see how reef cover compares between isolated reefs and reefs closer to humans. Isolated reefs report no human presence within 50 km, and non-isolated reefs are all others. Consider the boxplot for these two groups and what they tell us about the data. How do the means compare to those summarized earlier in the analysis? 
+
+ggplot(data=reef_cover, aes(x=isolated_reef, y=HARD_CORAL)) + geom_boxplot(notch=TRUE)
+
+```
+
+```{r}
+#We see that the means between the two groups differ. We need to understand if this difference is statistically significant, however, especially considering the uneven sample sizes between isolated and non-isolated reefs. Two sample t-tests are a useful statistic to run because it can account for the differences in sample size. Let's create two new data frames that represent data only from isolated reefs, and only data from non-isolated reefs. 
+
+reef_cover %>%
+  filter(isolated_reef=="Yes") -> isolated
+
+reef_cover %>%
+  filter(isolated_reef=="No") -> notisolated
+
+#Consider the statistics in the output, especially the p-value and 95% confidence interval. Look at the means reported from the t-test and the means that were visualized in the boxplot. 
+
+t.test(x=isolated$HARD_CORAL, y=notisolated$HARD_CORAL) -> fit1
+fit1
+
+```
+
+```{r}
+#Sometimes, visualizing the data can help to better interpret the practical or biological significance. Consider the density plots for both the isolated reefs and more disturbed reefs and think about how they inform what you think about differences. Do all isolated reefs have higher hard coral cover than more disturbed reefs? 
+
+d <- density(isolated$HARD_CORAL)
+plot(d)
+
+d2 <- density(notisolated$HARD_CORAL)
+plot(d2)
+
+```
