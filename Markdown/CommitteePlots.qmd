@@ -139,6 +139,7 @@ ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, 
   )
 
 ```
+
 ```{r}
 
 sandy_river_data <- fullthesis |> filter(Lake == "Sandy River Reservoir")
@@ -189,7 +190,6 @@ ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, 
 
 
 ```
-
 
 ```{r}
 
@@ -265,7 +265,6 @@ print(mean_values)
 meanthesis <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=0&single=true&output=csv")
 
 ```
-
 
 ```{r}
 
@@ -360,9 +359,6 @@ ggplot(meanthesis_long, aes(x = Site, y = Percentage, fill = Source)) +
   )
 ```
 
-
-
-
 ## Lake Anna
 
 ```{r}
@@ -410,7 +406,6 @@ ggplot(annadata) +
 
 ```
 
-
 ```{r}
 ggplot(annadata) +
   # Points and lines for Surface_CDOM
@@ -446,7 +441,6 @@ ggplot(annadata) +
 
 ```
 
-
 ```{r}
 
 ggplot(annadata) +
@@ -475,7 +469,6 @@ ggplot(annadata) +
 
 
 ```
-
 
 ```{r}
 
@@ -826,7 +819,6 @@ print(p)
 
 ```
 
-
 ```{r}
 
 # Function to extract regression statistics (equation, R-squared, p-value)
@@ -921,8 +913,3 @@ if (reg_stats$eq == "No data for regression") {
 
 
 ```
-
-
-
-
-
