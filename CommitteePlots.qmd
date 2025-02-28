@@ -1,6 +1,6 @@
 ---
 title: "Thesis Plots (2/28- for Committee Meeting"
-author: Jackson Barnett
+author: Jackson Barnett 
 format: html
 editor: visual
 ---
