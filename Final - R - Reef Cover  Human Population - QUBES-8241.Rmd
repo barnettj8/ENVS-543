@@ -20,7 +20,7 @@ library(ggplot2)
 
 #Once these are loaded, we can pull in the data. We will pull the data directly from its online repository, rather than downloading it to our devices. There should be 1,708 rows of data. 
 
-url <- "https://datadryad.org/stash/downloads/file_stream/38147"
+url <- "brunodata.csv"
 read_csv(url) -> reef_cover
 summary(reef_cover)
 
@@ -44,7 +44,7 @@ reef_cover %>%
 #Because we have many different variables, it can be helpful to take a quick look at how the variables of interest compare. Pairwise comparisons are a useful way to describe a pattern of mean differences between groups of variables. Here, we are especially interested in the relationships between the cover variables (macroalgae and hard coral) and population variables (humans within 50 km and 100 km). 
 
 reef_cover %>%
-  deplyr::select(MACROALGAE, HARD_CORAL, human50km, human100km) %>%
+  dplyr::select(MACROALGAE, HARD_CORAL, human50km, human100km) %>%
   pairs(pch=19)
 
 ```

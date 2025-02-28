@@ -1,0 +1,928 @@
+---
+title: "Thesis Plots (2/28- for Committee Meeting"
+author: Jackson Barnett
+format: html
+editor: visual
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,      # Hide the code
+  warning = FALSE,   # Suppress warnings
+  message = FALSE    # Suppress messages
+)
+
+```
+
+```{r}
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+library(car)
+library(patchwork)
+library(dplyr)
+library(gridExtra)
+library(tidyr)
+
+```
+
+```{r}
+
+fullthesisurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=2008970607&single=true&output=csv"
+
+fullthesis <- read_csv(fullthesisurl)
+
+```
+
+```{r}
+
+long_data <- fullthesis %>%
+  pivot_longer(cols = c(`kd`, `CDOM`, `TSS`, `CHLa`), 
+               names_to = "Variable", 
+               values_to = "Value") %>%
+  mutate(
+    Variable = factor(
+      Variable,
+      levels = c("kd", "CDOM", "TSS", "CHLa") # Set the desired order
+    )
+  )
+
+```
+
+## All data ANOVAs
+
+```{r}
+
+# Define custom y-axis titles (units) for each variable
+custom_y_labels <- c(
+  `kd` = "kd (m⁻¹)",
+  `CDOM` = "CDOM (Absorbance)",
+  `TSS` = "TSS (mg/L)",
+  `CHLa` = "CHLa (µg/L)"
+)
+
+# Update the plot
+ggplot(long_data, aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  facet_wrap(
+    ~ Variable, 
+    scales = "free_y", 
+    labeller = as_labeller(custom_y_labels)  # Apply custom y-axis labels
+  ) +
+  labs(
+    title = "kd, CDOM, TSS, and Uncorrected CHLa by Site",
+    x = NULL,
+    y = NULL  # Remove the default y-axis title
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    # Add black outline for chart area
+    panel.border = element_rect(color = "black", fill = NA, size = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+    strip.text = element_blank(),  # Remove facet titles
+    axis.title.y = element_blank(),  # Remove the shared y-axis title
+    axis.text.y = element_text(size = 8),  # Adjust y-axis text size
+    strip.background = element_blank(),  # Remove background color of facet labels
+    strip.text.x = element_text(size = 10)  # Optional: Adjust facet label font size
+  )
+
+```
+
+```{r}
+
+swift_creek_data <- fullthesis |> filter(Lake == "Swift Creek Reservoir")
+
+variables <- c("kd", "CDOM", "TSS", "CHLa")
+
+# Create an empty list to store results
+tukey_combined <- list()
+
+for (var in variables) {
+  aov_result <- aov(as.formula(paste(var, "~ Site")), data = swift_creek_data)
+
+  tukey_results <- TukeyHSD(aov_result)$Site
+  
+  # Convert to a data frame and add the variable name
+  tukey_df <- as.data.frame(tukey_results)
+  tukey_df$Comparison <- rownames(tukey_df)
+  tukey_df$Variable <- var
+  tukey_df$Significant <- tukey_df$`p adj` < 0.05
+  
+  # Store the results
+  tukey_combined[[var]] <- tukey_df
+}
+
+# Combine all Tukey results into a single data frame
+tukey_combined_df <- do.call(rbind, tukey_combined)
+
+ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +
+  facet_wrap(~ Variable, scales = "free_y") +
+  labs(
+    title = "Swift Creek Res: Inter-Site Differences",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(
+    values = c("TRUE" = "blue", "FALSE" = "darkgrey"),
+    labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")
+  ) +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 10),  # Adjust facet label size
+    axis.text.y = element_text(size = 6)  # Make y-axis text smaller
+  )
+
+```
+```{r}
+
+sandy_river_data <- fullthesis |> filter(Lake == "Sandy River Reservoir")
+
+variables <- c("kd", "CDOM", "TSS", "CHLa")
+
+# Create an empty list to store results
+tukey_combined <- list()
+
+for (var in variables) {
+  aov_result <- aov(as.formula(paste(var, "~ Site")), data = sandy_river_data)
+
+  tukey_results <- TukeyHSD(aov_result)$Site
+  
+  # Convert to a data frame and add the variable name
+  tukey_df <- as.data.frame(tukey_results)
+  tukey_df$Comparison <- rownames(tukey_df)
+  tukey_df$Variable <- var
+  tukey_df$Significant <- tukey_df$`p adj` < 0.05
+  
+  # Store the results
+  tukey_combined[[var]] <- tukey_df
+}
+
+# Combine all Tukey results into a single data frame
+tukey_combined_df <- do.call(rbind, tukey_combined)
+
+ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +
+  facet_wrap(~ Variable, scales = "free_y") +
+  labs(
+    title = "Sandy River Reservoir: Inter-Site Differences",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(
+    values = c("TRUE" = "blue", "FALSE" = "darkgrey"),
+    labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")
+  ) +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 10),  # Adjust facet label size
+    axis.text.y = element_text(size = 6)  # Make y-axis text smaller
+  )
+
+
+```
+
+
+```{r}
+
+briery_creek_data <- fullthesis |> filter(Lake == "Briery Creek Lake")
+
+variables <- c("kd", "CDOM", "TSS", "CHLa")
+
+# Create an empty list to store results
+tukey_combined <- list()
+
+for (var in variables) {
+  aov_result <- aov(as.formula(paste(var, "~ Site")), data = briery_creek_data)
+
+  tukey_results <- TukeyHSD(aov_result)$Site
+  
+  # Convert to a data frame and add the variable name
+  tukey_df <- as.data.frame(tukey_results)
+  tukey_df$Comparison <- rownames(tukey_df)
+  tukey_df$Variable <- var
+  tukey_df$Significant <- tukey_df$`p adj` < 0.05
+  
+  # Store the results
+  tukey_combined[[var]] <- tukey_df
+}
+
+# Combine all Tukey results into a single data frame
+tukey_combined_df <- do.call(rbind, tukey_combined)
+
+ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, color = Significant)) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +
+  facet_wrap(~ Variable, scales = "free_y") +
+  labs(
+    title = "Briery Creek Lake: Inter-Site Differences",
+    x = "Comparison",
+    y = "Difference in Means"
+  ) +
+  theme_minimal() +
+  scale_color_manual(
+    values = c("TRUE" = "blue", "FALSE" = "darkgrey"),
+    labels = c("TRUE" = "Significant", "FALSE" = "Not Significant")
+  ) +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(size = 10),  # Adjust facet label size
+    axis.text.y = element_text(size = 6)  # Make y-axis text smaller
+  )
+
+```
+
+## Station Average Data
+
+```{r}
+
+# Calculate means for each Site
+mean_values <- fullthesis |>
+  group_by(Site) |>
+  summarise(
+    mean_kd = mean(kd, na.rm = TRUE),
+    mean_CDOM = mean(CDOM, na.rm = TRUE),
+    mean_CHLa = mean(CHLa, na.rm = TRUE),
+    mean_TSS = mean(TSS, na.rm = TRUE)
+  )
+
+# View the result
+print(mean_values)
+
+```
+
+```{r}
+
+meanthesis <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=0&single=true&output=csv")
+
+```
+
+
+```{r}
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  model <- lm(y ~ x)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# p1 - Regression: kd (m-1) vs TSS (mg/L)
+reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`kd (m-1)`)
+p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Regression: kd (m-1) vs TSS (mg/L)", x = "TSS (mg/L)", y = "kd (m-1)") +
+  geom_text(x = max(meanthesis$`TSS (mg/L)`), y = max(meanthesis$`kd (m-1)`), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# p2 - Regression: Residual kd after TSS vs CDOM a440 (corr)
+reg_stats_p2 <- get_regression_stats(meanthesis$`CDOM a440 (corr)`, meanthesis$`Residual kd after TSS`)
+p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "gray70") +  # Use a lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Regression: Residual kd after TSS vs CDOM a440 (corr)", x = "CDOM a440 (corr)", y = "Residual kd after TSS") +
+  geom_text(x = max(meanthesis$`CDOM a440 (corr)`), y = max(meanthesis$`Residual kd after TSS`), 
+            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# p3 - Regression: Residual kd after TSS vs CHLa (ug/L)
+reg_stats_p3 <- get_regression_stats(meanthesis$`CHLa (ug/L)`, meanthesis$`Residual kd after TSS`)
+p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "gray70") +  # Use an even lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Regression: Residual kd after TSS vs CHLa (ug/L)", x = "CHLa (ug/L)", y = "Residual kd after TSS") +
+  geom_text(x = max(meanthesis$`CHLa (ug/L)`), y = max(meanthesis$`Residual kd after TSS`), 
+            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval), 
+            hjust = 1, vjust = 1, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# Arrange the plots into one figure
+library(gridExtra)
+
+grid.arrange(p1, p2, p3, ncol = 2)
+
+
+```
+
+```{r}
+meanthesis_long <- meanthesis %>%
+  gather(key = "Source", value = "Percentage", `% kd from TSS`, `% kd from CDOM`) %>%
+  mutate(Percentage = as.numeric(gsub("%", "", Percentage)))  # Remove '%' and convert to numeric
+
+# Create the stacked bar plot with customized y-axis
+ggplot(meanthesis_long, aes(x = Site, y = Percentage, fill = Source)) +
+  geom_bar(stat = "identity") +  # Use "identity" to map the y-values directly
+  labs(title = "Stacked Bar Plot of % kd from TSS and % kd from CDOM by Site",
+       x = "Site",
+       y = "% kd",
+       fill = "Source") +
+  scale_fill_manual(values = c("% kd from TSS" = "blue", "% kd from CDOM" = "red")) +  # Custom colors
+  scale_y_continuous(
+    breaks = seq(0, 100, by = 25),  # Set y-axis breaks at 0, 25, 50, 75, and 100 (numeric)
+    labels = scales::percent_format(scale = 1)  # Format y-axis labels as percentages
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 10, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 8, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  )
+```
+
+
+
+
+## Lake Anna
+
+```{r}
+
+annaurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=853297443&single=true&output=csv"
+
+annadata <- read_csv(annaurl)
+
+```
+
+```{r}
+
+# Ensure the Date column is in Date format
+annadata$Date <- as.Date(annadata$Date, format = "%m/%d/%Y")
+
+```
+
+```{r}
+ggplot(annadata) +
+  # Points and lines for Surface_TSS
+  geom_point(aes(x = Date, y = Surface_TSS, color = "Surface_TSS"), size = 3) +  
+  geom_line(aes(x = Date, y = Surface_TSS, color = "Surface_TSS", group = 1)) +  # Add group aesthetic
+  
+  # Points and lines for Photic_TSS
+  geom_point(aes(x = Date, y = Photic_TSS, color = "Photic_TSS"), size = 3) +  
+  geom_line(aes(x = Date, y = Photic_TSS, color = "Photic_TSS", group = 1)) +  # Add group aesthetic
+  
+  # Points and lines for Bottom_TSS
+  geom_point(aes(x = Date, y = Bottom_TSS, color = "Bottom_TSS"), size = 3) +  
+  geom_line(aes(x = Date, y = Bottom_TSS, color = "Bottom_TSS", group = 1)) +  # Add group aesthetic
+  
+  labs(title = "TSS Depths Over Time", x = "Date", y = "TSS (mg/L)") +
+  scale_color_manual(values = c("Surface_TSS" = "black", "Photic_TSS" = "blue", "Bottom_TSS" = "red")) +  # Custom colors
+  
+  scale_x_date(
+    breaks = "1 month",  # Set tickmarks every month
+    labels = scales::date_format("%b %Y")  # Format labels as Month Year (e.g., Jan 2020)
+  ) +
+  
+  theme_minimal() +  # Minimal theme
+  theme(
+    legend.title = element_blank(),
+    legend.position = "top",  
+    axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+```{r}
+ggplot(annadata) +
+  # Points and lines for Surface_CDOM
+  geom_point(aes(x = Date, y = Surface_CDOM, color = "Surface_CDOM"), size = 3) +  
+  geom_line(aes(x = Date, y = Surface_CDOM, color = "Surface_CDOM", group = 1)) +  # Add group aesthetic
+  
+  # Points and lines for Photic_CDOM
+  geom_point(aes(x = Date, y = Photic_CDOM, color = "Photic_CDOM"), size = 3) +  
+  geom_line(aes(x = Date, y = Photic_CDOM, color = "Photic_CDOM", group = 1)) +  # Add group aesthetic
+  
+  # Points and lines for Bottom_CDOM
+  geom_point(aes(x = Date, y = Bottom_CDOM, color = "Bottom_CDOM"), size = 3) +  
+  geom_line(aes(x = Date, y = Bottom_CDOM, color = "Bottom_CDOM", group = 1)) +  # Add group aesthetic
+  
+  labs(title = "CDOM Depths Over Time", x = "Date", y = "CDOM (440 absorbance)") +
+  scale_color_manual(values = c("Surface_CDOM" = "black", "Photic_CDOM" = "blue", "Bottom_CDOM" = "red")) +  # Custom colors
+  
+  scale_x_date(
+    breaks = "1 month",  # Set tickmarks every month
+    labels = scales::date_format("%b %Y")  # Format labels as Month Year (e.g., Jan 2020)
+  ) +
+  
+  scale_y_continuous(
+    limits = c(0, 2)  # Set y-axis limits from 0 to 2
+  ) +
+  
+  theme_minimal() +  # Minimal theme
+  theme(
+    legend.title = element_blank(),
+    legend.position = "top",
+    axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels 90 degrees
+  )
+
+```
+
+
+```{r}
+
+ggplot(annadata) +
+  # Points and lines for Surface_CHLa
+  geom_point(aes(x = Date, y = Surface_CHLa, color = "Surface_CHLa"), size = 3) +  
+  geom_line(aes(x = Date, y = Surface_CHLa, color = "Surface_CHLa", group = 1)) +  # Add group aesthetic
+  
+  # Points and lines for Photic_CHLa
+  geom_point(aes(x = Date, y = Photic_CHLa, color = "Photic_CHLa"), size = 3) +  
+  geom_line(aes(x = Date, y = Photic_CHLa, color = "Photic_CHLa", group = 1)) +  # Add group aesthetic
+  
+  labs(title = "CHLa Depths Over Time", x = "Date", y = "CHLa (µg/L)") +
+  scale_color_manual(values = c("Surface_CHLa" = "black", "Photic_CHLa" = "blue")) +  # Custom colors
+  
+  scale_x_date(
+    breaks = "1 month",  # Set tickmarks every month
+    labels = scales::date_format("%b %Y")  # Format labels as Month Year (e.g., Jan 2020)
+  ) +
+  
+  theme_minimal() +  # Minimal theme
+  theme(
+    legend.title = element_blank(),
+    legend.position = "top",
+    axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels 90 degrees
+  )
+
+
+```
+
+
+```{r}
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# p1 - Regression: Photic_TSS vs kd
+reg_stats_p1 <- get_regression_stats(annadata$Photic_TSS, annadata$kd)
+p1 <- ggplot(annadata, aes(x = Photic_TSS, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Lake Anna: Photic_TSS vs kd", x = "Photic_TSS", y = "kd") +
+  geom_text(x = max(annadata$Photic_TSS, na.rm = TRUE), y = max(annadata$kd, na.rm = TRUE), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# p2 - Regression: Photic_CDOM vs kd
+reg_stats_p2 <- get_regression_stats(annadata$Photic_CDOM, annadata$kd)
+p2 <- ggplot(annadata, aes(x = Photic_CDOM, y = kd)) +
+  geom_point(color = "gray70") +  # Use a lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Lake Anna: Photic_CDOM vs kd", x = "Photic_CDOM", y = "kd") +
+  geom_text(x = max(annadata$Photic_CDOM, na.rm = TRUE), y = max(annadata$kd, na.rm = TRUE), 
+            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval), 
+            hjust = 1, vjust = 1, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# p3 - Regression: Photic_CHLa vs kd
+reg_stats_p3 <- get_regression_stats(annadata$Photic_CHLa, annadata$kd)
+p3 <- ggplot(annadata, aes(x = Photic_CHLa, y = kd)) +
+  geom_point(color = "gray70") +  # Use an even lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Lake Anna: Photic_CHLa vs kd", x = "Photic_CHLa", y = "kd") +
+  geom_text(x = max(annadata$Photic_CHLa, na.rm = TRUE), y = max(annadata$kd, na.rm = TRUE), 
+            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# Arrange the plots using gridExtra
+grid.arrange(p1, p2, p3, ncol = 2)
+
+
+```
+
+## Secchi Depth
+
+```{r}
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+et_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Perform regression for Secchi vs kd
+reg_stats_p1 <- et_regression_stats(fullthesis$Secchi, fullthesis$kd)
+
+# Create the plot for Secchi vs kd regression
+p1 <- ggplot(fullthesis, aes(x = Secchi, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "All Station Secchi vs kd", x = "Secchi Depth (m)", y = "kd (m-1)") +
+  geom_text(x = max(fullthesis$Secchi, na.rm = TRUE), y = max(fullthesis$kd, na.rm = TRUE), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval), 
+            hjust = 1, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 10, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 8, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(hjust = 1)  # Rotate x-axis labels for readability
+  )
+
+# Print the plot
+print(p1)
+
+
+```
+
+```{r}
+# Function to extract regression statistics (equation, R-squared, p-value)
+et_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Perform regression for Secchi vs kd using the 'meanthesis' dataframe
+reg_stats_p1 <- et_regression_stats(meanthesis$`Secchi (m)`, meanthesis$`kd (m-1)`)
+
+# Create the plot for Secchi vs kd regression using the 'meanthesis' dataframe
+p1 <- ggplot(meanthesis, aes(x = `Secchi (m)`, y = `kd (m-1)`)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Station Average kd vs Secchi Depth", x = "Secchi Depth (m)", y = "kd (m-1)") +
+  geom_text(x = max(meanthesis$`Secchi (m)`, na.rm = TRUE), y = max(meanthesis$`kd (m-1)`, na.rm = TRUE), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval), 
+            hjust = 1, vjust = 2, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 10, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 8, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(hjust = 1)  # Rotate x-axis labels for readability
+  )
+
+# Print the plot
+print(p1)
+
+
+```
+
+```{r}
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Filter data for "Lake Anna"
+lake_data <- fullthesis[fullthesis$Lake == "Lake Anna", ]
+
+# Perform regression for Secchi vs kd
+reg_stats <- get_regression_stats(lake_data$Secchi, lake_data$kd)
+
+# Create the plot for "Lake Anna"
+p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Lake Anna: Secchi vs kd", x = "Secchi Depth (m)", y = "kd") +
+  geom_text(x = max(lake_data$Secchi, na.rm = TRUE), y = max(lake_data$kd, na.rm = TRUE), 
+            label = paste(reg_stats$eq, "\n", reg_stats$rsq, "\n", reg_stats$pval), 
+            hjust = 1, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  coord_fixed(ratio = 1)  # Keep the aspect ratio 1:1 for square size
+
+# Display the plot
+print(p)
+
+## Briery Creek Lake ______________________________________________
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Filter data for "Briery Creek Lake"
+lake_data <- fullthesis[fullthesis$Lake == "Briery Creek Lake", ]
+
+# Perform regression for Secchi vs kd
+reg_stats <- get_regression_stats(lake_data$Secchi, lake_data$kd)
+
+# Create the plot for "Briery Creek Lake"
+p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Briery Creek Lake: Secchi vs kd", x = "Secchi Depth (m)", y = "kd") +
+  geom_text(x = max(lake_data$Secchi, na.rm = TRUE), y = max(lake_data$kd, na.rm = TRUE), 
+            label = paste(reg_stats$eq, "\n", reg_stats$rsq, "\n", reg_stats$pval), 
+            hjust = 1, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  coord_fixed(ratio = 1) +  # Keep the aspect ratio 1:1 for square size
+  xlim(0, 1.5)  # Set x-axis limits from 0 to 1.5
+
+# Display the plot
+print(p)
+
+## Sandy River Reservoir ________________________________________
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Filter data for "Sandy River Reservoir"
+lake_data <- fullthesis[fullthesis$Lake == "Sandy River Reservoir", ]
+
+# Perform regression for Secchi vs kd
+reg_stats <- get_regression_stats(lake_data$Secchi, lake_data$kd)
+
+# Create the plot for "Sandy River Reservoir"
+p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Sandy River Reservoir: Secchi vs kd", x = "Secchi Depth (m)", y = "kd") +
+  geom_text(x = max(lake_data$Secchi, na.rm = TRUE), y = max(lake_data$kd, na.rm = TRUE), 
+            label = paste(reg_stats$eq, "\n", reg_stats$rsq, "\n", reg_stats$pval), 
+            hjust = 1, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  coord_fixed(ratio = 1) +  # Keep the aspect ratio 1:1 for square size
+  xlim(0, 1.5)  # Set x-axis limits from 0 to 1.5
+
+# Display the plot
+print(p)
+
+## Fort Barfoot Reservoir _________________________________________
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Filter data for "Fort Barfoot Reservoir"
+lake_data <- fullthesis[fullthesis$Lake == "Fort Barfoot Reservoir", ]
+
+# Perform regression for Secchi vs kd
+reg_stats <- get_regression_stats(lake_data$Secchi, lake_data$kd)
+
+# Create the plot for "Fort Barfoot Reservoir"
+p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Fort Barfoot Reservoir: Secchi vs kd", x = "Secchi Depth (m)", y = "kd") +
+  geom_text(x = max(lake_data$Secchi, na.rm = TRUE), y = max(lake_data$kd, na.rm = TRUE), 
+            label = paste(reg_stats$eq, "\n", reg_stats$rsq, "\n", reg_stats$pval), 
+            hjust = 1, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  coord_fixed(ratio = 1) +  # Keep the aspect ratio 1:1 for square size
+  xlim(0, 1.5)  # Set x-axis limits from 0 to 1.5
+
+# Display the plot
+print(p)
+
+## Swift Creek Reservoir ______________________________________
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Filter data for "Swift Creek Reservoir"
+lake_data <- fullthesis[fullthesis$Lake == "Swift Creek Reservoir", ]
+
+# Perform regression for Secchi vs kd
+reg_stats <- get_regression_stats(lake_data$Secchi, lake_data$kd)
+
+# Create the plot for "Swift Creek Reservoir"
+p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Swift Creek Reservoir: Secchi vs kd", x = "Secchi Depth (m)", y = "kd") +
+  geom_text(x = max(lake_data$Secchi, na.rm = TRUE), y = max(lake_data$kd, na.rm = TRUE), 
+            label = paste(reg_stats$eq, "\n", reg_stats$rsq, "\n", reg_stats$pval), 
+            hjust = 1, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  coord_fixed(ratio = 1) +  # Keep the aspect ratio 1:1 for square size
+  xlim(0, 1.5)  # Set x-axis limits from 0 to 1.5
+
+# Display the plot
+print(p)
+
+## Harrison Lake ____________________________________________
+
+
+
+
+```
+
+
+```{r}
+
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Remove NA values from both x and y
+  data <- na.omit(data.frame(x, y))
+  model <- lm(y ~ x, data = data)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Filter data for "Harrison Lake"
+lake_data <- fullthesis[fullthesis$Lake == "Harrison Lake", ]
+
+# Perform regression for Secchi vs kd
+reg_stats <- get_regression_stats(lake_data$Secchi, lake_data$kd)
+
+# Create the plot for "Harrison Lake"
+p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Harrison Lake: Secchi vs kd", x = "Secchi Depth (m)", y = "kd") +
+  geom_text(x = max(lake_data$Secchi, na.rm = TRUE), y = max(lake_data$kd, na.rm = TRUE), 
+            label = paste(reg_stats$eq, "\n", reg_stats$rsq, "\n", reg_stats$pval), 
+            hjust = 0, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  coord_fixed(ratio = 1) +  # Keep the aspect ratio 1:1 for square size
+  xlim(0, 2.5)  # Set x-axis limits from 0 to 1
+
+
+# Display the plot
+print(p)
+
+```
+
+```{r}
+## Chickahominy Lake____________________________________________
+# Function to extract regression statistics (equation, R-squared, p-value)
+get_regression_stats <- function(x, y) {
+  # Check if there is valid data for both x and y
+  if (sum(!is.na(x) & !is.na(y)) < 2) {  # Require at least 2 non-NA points
+    return(list(eq = "No data for regression", rsq = "N/A", pval = "N/A"))
+  }
+  
+  # Perform regression with handling for NA values directly in the lm() function
+  model <- lm(y ~ x, na.action = na.exclude)  # This will exclude NA values from the regression model
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval))
+}
+
+# Filter data for "Chickahominy Lake"
+lake_data <- fullthesis[fullthesis$Lake == "Chickahominy Lake", ]
+
+# Perform regression for Secchi vs kd
+reg_stats <- get_regression_stats(lake_data$Secchi, lake_data$kd)
+
+# Check if regression stats returned valid data
+if (reg_stats$eq == "No data for regression") {
+  print("Not enough data for regression.")
+} else {
+  # Create the plot for "Chickahominy Lake"
+  p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
+    geom_point(color = "gray70") +  # Use a darker gray for points
+    geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+    labs(title = "Chickahominy Lake: Secchi vs kd", x = "Secchi Depth (m)", y = "kd") +
+    geom_text(x = max(lake_data$Secchi, na.rm = TRUE), y = max(lake_data$kd, na.rm = TRUE), 
+              label = paste(reg_stats$eq, "\n", reg_stats$rsq, "\n", reg_stats$pval), 
+              hjust = 1, vjust = 1, size = 3, color = "black") +  # Add the regression equation and stats
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 12, color = "black"),  # Title size and color
+      axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+      axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+      axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+    ) +
+    coord_fixed(ratio = 1) +  # Keep the aspect ratio 1:1 for square size
+    xlim(0, 1.5)  # Set x-axis limits from 0 to 1.5
+
+  # Display the plot
+  print(p)
+}
+
+
+```
+
+
+
+
+

@@ -357,8 +357,8 @@ ggplot(mean_values, aes(x = mean_cdom_ab, y = mean_kd, color = Site)) +
   geom_smooth(method = "lm", color = "red", se = TRUE) +
   labs(
     title = "Regression of mean kd and mean CDOM Absorbance",
-    x = "Mean CDOM Absorbance",
-    y = "Mean kd (m-1)",
+    x = "Station Average CDOM Absorbance",
+    y = "Station Average kd (m-1)",
     color = "Site"
   ) +
   annotate("text", 

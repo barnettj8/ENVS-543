@@ -16,7 +16,8 @@ data <- getRiceData()
 
 ```
 
-## Classic Barplot of Rain in January 
+## Classic Barplot of Rain in January
+
 ```{r}
 data |> 
   filter ( month == "January") |>
@@ -87,8 +88,6 @@ plot(df$time_in_minutes, df$Depth,
 
 
 ```
-
-
 
 ## ggplot of Water Depth on Valentines Day
 

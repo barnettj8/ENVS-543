@@ -1,0 +1,222 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+```{r}
+
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+library(car)
+
+```
+
+```{r}
+thesisdf <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=0&single=true&output=csv")
+
+head(thesisdf)
+```
+
+## Normality Test
+
+```{r}
+
+# List of variables to check
+vars_to_check <- c("kd (m-1)", "CDOM a440 (corr)", "TSS (mg/L)", "CHLa (ug/L)", "Secchi (m)")
+
+# Function to test for normality
+test_normality <- function(thesisdf, variables) {
+  normality_results <- lapply(variables, function(var) {
+    if (is.numeric(thesisdf[[var]])) {
+      shapiro.test(thesisdf[[var]])$p.value  # Shapiro-Wilk test p-value
+    } else {
+      NA
+    }
+  })
+  names(normality_results) <- variables
+  return(normality_results)
+}
+
+# Function to test for heteroscedasticity
+test_heteroscedasticity <- function(model) {
+  bptest(model)$p.value  # Breusch-Pagan test p-value
+}
+
+# Test normality
+normality_results <- test_normality(thesisdf, vars_to_check)
+print("Shapiro-Wilk normality test p-values:")
+print(normality_results)
+
+```
+If pvalues of Shapiro-Wilk normality tests are greater than 0.05, the data is considered normal. If the pvalues are below 0.05, the data is not normal. Here, kd and Secchi depth are normal, however, our predictors (CDOM, TSS, and CHLa) are not normally distributed. 
+
+## Table 1
+
+```{r}
+
+table1 <- thesisdf |>
+  select( Lake, Site, Date, `kd (m-1)`, `CDOM a440 (corr)`, `TSS (mg/L)`, `CHLa (ug/L)`, `kd from TSS`, `% kd from TSS`, `Residual kd after TSS`, `kd from CDOM`, `% kd from CDOM`, `CDOM + TSS %`)
+
+table1 %>%
+  kable("html") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"), full_width = FALSE) %>%
+  column_spec(1, bold = TRUE) 
+
+```
+
+## Figure 1
+
+```{r}
+
+p1 <- ggplot(thesisdf, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "blue") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Add regression line
+  labs(title = "Regression: kd (m-1) vs TSS (mg/L)", 
+       x = "TSS (mg/L)", y = "kd (m-1)") +
+  theme_minimal()
+
+p2 <- ggplot(thesisdf, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "green") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Add regression line
+  labs(title = "Regression: Residual kd after TSS vs CDOM a440 (corr)", 
+       x = "CDOM a440 (corr)", y = "Residual kd after TSS") +
+  theme_minimal()
+
+p3 <- ggplot(thesisdf, aes(x = `CHLa (ug/L)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "purple") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Add regression line
+  labs(title = "Regression: Residual kd after TSS vs CHLa (ug/L)", 
+       x = "CHLa (ug/L)", y = "Residual kd after TSS") +
+  theme_minimal()
+
+# Arrange the plots into one figure
+library(gridExtra)
+
+grid.arrange(p1, p2, p3, ncol = 2)
+
+```
+
+
+```{r}
+
+# Function to add regression stats to the plot without parsing the equation
+add_regression_stats <- function(plot, lm_model) {
+  # Extract coefficients and p-values
+  coef_intercept <- round(coef(lm_model)[1], 3)
+  coef_slope <- round(coef(lm_model)[2], 3)
+  r_squared <- round(summary(lm_model)$r.squared, 3)
+  p_value <- round(summary(lm_model)$coefficients[2, 4], 3)
+  
+  # Add the equation and stats to the plot (as plain text)
+  plot + 
+    annotate("text", x = Inf, y = Inf, label = paste("y = ", coef_slope, "x + ", coef_intercept), 
+             hjust = 1, vjust = 1, size = 3) + 
+    annotate("text", x = Inf, y = Inf - 0.5, label = paste("R^2 = ", r_squared), 
+             hjust = 1, vjust = 1, size = 3) +
+    annotate("text", x = Inf, y = Inf - 1, label = paste("p = ", p_value), 
+             hjust = 1, vjust = 1, size = 3)
+}
+
+# Plot 1: "kd (m-1)" vs "TSS (mg/L)"
+p1 <- ggplot(thesisdf, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "blue") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Add regression line
+  theme_minimal() +
+  theme(axis.text = element_text(size = 10), axis.title = element_text(size = 10))  # Reduce axis label size
+
+# Fit linear model and add stats to the plot
+lm_model1 <- lm(`kd (m-1)` ~ `TSS (mg/L)`, data = thesisdf)
+p1 <- add_regression_stats(p1, lm_model1)
+
+# Plot 2: "Residual kd after TSS" vs "CDOM a440 (corr)"
+p2 <- ggplot(thesisdf, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "green") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Add regression line
+  theme_minimal() +
+  theme(axis.text = element_text(size = 10), axis.title = element_text(size = 10))  # Reduce axis label size
+
+# Fit linear model and add stats to the plot
+lm_model2 <- lm(`Residual kd after TSS` ~ `CDOM a440 (corr)`, data = thesisdf)
+p2 <- add_regression_stats(p2, lm_model2)
+
+# Plot 3: "Residual kd after TSS" vs "CHLa (ug/L)"
+p3 <- ggplot(thesisdf, aes(x = `CHLa (ug/L)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "purple") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Add regression line
+  theme_minimal() +
+  theme(axis.text = element_text(size = 10), axis.title = element_text(size = 10))  # Reduce axis label size
+
+# Fit linear model and add stats to the plot
+lm_model3 <- lm(`Residual kd after TSS` ~ `CHLa (ug/L)`, data = thesisdf)
+p3 <- add_regression_stats(p3, lm_model3)
+
+# Arrange the plots into one figure
+library(gridExtra)
+
+grid.arrange(p1, p2, p3, ncol = 1)
+
+
+
+```
+
+
+```{r}
+# Function to add regression stats to the plot without parsing the equation
+add_regression_stats <- function(plot, lm_model, eq_pos = c(Inf, Inf), rsq_pos = c(Inf, Inf - 0.5), pval_pos = c(Inf, Inf - 1.5)) {
+  # Extract coefficients and p-values
+  coef_intercept <- round(coef(lm_model)[1], 3)
+  coef_slope <- round(coef(lm_model)[2], 3)
+  r_squared <- round(summary(lm_model)$r.squared, 3)
+  p_value <- round(summary(lm_model)$coefficients[2, 4], 3)
+  
+  # Add the equation, R^2, and p-value to the plot (as separate text annotations)
+  plot + 
+    annotate("text", x = eq_pos[1], y = eq_pos[2], label = paste("y = ", coef_slope, "x + ", coef_intercept), 
+             hjust = 1, vjust = 1.5, size = 3) +  # Equation
+    annotate("text", x = rsq_pos[1], y = rsq_pos[2], label = paste("R^2 = ", r_squared), 
+             hjust = 1, vjust = 1.5, size = 3) +  # R-squared
+    annotate("text", x = pval_pos[1], y = pval_pos[2], label = paste("p = ", p_value), 
+             hjust = 1, vjust = 1.5, size = 3) +  # p-value
+    theme_minimal() +
+    theme(panel.grid = element_blank(),  # Remove gridlines
+          panel.border = element_rect(color = "black", fill = NA, size = 1),  # Add box around plotting area
+          axis.text = element_text(size = 10), axis.title = element_text(size = 10))  # Reduce axis label size
+}
+
+# Plot 1: "kd (m-1)" vs "TSS (mg/L)"
+p1 <- ggplot(thesisdf, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "blue") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE)  # Add regression line
+
+# Fit linear model and add stats to the plot (with custom position for each stat)
+lm_model1 <- lm(`kd (m-1)` ~ `TSS (mg/L)`, data = thesisdf)
+p1 <- add_regression_stats(p1, lm_model1, eq_pos = c(Inf, Inf), rsq_pos = c(Inf, Inf - 0.5), pval_pos = c(Inf, Inf - 1.5))
+
+# Plot 2: "Residual kd after TSS" vs "CDOM a440 (corr)"
+p2 <- ggplot(thesisdf, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "green") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE)  # Add regression line
+
+# Fit linear model and add stats to the plot (with custom position for each stat)
+lm_model2 <- lm(`Residual kd after TSS` ~ `CDOM a440 (corr)`, data = thesisdf)
+p2 <- add_regression_stats(p2, lm_model2, eq_pos = c(Inf, Inf), rsq_pos = c(Inf, Inf - 0.5), pval_pos = c(Inf, Inf - 1.5))
+
+# Plot 3: "Residual kd after TSS" vs "CHLa (ug/L)"
+p3 <- ggplot(thesisdf, aes(x = `CHLa (ug/L)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "purple") +  # Add points
+  geom_smooth(method = "lm", color = "red", se = FALSE)  # Add regression line
+
+# Fit linear model and add stats to the plot (with custom position for each stat)
+lm_model3 <- lm(`Residual kd after TSS` ~ `CHLa (ug/L)`, data = thesisdf)
+p3 <- add_regression_stats(p3, lm_model3, eq_pos = c(Inf, Inf), rsq_pos = c(Inf, Inf - 0.5), pval_pos = c(Inf, Inf - 1.5))
+
+# Arrange the plots into one figure
+library(gridExtra)
+
+grid.arrange(p1, p2, p3, ncol = 2)
+
+```
+
+

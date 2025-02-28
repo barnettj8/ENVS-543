@@ -1,0 +1,198 @@
+---
+title: "Leaf Decomposition"
+output: html_notebook
+author: "John McIntosh"
+---
+
+#If tidyverse is not already in your library, install the package for it using: install.packages("tidyverse"). We will also install "ggplot2" and load it into our library to make some neat plots!
+
+#let's read in our data from the folder, make sure the data name reads as: "LeafDecompData"
+```{r}
+library(tidyverse)
+library(ggplot2)
+
+LeafDecomp <- read.csv("LeafDecompData.csv")
+```
+
+#### If the LeafDecomp datatable doesn't show the first column as being read strictly as "Stream" then run the code given below into a code chunk or input it into the box below labeled "Console" one line at a time:
+
+# LeafDecomp$Stream <- LeafDecomp$ï..Stream
+# LeafDecomp <- subset(LeafDecomp, select = -c(ï..Stream))
+
+#This may happen if you are using a Window's System computer. This code will rename the Stream column and drop the older stream column that was edited during the download and integration into R.
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Part 1: Building Linear regressions per stream to find its Leaf Litter Decomposition Rate
+
+#For each of the functions below, we are creating a linear regression test per stream with all of it's incompassing data. We are also log-transforming the percent_remaining to ensure that we meet tests of normality (as the author's did in their study) so that the regressions perform at their fullest.
+
+```{r}
+LeafDecomp %>% 
+  filter(Stream == "CC") %>%
+  lm(log(Percent_Remaining) ~ Day, data = .) %>%
+  summary()
+
+LeafDecomp %>% 
+  filter(Stream == "VEN") %>%
+  lm(log(Percent_Remaining) ~ Day, data = .) %>%
+  summary()
+
+LeafDecomp %>% 
+  filter(Stream == "HP") %>%
+  lm(log(Percent_Remaining) ~ Day, data = .) %>%
+  summary()
+
+LeafDecomp %>% 
+  filter(Stream == "MONT") %>%
+  lm(log(Percent_Remaining) ~ Day, data = .) %>%
+  summary()
+
+LeafDecomp %>% 
+  filter(Stream == "LL") %>%
+  lm(log(Percent_Remaining) ~ Day, data = .) %>%
+  summary()
+
+LeafDecomp %>% 
+  filter(Stream == "MAT") %>%
+  lm(log(Percent_Remaining) ~ Day, data = .) %>%
+  summary()
+```
+
+
+
+```{r}
+
+
+## CC = Correo Cupey
+## MONT = Montehiedra
+## HP = Quebrada Las Curias
+## MAT = San Patricio
+## VEN = Rio Piedras
+## LL = Las Lomas
+
+
+
+# Filter the data for the "CC" stream
+data_filtered <- LeafDecomp %>% filter(Stream == "CC")
+
+# Fit the linear model
+lm_model <- lm(log(Percent_Remaining) ~ Day, data = data_filtered)
+
+# Get the slope of the regression line (coefficient of "Day")
+slope <- coef(lm_model)[2]
+
+# Create the regression plot for stream "CC"
+ggplot(data_filtered, aes(x = Day, y = log(Percent_Remaining))) +
+  geom_point(color = "blue") +  # Plot data points
+  geom_smooth(method = "lm", se = FALSE, color = "red") +  # Add regression line
+  labs(title = "CC Regression Plot",
+       x = "Day", y = "Log(Percent Remaining)") +
+  # Add slope annotation to the plot
+  annotate("text", x = max(data_filtered$Day), y = max(log(data_filtered$Percent_Remaining)), 
+           label = paste("Slope = ", round(slope, 5)), color = "black", hjust = 1)
+
+
+```
+
+```{r}
+
+# Filter the data for the "CC" stream
+data_filtered <- LeafDecomp %>% filter(Stream == "VEN")
+
+# Fit the linear model
+lm_model <- lm(log(Percent_Remaining) ~ Day, data = data_filtered)
+
+# Get the slope of the regression line (coefficient of "Day")
+slope <- coef(lm_model)[2]
+
+# Create the regression plot for stream "VEN"
+ggplot(data_filtered, aes(x = Day, y = log(Percent_Remaining))) +
+  geom_point(color = "blue") +  # Plot data points
+  geom_smooth(method = "lm", se = FALSE, color = "red") +  # Add regression line
+  labs(title = "VEN Regression Plot",
+       x = "Day", y = "Log(Percent Remaining)") +
+  # Add slope to the plot
+  annotate("text", x = max(data_filtered$Day), y = max(log(data_filtered$Percent_Remaining)), 
+           label = paste("Slope = ", round(slope, 5)), color = "black", hjust = 1)
+
+
+```
+
+
+
+#From each of these linear regressions, record the Stream Name, Slope (Absolute Value form), and standard error for each of the 6 regressions done above into your 1st spreadsheet named "Stream_Decomposition_Rates_Table". You do not need to make the Slopes negative as shown from the "Estimate" as long as you understand that the decomposition rate is negative relationship. It will help later on when interpretting some plots and figures that we will create.
+
+
+#Now let's build a bar plot that neatly shows the decomposition rates of each stream.
+```{r}
+#First lets load in our 1st table
+stream_rates <- read.csv("Stream_Decomposition_Rates_Table.csv")
+```
+
+#### The Stream column also may have an edited name. Run the code below if your Stream column of the "stream_rates" dataset's doesn't show "Stream"
+
+# LeafDecomp$Stream <- LeafDecomp$ï..Stream
+# LeafDecomp <- subset(LeafDecomp, select = -c(ï..Stream))
+
+#Using ggplot2 we will build a plot with correctly labeled axis and a title. Also we will show the standard error associated with each stream's leaf litter decomposition rate.
+```{r}
+ggplot(stream_rates, aes(x=Stream, y=Decomp_Rate, fill=Stream)) +
+  geom_col() +
+  geom_errorbar(aes(ymin=Decomp_Rate-SE, ymax=Decomp_Rate+SE, width=.2)) +
+  ggtitle("Mean leaf litter decomposition rate between each stream") +
+  xlab("Stream Identity") +
+  ylab("Leaf Litter Decomposition Rate")
+```
+
+#Question 1: Looking at the plot and the standard error bars, what can you interpret from this plot?
+
+#The HP stream has the highest rates of leaf litter decomposition and is likely statistically different from the rest. The mont stream is next and is likely in an intermediate stage of urbanization. The rest of the streams seem to be relatively similar with low leaf litter decomposition rates. 
+
+#Question 2: Based on the reading, which Stream seems to have the least urbanization? Which streams seem to be heavily affected by urbanization? (hint: look at one of the factors being measured in Table 1 that seems to be the best representation of urbanization.)
+
+#The least urbanized stream are is the Quebradas Las Curias by far (12.9% impervious cover), the most urbanized are Las Lomas and San Patricio (65.94% and 77.15% respectively). 
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Part2: Relating Urbanization to Leaf Litter Decomposition Rate
+
+#For this short exercise you will need to fill in the missing column of data for the "ImpSA_DecompRate" table attached to this exercise. To do this you can copy and paste the decomposition rates from ""Stream_Decomposition_Rates_Table" from Part 1 of this exercise.
+
+#let's load in the data table
+```{r}
+ImperviousArea <- read.csv("ImpSA_DecompRate.csv")
+```
+
+
+#### The Stream column also may have an edited name. Run the code below if your Stream column of the ImperviousArea dataset's doesn't show "Stream":
+
+# LeafDecomp$Stream <- LeafDecomp$ï..Stream
+# LeafDecomp <- subset(LeafDecomp, select = -c(ï..Stream))
+
+
+#Now let's build a plot to visualize the data in this table
+```{r}
+ggplot(ImperviousArea, aes(x=Impervious_Area_Percent, y=Decomp_Rate)) +
+  geom_smooth(method = lm, se=F) +
+  geom_point() +
+  ggtitle("Change in Decomposition rates due to Urbanization") +
+  labs(x = "Impervious Surface Area (Percent)", y = "Decomposition Rate")
+```
+
+#Question 3: Look at this graph. What can you infer about this plot? Why is it that the decomposition rate lowers as impervious surface area increases?
+
+#As the paper states, "Urbanization often results in a change in macroinvertebrate assemblage composition from high diversity to simplified assemblages dominated by generalist taxa". Intermittent and flashy regimes after storms also cause sediment deposition that can bury leaves, making them unavailable to consumers. 
+
+#Now we will perform a linear regression to understand this trendline shown in the plot above. In this linear regression we are going to understand the relationship of the decomposition rate that we discovered in Part 1 with the amount of impervious surface area the scientists gathered while out in the field. We are hoping to see an inverse relationship as that was our hypothesis.
+```{r}
+ImperviousArea %>%
+  lm(Decomp_Rate ~ Impervious_Area_Percent, data = .) %>%
+  summary()
+```
+
+#Question 4: Is there a significant relationship between impervious surface area and leaf litter decomposition rate? Utilize the r2 and p-value along with the slope and SE. Was our hypothesis correct?
+
+Yes, there is a significant relationship between impervious surface area and leaf litter decomposition rate. The R-squared value is 0.8211, indicating a strong model fit. The p-value for impervious surface area is 0.01279, which is less than 0.05, showing statistical significance. The slope is -0.0004819, indicating that as impervious surface area increases, decomposition rates decrease. This supports the hypothesis that decomposition rates decrease with increasing urbanization.
