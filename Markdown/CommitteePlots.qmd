@@ -854,7 +854,7 @@ p <- ggplot(lake_data, aes(x = Secchi, y = kd)) +
     axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
   ) +
   coord_fixed(ratio = 1) +  # Keep the aspect ratio 1:1 for square size
-  xlim(0, 2.5)  # Set x-axis limits from 0 to 1
+  xlim(0, 3)  # Set x-axis limits from 0 to 1
 
 
 # Display the plot
@@ -914,16 +914,62 @@ if (reg_stats$eq == "No data for regression") {
 
 ```
 
-## POC
 
 ```{r}
-
 
 pocdataurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=95641830&single=true&output=csv"
 
 pocdata <- read_csv(pocdataurl)
 
 ```
+
+```{r}
+
+# Clean the data by removing rows with NA values in Secchi or Z1% columns
+secchi_z1_data_clean <- pocdata[, c("Secchi", "Z1%")]
+secchi_z1_data_clean <- secchi_z1_data_clean[!is.na(secchi_z1_data_clean$Secchi) & !is.na(secchi_z1_data_clean$`Z1%`), ]
+
+# Fit the linear regression model for Secchi vs Z1%
+model_secchi_z1 <- lm(`Z1%` ~ Secchi, data = secchi_z1_data_clean)
+
+# Extract regression stats (equation, R-squared, p-value)
+eq_secchi_z1 <- paste("y = ", round(coef(model_secchi_z1)[2], 2), "x + ", round(coef(model_secchi_z1)[1], 2), sep = "")
+rsq_secchi_z1 <- paste("R² = ", round(summary(model_secchi_z1)$r.squared, 3), sep = "")
+pval_secchi_z1 <- paste("p = ", round(summary(model_secchi_z1)$coefficients[2, 4], 3), sep = "")
+
+# Create the plot
+p_secchi_z1 <- ggplot(secchi_z1_data_clean, aes(x = Secchi, y = `Z1%`)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Secchi vs Z1%", x = "Secchi (m)", y = "Z1%") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  # Add regression stats to the plot
+  geom_text(
+    x = max(secchi_z1_data_clean$Secchi, na.rm = TRUE), 
+    y = max(secchi_z1_data_clean$`Z1%`, na.rm = TRUE), 
+    label = paste(eq_secchi_z1, "\n", rsq_secchi_z1, "\n", pval_secchi_z1), 
+    hjust = 1, vjust = 4, size = 3, color = "black"
+  ) +
+  # Adjust the axis limits (optional, depending on your data range)
+  coord_cartesian(xlim = c(min(secchi_z1_data_clean$Secchi, na.rm = TRUE), max(secchi_z1_data_clean$Secchi, na.rm = TRUE)),
+                  ylim = c(min(secchi_z1_data_clean$`Z1%`, na.rm = TRUE), max(secchi_z1_data_clean$`Z1%`, na.rm = TRUE)))
+
+# Print the plot
+print(p_secchi_z1)
+
+
+
+```
+
+
+
+## POC
 
 
 ```{r}
@@ -952,9 +998,9 @@ p <- ggplot(pocdata, aes(x = TSS, y = POC)) +
     x = max(pocdata$TSS, na.rm = TRUE), 
     y = max(pocdata$POC, na.rm = TRUE), 
     label = paste(eq, "\n", rsq, "\n", pval), 
-    hjust = 1, vjust = 2, size = 3, color = "black"
+    hjust = 1, vjust = 3, size = 3, color = "black"
   ) +
-  coord_fixed(ratio = 2)
+  coord_fixed(ratio = 6)
 
 # Print the plot
 print(p)
@@ -990,12 +1036,12 @@ p_chla_poc <- ggplot(pocdata, aes(x = CHLa, y = POC)) +
     x = max(pocdata$CHLa, na.rm = TRUE), 
     y = max(pocdata$POC, na.rm = TRUE), 
     label = paste(eq_chla_poc, "\n", rsq_chla_poc, "\n", pval_chla_poc), 
-    hjust = 1, vjust = 2, size = 3, color = "black"
+    hjust = 1, vjust = 4, size = 3, color = "black"
   ) +
-  coord_fixed(ratio = 5)
+  coord_fixed(ratio = 10)
 
 # Print the plot
-print(p_chla_poc)
+p_chla_poc
 
 
 ```
@@ -1012,56 +1058,7 @@ tss_c_data_clean <- tss_c_data[!is.na(tss_c_data$TSS) & !is.na(tss_c_data$`C%`),
 ```
 
 
-
 ```{r}
-
-# Keep the original C% as a percentage (no conversion)
-# Clean the data by removing rows with NA values in TSS or C% columns
-tss_c_data_clean <- pocdata[, c("TSS", "C%")]
-tss_c_data_clean <- tss_c_data_clean[!is.na(tss_c_data_clean$TSS) & !is.na(tss_c_data_clean$`C%`), ]
-
-# Check the data range
-summary(tss_c_data_clean)
-
-# Fit the linear regression model for TSS vs C%
-model_tss_c <- lm(`C%` ~ TSS, data = tss_c_data_clean)
-
-# Extract regression stats (equation, R-squared, p-value)
-eq_tss_c <- paste("y = ", round(coef(model_tss_c)[2], 2), "x + ", round(coef(model_tss_c)[1], 2), sep = "")
-rsq_tss_c <- paste("R² = ", round(summary(model_tss_c)$r.squared, 3), sep = "")
-pval_tss_c <- paste("p = ", round(summary(model_tss_c)$coefficients[2, 4], 3), sep = "")
-
-# Create the plot
-p_tss_c <- ggplot(tss_c_data_clean, aes(x = TSS, y = `C%`)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "All Station C% vs TSS", x = "TSS (mg/L)", y = "C%") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 12, color = "black"),  # Title size and color
-    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
-    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
-  ) +
-  # Add regression stats to the plot
-  geom_text(
-    x = max(tss_c_data_clean$TSS, na.rm = TRUE), 
-    y = max(tss_c_data_clean$`C%`, na.rm = TRUE), 
-    label = paste(eq_tss_c, "\n", rsq_tss_c, "\n", pval_tss_c), 
-    hjust = 1, vjust = 2, size = 3, color = "black"
-  ) +
-  # Adjust the axis limits to ensure proper view
-  coord_cartesian(xlim = c(min(tss_c_data_clean$TSS, na.rm = TRUE), max(tss_c_data_clean$TSS, na.rm = TRUE)),
-                  ylim = c(min(tss_c_data_clean$`C%`, na.rm = TRUE), max(tss_c_data_clean$`C%`, na.rm = TRUE)))
-
-# Print the plot
-print(p_tss_c)
-
-
-```
-
-```{r}
-
 # Keep the original C% as a percentage (no conversion)
 # Clean the data by removing rows with NA values in TSS or C% columns
 tss_c_data_clean <- pocdata[, c("TSS", "C%")]
@@ -1099,12 +1096,13 @@ p_tss_c <- ggplot(tss_c_data_clean, aes(x = TSS, y = `C%`)) +
   ) +
   # Adjust the y-axis to go from 0 to 80
   coord_cartesian(xlim = c(min(tss_c_data_clean$TSS, na.rm = TRUE), max(tss_c_data_clean$TSS, na.rm = TRUE)),
-                  ylim = c(0, 80)) +  # Set y-axis limits from 0 to 80
+                  ylim = c(0, 80))  # Set y-axis limits from 0 to 80
 
-# Print the plot
-print(p_tss_c)
+# No need to use print(), the plot will automatically be shown in RStudio
+p_tss_c  # Simply run this and the plot will be shown
 
 
 ```
+
 
 
