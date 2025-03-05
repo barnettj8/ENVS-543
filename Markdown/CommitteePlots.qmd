@@ -92,6 +92,62 @@ ggplot(long_data, aes(x = Site, y = Value)) +
 
 ```{r}
 
+# Perform ANOVA comparing 'kd' across sites
+anova_kd <- aov(Value ~ Site, data = kd_data)
+
+# Run Tukey's HSD post-hoc test
+tukey_results <- TukeyHSD(anova_kd)
+
+# Extract the results for the 'Site' factor from the Tukey HSD test
+tukey_summary <- tukey_results$Site
+
+# Convert the matrix to a data frame for easier manipulation
+tukey_df <- as.data.frame(tukey_summary)
+
+# Add the comparison names as a new column (this will be the rownames)
+tukey_df$Comparison <- rownames(tukey_df)
+
+# Filter to keep only the statistically significant comparisons (p-value < 0.05)
+significant_comparisons <- tukey_df %>%
+  filter(`p adj` < 0.05) %>%
+  select(Comparison, `p adj`)  # Select the Comparison and p adj columns
+
+# Print the significant comparisons with p-values
+print(significant_comparisons)
+
+
+
+```
+```{r}
+# Perform ANOVA comparing 'CDOM' across sites
+anova_cdom <- aov(Value ~ Site, data = kd_data %>% filter(Variable == "CDOM"))
+
+# Run Tukey's HSD post-hoc test
+tukey_results <- TukeyHSD(anova_cdom)
+
+# Extract the results for the 'Site' factor from the Tukey HSD test
+tukey_summary <- tukey_results$Site
+
+# Convert the matrix to a data frame for easier manipulation
+tukey_df <- as.data.frame(tukey_summary)
+
+# Add the comparison names as a new column (this will be the rownames)
+tukey_df$Comparison <- rownames(tukey_df)
+
+# Filter to keep only the statistically significant comparisons (p-value < 0.05)
+significant_comparisons <- tukey_df %>%
+  filter(`p adj` < 0.05) %>%
+  select(Comparison, `p adj`)  # Select the Comparison and p adj columns
+
+# Print the significant comparisons with p-values
+print(significant_comparisons)
+
+
+```
+
+
+```{r}
+
 swift_creek_data <- fullthesis |> filter(Lake == "Swift Creek Reservoir")
 
 variables <- c("kd", "CDOM", "TSS", "CHLa")

@@ -10,6 +10,7 @@ editor: visual
 library(tidyverse)
 library(kableExtra)
 library(ggplot2)
+library(car)
 
 ```
 
@@ -24,9 +25,6 @@ head(df)
 ## Tests for normality (data not normal?)
 
 ```{r}
-# Load required libraries
-library(ggplot2)
-library(car)
 
 # List of variables to check
 vars_to_check <- c("kd", "cdom_ab", "TSS", "chla_corrected", "chla_uncorrected", "secchi", "DOC")
@@ -85,6 +83,42 @@ for (var in vars_to_plot) {
 }
 
 ```
+
+```{r}
+
+# Apply log transformation to the relevant variables
+log_transformed_df <- df
+log_transformed_df[vars_to_check] <- log(df[vars_to_check] + 1)  # Adding 1 to avoid log(0)
+
+# Test normality after log transformation
+normality_results_log <- test_normality(log_transformed_df, vars_to_check)
+print("Shapiro-Wilk normality test p-values (after log transformation):")
+print(normality_results_log)
+
+# Run regression model after log transformation
+tot_cdom_model_log <- lm(kd ~ cdom_ab, data = log_transformed_df)
+
+# Test for heteroscedasticity after log transformation
+heteroscedasticity_p_value_log <- test_heteroscedasticity(tot_cdom_model_log)
+print(paste("Breusch-Pagan test p-value (after log transformation):", heteroscedasticity_p_value_log))
+
+
+```
+
+```{r}
+# Create histograms for the log-transformed data
+for (var in vars_to_plot) {
+  p <- ggplot(log_transformed_df, aes_string(x = var)) +
+    geom_histogram(color = "black", fill = "blue", bins = 30, alpha = 0.7) +
+    labs(title = paste("Histogram of", var, "(Log Transformed)"), x = var, y = "Frequency") +
+    theme_minimal()
+  
+  print(p)  # Print the plot
+}
+
+
+```
+
 
 # All data Regressions
 
