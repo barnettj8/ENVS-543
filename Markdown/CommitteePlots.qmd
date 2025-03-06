@@ -1,5 +1,5 @@
 ---
-title: "Thesis Plots (2/28- for Committee Meeting"
+title: "Thesis Plots (3/5)- for Committee Meeting"
 author: Jackson Barnett 
 format: html
 editor: visual
@@ -36,7 +36,6 @@ fullthesis <- read_csv(fullthesisurl)
 ```
 
 ```{r}
-
 long_data <- fullthesis %>%
   pivot_longer(cols = c(`kd`, `CDOM`, `TSS`, `CHLa`), 
                names_to = "Variable", 
@@ -44,9 +43,31 @@ long_data <- fullthesis %>%
   mutate(
     Variable = factor(
       Variable,
-      levels = c("kd", "CDOM", "TSS", "CHLa") # Set the desired order
-    )
+      levels = c("kd", "CDOM", "TSS", "CHLa")  # Set the desired order
+    ),
+    Site = dplyr::recode(Site, 
+                         "2-BRI010.78" = "BRI_1",
+                         "2-BRI013.12" = "BRI_2",
+                         "5ANTW127.14" = "Barfoot",
+                         "2-CHK026.94" = "Chick",
+                         "Harrison Near Dam" = "Harrison",
+                         "2-SDY004.27" = "SDY_1",
+                         "2-SDY005.85" = "SDY_2",
+                         "2-MBN000.96" = "SDY_3",
+                         "2-SFT031.08" = "SFT_1",
+                         "2-DYC000.19" = "SFT_2",
+                         "2-SFT033.42" = "SFT_3",
+                         "2-SFT034.38" = "SFT_4",
+                         "Lake Anna Dam Surface" = "ANNA")
   )
+
+# Define the specific order for Site levels
+site_order <- c("Barfoot", "Harrison", "Chick", "SFT_4", "SFT_3", "SFT_2", "SFT_1", "SDY_2", "BRI_2", "SDY_1",  "SDY_3", "BRI_1", "ANNA")
+
+# Update the long_data to apply the specific Site order
+long_data <- long_data %>%
+  mutate(Site = factor(Site, levels = site_order))  # Set the levels of Site
+
 
 ```
 
@@ -57,7 +78,7 @@ long_data <- fullthesis %>%
 # Define custom y-axis titles (units) for each variable
 custom_y_labels <- c(
   `kd` = "kd (m⁻¹)",
-  `CDOM` = "CDOM (Absorbance)",
+  `CDOM` = "CDOM (m⁻¹)",
   `TSS` = "TSS (mg/L)",
   `CHLa` = "CHLa (µg/L)"
 )
@@ -92,8 +113,162 @@ ggplot(long_data, aes(x = Site, y = Value)) +
 
 ```{r}
 
+
+# Define custom y-axis titles (units) for each variable
+custom_y_labels <- c(
+  `kd` = "kd (m⁻¹)",
+  `CDOM` = "CDOM (m⁻¹)",
+  `TSS` = "TSS (mg/L)",
+  `CHLa` = "CHLa (µg/L)"
+)
+
+# Create individual plots for each variable
+plot_kd <- ggplot(subset(long_data, Variable == "kd"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["kd"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Change x-axis text size to 4
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+plot_CDOM <- ggplot(subset(long_data, Variable == "CDOM"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["CDOM"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Change x-axis text size to 4
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+plot_TSS <- ggplot(subset(long_data, Variable == "TSS"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["TSS"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Change x-axis text size to 4
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+plot_CHLa <- ggplot(subset(long_data, Variable == "CHLa"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["CHLa"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Change x-axis text size to 4
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+# Arrange the plots in a grid layout
+grid.arrange(plot_kd, plot_CDOM, plot_TSS, plot_CHLa, ncol = 2)
+
+
+```
+
+```{r}
+
+# Plot for kd
+plot_kd <- ggplot(subset(long_data, Variable == "kd"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["kd"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),  # Remove x-axis labels
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+# Plot for CDOM
+plot_CDOM <- ggplot(subset(long_data, Variable == "CDOM"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["CDOM"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),  # Remove x-axis labels
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+# Plot for TSS
+plot_TSS <- ggplot(subset(long_data, Variable == "TSS"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["TSS"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Change x-axis text size to 4
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+# Plot for CHLa
+plot_CHLa <- ggplot(subset(long_data, Variable == "CHLa"), aes(x = Site, y = Value)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, fill = "lightblue") +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = custom_y_labels["CHLa"]
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 6),  # Change x-axis text size to 4
+    axis.text.y = element_text(size = 8),
+    axis.title.y = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add box around chart area
+  )
+
+# Arrange the plots in a grid layout with equal sizes
+grid.arrange(plot_kd, plot_CDOM, plot_TSS, plot_CHLa, 
+             ncol = 2, nrow = 2, # Ensure 2 columns and 2 rows
+             widths = c(1, 1),    # Make the columns the same width
+             heights = c(1, 1))   # Make the rows the same height
+
+
+```
+
+
+```{r}
+
 # Perform ANOVA comparing 'kd' across sites
-anova_kd <- aov(Value ~ Site, data = kd_data)
+anova_kd <- aov(Value ~ Site, data = long_data)
 
 # Run Tukey's HSD post-hoc test
 tukey_results <- TukeyHSD(anova_kd)
@@ -120,7 +295,7 @@ print(significant_comparisons)
 ```
 ```{r}
 # Perform ANOVA comparing 'CDOM' across sites
-anova_cdom <- aov(Value ~ Site, data = kd_data %>% filter(Variable == "CDOM"))
+anova_cdom <- aov(Value ~ Site, data = long_data %>% filter(Variable == "CDOM"))
 
 # Run Tukey's HSD post-hoc test
 tukey_results <- TukeyHSD(anova_cdom)
@@ -1003,7 +1178,7 @@ p_secchi_z1 <- ggplot(secchi_z1_data_clean, aes(x = Secchi, y = `Z1%`)) +
     plot.title = element_text(size = 12, color = "black"),  # Title size and color
     axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
     axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+    axis.text.x = element_text(angle = 0, hjust = 1)  # Rotate x-axis labels for readability
   ) +
   # Add regression stats to the plot
   geom_text(
@@ -1047,7 +1222,7 @@ p <- ggplot(pocdata, aes(x = TSS, y = POC)) +
     plot.title = element_text(size = 12, color = "black"),  # Title size and color
     axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
     axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+    axis.text.x = element_text(angle = 0, hjust = 1)  # Rotate x-axis labels for readability
   ) +
   # Add regression stats to the plot
   geom_text(
@@ -1061,9 +1236,122 @@ p <- ggplot(pocdata, aes(x = TSS, y = POC)) +
 # Print the plot
 print(p)
 
+```
+
+```{r}
+
+pocdata <- pocdata %>%
+  mutate(OrganicFraction_TSS = (POC * 2) / TSS)
+
+pocdata <- pocdata %>%
+  mutate(MyOrganicFraction_TSS = (POC) / TSS)
+
+# Print the first few rows to check the new column
+
+```
+
+
+```{r}
+
+# Create the bar plot of OrganicFraction_TSS by Site
+bar_plot <- ggplot(pocdata, aes(x = Site, y = OrganicFraction_TSS, fill = Site)) +
+  geom_bar(stat = "identity", position = "dodge") +  # Use stat = "identity" to use the actual values of OrganicFraction_TSS
+  labs(title = "Organic Fraction to TSS Ratio by Site", 
+       x = "Site", 
+       y = "Organic Fraction to TSS Ratio") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),
+    axis.title.x = element_text(size = 10, color = "black"),
+    axis.title.y = element_text(size = 10, color = "black"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"  # Remove the legend since it's not necessary here
+  )
+
+# Print the plot
+print(bar_plot)
 
 
 ```
+
+
+```{r}
+
+# Fit the linear regression model
+model <- lm(OrganicFraction_TSS ~ TSS, data = pocdata, na.action = na.exclude)  # This will exclude NA values from the regression model
+
+# Extract regression stats (equation, R-squared, p-value)
+eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+
+# Create the plot
+p <- ggplot(pocdata, aes(x = TSS, y = OrganicFraction_TSS)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "All Station OrganicFraction_TSS vs TSS", x = "TSS (mg/L)", y = "Organic Fraction to TSS Ratio") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 0, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  # Add regression stats to the plot
+  geom_text(
+    x = max(pocdata$TSS, na.rm = TRUE), 
+    y = max(pocdata$OrganicFraction_TSS, na.rm = TRUE), 
+    label = paste(eq, "\n", rsq, "\n", pval), 
+    hjust = 1, vjust = 3, size = 3, color = "black"
+  ) +
+  coord_fixed(ratio = 6)
+
+# Print the plot
+print(p)
+
+
+```
+
+```{r}
+
+
+# Fit the linear regression model
+model <- lm(MyOrganicFraction_TSS ~ TSS, data = pocdata, na.action = na.exclude)  # This will exclude NA values from the regression model
+
+# Extract regression stats (equation, R-squared, p-value)
+eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+
+# Create the plot
+p <- ggplot(pocdata, aes(x = TSS, y = MyOrganicFraction_TSS)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "All Station MyOrganicFraction_TSS vs TSS", x = "TSS (mg/L)", y = "MyOrganic Fraction to TSS Ratio") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 0, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  # Add regression stats to the plot
+  geom_text(
+    x = max(pocdata$TSS, na.rm = TRUE), 
+    y = max(pocdata$MyOrganicFraction_TSS, na.rm = TRUE), 
+    label = paste(eq, "\n", rsq, "\n", pval), 
+    hjust = 1, vjust = 1, size = 3, color = "black"
+  ) +
+  coord_fixed(ratio = 6)
+
+# Print the plot
+print(p)
+
+
+
+```
+
+
 
 ```{r}
 
