@@ -569,6 +569,32 @@ meanthesis_long <- meanthesis %>%
   gather(key = "Source", value = "Percentage", `% kd from TSS`, `% kd from CDOM`) %>%
   mutate(Percentage = as.numeric(gsub("%", "", Percentage)))  # Remove '%' and convert to numeric
 
+# Manually recoding the 'Site' variable in the meanthesis_long dataset
+meanthesis_long <- meanthesis_long %>%
+  mutate(
+    Site = dplyr::recode(Site, 
+                         "2-BRI010.78" = "BRI_1",
+                         "2-BRI013.12" = "BRI_2",
+                         "5ANTW127.14" = "Barfoot",
+                         "2-CHK026.94" = "Chick",
+                         "Harrison Near Dam" = "Harrison",
+                         "2-SDY004.27" = "SDY_1",
+                         "2-SDY005.85" = "SDY_2",
+                         "2-MBN000.96" = "SDY_3",
+                         "2-SFT031.08" = "SFT_1",
+                         "2-DYC000.19" = "SFT_2",
+                         "2-SFT033.42" = "SFT_3",
+                         "2-SFT034.38" = "SFT_4",
+                         "Lake Anna Dam Surface" = "ANNA")
+  )
+
+site_order <- c( "Harrison", "Chick", "BRI_1", "BRI_2", "SDY_1", "SDY_2", "SDY_3", "SFT_1", "SFT_2", "SFT_3", "SFT_4", "Barfoot", "ANNA")
+
+# Update the long_data to apply the specific Site order
+meanthesis_long <- meanthesis_long %>%
+  mutate(Site = factor(Site, levels = site_order)) 
+
+
 # Create the stacked bar plot with customized y-axis
 ggplot(meanthesis_long, aes(x = Site, y = Percentage, fill = Source)) +
   geom_bar(stat = "identity") +  # Use "identity" to map the y-values directly
