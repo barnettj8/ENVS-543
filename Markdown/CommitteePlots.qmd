@@ -1524,6 +1524,46 @@ print(p)
 
 ```{r}
 
+# Fit the linear regression model
+model <- lm(POC ~ TSS, data = pocdata, na.action = na.exclude)  # This will exclude NA values from the regression model
+
+# Extract regression stats (equation, R-squared, p-value, and residual SE)
+eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+residual_se <- paste("SE = ", round(summary(model)$sigma, 2), sep = "")  # Extract residual standard error (SE)
+
+# Create the plot
+p <- ggplot(pocdata, aes(x = TSS, y = POC)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "All Station POC vs TSS", x = "TSS (mg⁻ᴸ)", y = "POC (mg C⁻ᴸ)" ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 0, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  # Add regression stats to the plot (equation, R², p-value, and SE)
+  geom_text(
+    x = max(pocdata$TSS, na.rm = TRUE), 
+    y = max(pocdata$POC, na.rm = TRUE), 
+    label = paste(eq, "\n", rsq, "\n", pval, "\n", residual_se), 
+    hjust = 1, vjust = 3, size = 3, color = "black"
+  ) +
+  coord_fixed(ratio = 6)
+
+# Print the plot
+print(p)
+
+
+```
+
+
+
+```{r}
+
 pocdata <- pocdata %>%
   mutate(OrganicFraction_TSS = (POC * 2) / TSS)
 
