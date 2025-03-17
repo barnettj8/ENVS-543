@@ -632,6 +632,8 @@ create_diagnostic_plots(model_p3)
 
 ```
 
+### Multiple Linear Regression
+
 ```{r}
 
 response <- "`kd (m-1)`"  # Use backticks around the column name with special characters
@@ -928,6 +930,51 @@ grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
 
+
+```{r}
+
+# Function to create diagnostic plots for a linear model
+create_diagnostic_plots <- function(model, title) {
+  par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
+  
+  # Residuals vs Fitted plot
+  plot(model, which = 1)
+  
+  # Normal Q-Q plot
+  plot(model, which = 2)
+  
+  # Scale-Location plot
+  plot(model, which = 3)
+  
+  # Residuals vs Leverage plot
+  plot(model, which = 5)
+  
+  par(mfrow = c(1, 1))  # Reset the plotting layout to single panel
+}
+
+# Create the linear regression models for p1, p2, p3
+model_p1 <- lm(kd ~ Photic_TSS, data = annadata)
+model_p2 <- lm(kd ~ Photic_CDOM, data = annadata)
+model_p3 <- lm(kd ~ Photic_CHLa, data = annadata)
+
+# Create diagnostic plots for each of the models
+print("Lake Anna: Photic Zone kd vs TSS")
+
+create_diagnostic_plots(model_p1)
+
+print("Lake Anna: Photic Zone kd vs CDOM")
+
+create_diagnostic_plots(model_p2)
+
+print("Lake Anna: Photic Zone kd vs CHLa")
+
+create_diagnostic_plots(model_p3)
+
+
+```
+
+### Lake Anna Multiple Linear Regression
+
 ```{r}
 
 # Define the full dataset and predictors
@@ -979,49 +1026,6 @@ print(Annaresults_df)
 
 
 The results of the AIC-based model comparison indicate that Photic_CHLa is the most effective predictor for kd, as the model using only Photic_CHLa (Model 1) has the lowest AIC value. This model outperforms all other combinations of predictors, suggesting that Photic_CHLa alone explains the variation in kd more effectively than any other model. The inclusion of Photic_TSS alongside Photic_CHLa (Model 2) results in only a marginal increase in AIC, indicating that adding Photic_TSS does not significantly improve the model's predictive ability. Models using Photic_TSS or Photic_CDOM alone, such as Models 3 and 8, perform considerably worse, with higher AIC values and larger delta AIC values, highlighting that these predictors are less effective in explaining kd by themselves. Furthermore, models that combine Photic_TSS with Photic_CDOM or all three predictors (Photic_TSS, Photic_CDOM, and Photic_CHLa) result in higher AIC values, indicating that adding these predictors does not enhance model performance. Overall, the findings suggest that Photic_CHLa is the most crucial factor in predicting kd, while other variables like Photic_TSS and Photic_CDOM do not contribute meaningfully to the model.
-
-
-```{r}
-
-# Function to create diagnostic plots for a linear model
-create_diagnostic_plots <- function(model, title) {
-  par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
-  
-  # Residuals vs Fitted plot
-  plot(model, which = 1)
-  
-  # Normal Q-Q plot
-  plot(model, which = 2)
-  
-  # Scale-Location plot
-  plot(model, which = 3)
-  
-  # Residuals vs Leverage plot
-  plot(model, which = 5)
-  
-  par(mfrow = c(1, 1))  # Reset the plotting layout to single panel
-}
-
-# Create the linear regression models for p1, p2, p3
-model_p1 <- lm(kd ~ Photic_TSS, data = annadata)
-model_p2 <- lm(kd ~ Photic_CDOM, data = annadata)
-model_p3 <- lm(kd ~ Photic_CHLa, data = annadata)
-
-# Create diagnostic plots for each of the models
-print("Lake Anna: Photic Zone kd vs TSS")
-
-create_diagnostic_plots(model_p1)
-
-print("Lake Anna: Photic Zone kd vs CDOM")
-
-create_diagnostic_plots(model_p2)
-
-print("Lake Anna: Photic Zone kd vs CHLa")
-
-create_diagnostic_plots(model_p3)
-
-
-```
 
 
 ## Polynomial Regressions
@@ -1153,6 +1157,7 @@ create_diagnostic_plots_poly(annadata$Photic_CHLa, annadata$kd, degree = 2)
 
 ```
 
+### Lake Anna Multiple Polynomial Regression
 
 ```{r}
 # Define the full dataset and predictors

@@ -224,6 +224,8 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 </div>
 </div>
 </div>
+<section id="multiple-linear-regression" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-linear-regression">Multiple Linear Regression</h3>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>                                         Predictors       AIC  Delta_AIC
@@ -247,6 +249,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 </div>
 </div>
 </div>
+</section>
 </section>
 <section id="lake-anna" class="level2">
 <h2 class="anchored" data-anchor-id="lake-anna">Lake Anna</h2>
@@ -288,6 +291,40 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
+<pre><code>[1] "Lake Anna: Photic Zone kd vs TSS"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Lake Anna: Photic Zone kd vs CDOM"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-24-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Lake Anna: Photic Zone kd vs CHLa"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-24-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="lake-anna-multiple-linear-regression" class="level3">
+<h3 class="anchored" data-anchor-id="lake-anna-multiple-linear-regression">Lake Anna Multiple Linear Regression</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
 <pre><code>                              Predictors       AIC Delta_AIC
 1                            Photic_CHLa -35.00866 0.0000000
 2               Photic_TSS + Photic_CHLa -34.55346 0.4551916
@@ -300,38 +337,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 </div>
 </div>
 <p>The results of the AIC-based model comparison indicate that Photic_CHLa is the most effective predictor for kd, as the model using only Photic_CHLa (Model 1) has the lowest AIC value. This model outperforms all other combinations of predictors, suggesting that Photic_CHLa alone explains the variation in kd more effectively than any other model. The inclusion of Photic_TSS alongside Photic_CHLa (Model 2) results in only a marginal increase in AIC, indicating that adding Photic_TSS does not significantly improve the model’s predictive ability. Models using Photic_TSS or Photic_CDOM alone, such as Models 3 and 8, perform considerably worse, with higher AIC values and larger delta AIC values, highlighting that these predictors are less effective in explaining kd by themselves. Furthermore, models that combine Photic_TSS with Photic_CDOM or all three predictors (Photic_TSS, Photic_CDOM, and Photic_CHLa) result in higher AIC values, indicating that adding these predictors does not enhance model performance. Overall, the findings suggest that Photic_CHLa is the most crucial factor in predicting kd, while other variables like Photic_TSS and Photic_CDOM do not contribute meaningfully to the model.</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Lake Anna: Photic Zone kd vs TSS"</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Lake Anna: Photic Zone kd vs CDOM"</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-25-2.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Lake Anna: Photic Zone kd vs CHLa"</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-25-3.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
+</section>
 </section>
 <section id="polynomial-regressions" class="level2">
 <h2 class="anchored" data-anchor-id="polynomial-regressions">Polynomial Regressions</h2>
@@ -439,6 +445,8 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 </div>
 </div>
 </div>
+<section id="lake-anna-multiple-polynomial-regression" class="level3">
+<h3 class="anchored" data-anchor-id="lake-anna-multiple-polynomial-regression">Lake Anna Multiple Polynomial Regression</h3>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>                              Predictors       AIC Delta_AIC
@@ -453,6 +461,7 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 </div>
 </div>
 <p>Based on the AIC values and their corresponding Delta AIC values, the best model for explaining the response variable kd is the one that includes only the predictor Photic_CHLa, which has the lowest AIC of -35.00866 and a Delta AIC of 0. This model provides the best fit to the data without overfitting. When additional predictors such as Photic_TSS and Photic_CDOM are added, the AIC values increase, indicating that these models perform worse. Notably, the model using all three predictors (Photic_TSS + Photic_CDOM + Photic_CHLa) has an AIC of -29.88434, which is higher than the single predictor model, suggesting that the addition of extra predictors does not improve the model’s performance. This implies that some of the predictors, such as Photic_TSS and Photic_CDOM, may not provide significant explanatory power for kd. The worst-performing models are those that include combinations of Photic_TSS and Photic_CDOM, which have higher AIC values and larger Delta AIC values, further confirming that these predictors do not contribute much to explaining the variation in the response variable. In conclusion, Photic_CHLa alone appears to be the most effective predictor of kd in this dataset.</p>
+</section>
 </section>
 <section id="secchi-depth" class="level2">
 <h2 class="anchored" data-anchor-id="secchi-depth">Secchi Depth</h2>
