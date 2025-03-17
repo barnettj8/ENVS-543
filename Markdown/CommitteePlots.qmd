@@ -1,5 +1,5 @@
 ---
-title: "Thesis Plots (3/14)- for Committee Meeting"
+title: "Thesis Plots (3/17)- for Committee Meeting"
 author: Jackson Barnett 
 format: html
 editor: visual
@@ -632,6 +632,56 @@ create_diagnostic_plots(model_p3)
 
 ```
 
+```{r}
+
+response <- "`kd (m-1)`"  # Use backticks around the column name with special characters
+predictors <- c("`TSS (mg/L)`", "`CDOM a440 (corr)`", "`CHLa (ug/L)`")  
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+# Fit models for each combination and calculate AIC
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Create the formula for the current combination of predictors
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  # Fit the linear model
+  model <- lm(formula, data = meanthesis)
+  
+  # Return the model, predictors, and AIC
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+# Convert results to a dataframe for easier analysis
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model (difference from the minimum AIC)
+results_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+print(results_df)
+
+
+```
+
+The best model for predicting kd (m-1) is Model 1, which includes the predictors TSS (mg/L) and CDOM a440 (corr). This model has the lowest AIC and provides the best fit to the data. Model 2, which adds CHLa (ug/L) to the combination of TSS (mg/L) and CDOM a440 (corr), has a slightly higher AIC but still performs quite well, this indicates that the addition of CHLa as a predictor adds little to no predictive power to the model. On the other hand, models with only one predictor, such as Model 4 (TSS (mg/L)), Model 5 (CDOM a440 (corr)), and Model 7 (CHLa (ug/L)), perform significantly worse, with much higher AIC values. The intercept-only model. Overall, the results suggest that TSS (mg/L) and CDOM a440 (corr) are the most important predictors for kd (m-1), and adding CHLa (ug/L) slightly reduces the model's performance.
 
 ```{r}
 meanthesis_long <- meanthesis %>%
@@ -878,6 +928,58 @@ grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
 
+```{r}
+
+# Define the full dataset and predictors
+response <- "kd"
+predictors <- c("Photic_TSS", "Photic_CDOM", "Photic_CHLa")  # Adjust predictors based on your dataset
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+# Fit models for each combination and calculate AIC
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Create the formula for the current combination of predictors
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  # Fit the linear model
+  model <- lm(formula, data = annadata)
+  
+  # Return the model, predictors, and AIC
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+# Convert results to a dataframe for easier analysis
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model (difference from the minimum AIC)
+Annaresults_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+print(Annaresults_df)
+
+```
+
+
+The results of the AIC-based model comparison indicate that Photic_CHLa is the most effective predictor for kd, as the model using only Photic_CHLa (Model 1) has the lowest AIC value. This model outperforms all other combinations of predictors, suggesting that Photic_CHLa alone explains the variation in kd more effectively than any other model. The inclusion of Photic_TSS alongside Photic_CHLa (Model 2) results in only a marginal increase in AIC, indicating that adding Photic_TSS does not significantly improve the model's predictive ability. Models using Photic_TSS or Photic_CDOM alone, such as Models 3 and 8, perform considerably worse, with higher AIC values and larger delta AIC values, highlighting that these predictors are less effective in explaining kd by themselves. Furthermore, models that combine Photic_TSS with Photic_CDOM or all three predictors (Photic_TSS, Photic_CDOM, and Photic_CHLa) result in higher AIC values, indicating that adding these predictors does not enhance model performance. Overall, the findings suggest that Photic_CHLa is the most crucial factor in predicting kd, while other variables like Photic_TSS and Photic_CDOM do not contribute meaningfully to the model.
+
 
 ```{r}
 
@@ -1050,6 +1152,59 @@ print("Lake Anna: Photic Zone CHLa vs kd (Polynomial)")
 create_diagnostic_plots_poly(annadata$Photic_CHLa, annadata$kd, degree = 2)
 
 ```
+
+
+```{r}
+# Define the full dataset and predictors
+response <- "kd"
+predictors <- c("Photic_TSS", "Photic_CDOM", "Photic_CHLa")  # Adjust predictors based on your dataset
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+# Fit models for each combination and calculate AIC
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Create the formula for the current combination of predictors
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  # Fit the linear model
+  model <- lm(formula, data = annadata)
+  
+  # Return the model, predictors, and AIC
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+# Convert results to a dataframe for easier analysis
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model (difference from the minimum AIC)
+polyAnnaresults_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+print(polyAnnaresults_df)
+
+
+```
+
+
+Based on the AIC values and their corresponding Delta AIC values, the best model for explaining the response variable kd is the one that includes only the predictor Photic_CHLa, which has the lowest AIC of -35.00866 and a Delta AIC of 0. This model provides the best fit to the data without overfitting. When additional predictors such as Photic_TSS and Photic_CDOM are added, the AIC values increase, indicating that these models perform worse. Notably, the model using all three predictors (Photic_TSS + Photic_CDOM + Photic_CHLa) has an AIC of -29.88434, which is higher than the single predictor model, suggesting that the addition of extra predictors does not improve the model’s performance. This implies that some of the predictors, such as Photic_TSS and Photic_CDOM, may not provide significant explanatory power for kd. The worst-performing models are those that include combinations of Photic_TSS and Photic_CDOM, which have higher AIC values and larger Delta AIC values, further confirming that these predictors do not contribute much to explaining the variation in the response variable. In conclusion, Photic_CHLa alone appears to be the most effective predictor of kd in this dataset.
 
 
 ## Secchi Depth
