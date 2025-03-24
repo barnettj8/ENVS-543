@@ -1917,3 +1917,40 @@ print(p)
 
 ```
 
+
+```{r}
+
+# Calculate the average C% and standard error for each site
+avg_cpercent <- pocdata %>%
+  group_by(Site) %>%  # Group by Site
+  summarize(
+    Average_Cpercent = mean(`C%`, na.rm = TRUE),
+    SE_Cpercent = sd(`C%`, na.rm = TRUE) / sqrt(n())  # Standard error calculation
+  ) %>%
+  filter(!is.na(Average_Cpercent))  # Filter out sites with no valid C% data
+
+# Create a bar plot to show the average C% by site with standard error bars
+p <- ggplot(avg_cpercent, aes(x = Site, y = Average_Cpercent)) + 
+  geom_bar(stat = "identity", fill = "steelblue") +  # Bar plot with bars filled in steelblue
+  geom_errorbar(
+    aes(ymin = Average_Cpercent - SE_Cpercent, ymax = Average_Cpercent + SE_Cpercent),  # Set the error bar range
+    width = 0.2,  # Width of the error bars
+    color = "black"  # Color of the error bars
+  ) +
+  labs(title = "Average C% by Site", x = "Site", y = "Average C%") +  # Labels for the plot
+  theme_minimal() +  # Minimal theme for clean look
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Customize title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title customization
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title customization
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for better readability
+  ) +
+  # Set the y-axis limit to 100
+  scale_y_continuous(limits = c(0, 100))
+
+# Print the plot
+print(p)
+
+
+```
+
