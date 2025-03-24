@@ -1,0 +1,305 @@
+---
+title: "Lmm, Glm, Glmm Amani Practice"
+format: html
+editor: visual
+---
+
+# Load in data
+
+```{r}
+
+library(tidyverse)
+library(emmeans)
+library(car)
+library(agridat)
+library(lme4)
+library(lmerTest)
+library(glmmTMB)
+library(DHARMa)
+library(performance)
+library(MuMIn)
+library(bbmle)
+library(aods3)
+library(boot)
+library(pbkrtest)
+library(ggplot2)
+
+```
+
+```{r}
+
+library(readr)
+TeaStreams <- read_csv("UsambaraStreamDataBiotropicaSIMPLE.csv", 
+                       col_types = cols(Stone = col_character(), 
+                                        Stone_Area = col_number(), Richness = col_number(), 
+                                        Abundance = col_number()))
+
+head(TeaStreams)
+
+```
+
+# Standardize Data
+
+It is good practice to standardise your explanatory variables before proceeding so that they have a mean of zero (“centering”) and standard deviation of one (“scaling”). It ensures that the estimated coefficients are all on the same scale, making it easier to compare effect sizes. You can use scale() to do that:
+
+```{r}
+
+# Log and Scale Stone_Area explanatory variable
+
+TeaStreams$logStoneArea<-log(TeaStreams$Stone_Area)
+TeaStreams$Stone_Area1<-scale(logStoneArea)
+
+head(TeaStreams)
+
+```
+
+```{r}
+
+# Examine histograms of explanatory variable (abundance) from original data and log tranformed (normalized) data
+
+hist(TeaStreams$Abundance)
+shapiro.test(TeaStreams$Abundance)
+LogAb<-log(TeaStreams$Abundance+1)
+hist(LogAb)
+shapiro.test(LogAb)
+
+```
+
+```{r}
+
+P<-ggplot(TeaStreams, aes(x = Treatment, y = Abundance)) +
+  geom_violin(trim=FALSE)
+P
+P+stat_summary(fun.y=mean,geo="point", shape=23, size=2)
+P+geom_boxplot(width=0.1)
+
+P+geom_boxplot(width=0.1)
+
+```
+
+# Basic Model
+
+```{r}
+
+basic.lm <- lm(LogAb ~ Treatment, data = TeaStreams)
+summary(basic.lm)
+
+```
+
+
+```{r}
+
+plot(basic.lm, which = 1)  # not perfect, but look alright
+
+## Have a quick look at the  qqplot too - point should ideally fall onto the diagonal dashed line
+plot(basic.lm, which = 2)  # looks okay
+plot(basic.lm, which = 3)  # not flat
+plot(basic.lm, which = 4)  # all > 0.05
+
+```
+
+```{r}
+
+anova(basic.lm)
+
+```
+
+## Questions:
+
+HOW DO THESE STATS MATCH UP WITH THE PAPER? WHAT'S THE CONCLUSION/RESULT?
+
+WHAT IS THE SAMPLE SIZE HERE? IS THAT APPROPRIATE?
+
+SEEMS LIKE THIS SHOULD BE SIMILAR TO FIG 1 IN PAPER - CHECK?
+
+# Stone Size
+
+```{r}
+#Stone Size by Treatment
+
+logStoneArea<-log(TeaStreams$Stone_Area)
+TeaStreams$Stone_Area1<-scale(logStoneArea)
+
+P<-ggplot(TeaStreams, aes(x = Treatment, y = Stone_Area1)) +
+  geom_violin(trim=FALSE)
+P
+P+stat_summary(fun.y=mean,geo="point", shape=23, size=2)
+P+geom_boxplot(width=0.1)
+
+P+geom_boxplot(width=0.1)
+
+```
+
+```{r}
+## Stone size by Stream
+
+P<-ggplot(TeaStreams, aes(x = Stream, y = Stone_Area1)) +
+  geom_violin(trim=FALSE)
+P
+P+stat_summary(fun.y=mean,geo="point", shape=23, size=2)
+P+geom_boxplot(width=0.1)
+
+P+geom_boxplot(width=0.1)
+
+```
+
+```{r}
+
+## IS THERE A RELATIONSHIP BETWEEN STONE SIZE AND ABUNDANCE?
+## VISUALIZE THAT RELATIONHSIP
+(prelim_plot <- ggplot(TeaStreams, aes(x = Stone_Area1, y = LogAb)) +
+    geom_point() +
+    geom_smooth(method = "lm")+
+    geom_smooth(span =1, color= "red", se= FALSE)
+)
+
+```
+
+
+```{r}
+
+##BASIC ANALYSIS WITH *ONLY* STONE AREA (IGNORING TREATMENTS HERE)
+basic.lmSS <- lm(LogAb ~ Stone_Area1, data = TeaStreams)
+summary(basic.lmSS)
+
+##Model fit/Assumptions
+plot(basic.lmSS, which = 1)
+plot(basic.lmSS, which = 2)
+plot(basic.lmSS, which = 3)
+plot(basic.lmSS, which = 4)
+
+```
+
+
+```{r}
+
+anova(basic.lmSS)
+
+```
+SO YES - SEEMS THERE IS A STRONG POSITIVE EFFECT OF STONE AREA - 
+
+## Questions
+
+HOW DOES THIS COMPARE TO THE PAPER?
+
+WHAT IS THE SAMPLE SIZE HERE? IS THAT APPROPRIATE?
+
+# Independence Tests
+
+```{r}
+
+boxplot(LogAb ~ Stream, data = TeaStreams)  
+
+qplot(log(Stone_Area), LogAb, data = TeaStreams, geom=c("point", "smooth"), method="lm", xlab = "Stone Area", ylab="Abundance", facets=.~Treatment) +theme_bw()
+
+qplot(log(Stone_Area), LogAb, data = TeaStreams, geom=c("point", "smooth"), method="lm", xlab = "Stone Area", ylab="Abundance", facets=.~Stream) +theme_bw()
+
+
+```
+
+```{r}
+
+(colour_plot <- ggplot(TeaStreams, aes(x = Stone_Area1, y = LogAb, colour = Stream)) +
+    geom_point(size = 2) +
+    theme_classic() +
+    theme(legend.position = "none"))
+
+```
+
+```{r}
+
+(split_plot <- ggplot(aes(Stone_Area1, LogAb), data = TeaStreams) + 
+   geom_point() + 
+   facet_wrap(~ Stream) + # create a facet for each mountain range
+   xlab("Stone size") + 
+   ylab("Abundance"))
+
+```
+
+# Add Stream Fixed Effects
+
+```{r}
+
+streams.lm <- lm(LogAb ~ Treatment + Stone_Area1, data = TeaStreams)
+summary(streams.lm)
+
+```
+
+```{r}
+
+streams.lm2 <- lm(LogAb ~ Treatment * Stone_Area1, data = TeaStreams)
+summary(streams.lm2)
+
+```
+
+```{r}
+
+plot(streams.lm2)
+
+```
+
+```{r}
+
+#Hypothesis test - is one model better than the other
+anova(streams.lm,streams.lm2)
+
+```
+
+## Questions
+ 
+DISCUSS THE DATA
+
+How is the data hieracrichally structured? Russian dolls, what is nested within what?
+
+-rocks nested in streams nested in treatments
+
+Given the work you did with Dragons - which do you think are possible random effects?
+
+-
+
+DISCUSS
+
+
+# First Mixed Model
+
+
+```{r}
+
+mixed.lmer1 <- lmer(LogAb ~ Treatment + Stone_Area1+ (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer1)
+
+```
+
+```{r}
+
+plot(mixed.lmer1)
+qqnorm(resid(mixed.lmer1))
+qqline(resid(mixed.lmer1))
+
+```
+
+```{r}
+
+emmeans1<-emmeans(mixed.lmer1,specs="Treatment")
+emmeans1
+
+```
+
+VISUALIZE THE EFFECTS OF TEA & STONE AREA ON ABUNDANCE
+
+```{r}
+
+ggpredict(mixed.lmer1, terms = c("Stone_Area1", "Treatment"), type = "random") %>% 
+  plot() +
+  labs(x = "Stone Size", y = "LogAb", title = "Effect of Stone size and Tea on Macroinverts") + 
+  theme_minimal()
+
+
+```
+
+
+
+
+
+
+

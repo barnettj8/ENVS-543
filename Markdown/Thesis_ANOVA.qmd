@@ -43,7 +43,6 @@ long_data <- thes %>%
 
 ```
 
-
 ## Comparisons Across All Stations
 
 ```{r}
@@ -82,7 +81,6 @@ ggplot(long_data, aes(x = Site, y = Value)) +
   )
 
 ```
-
 
 ## Inter-Site Differences
 
@@ -136,7 +134,6 @@ ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, 
 
 
 ```
-
 
 ```{r}
 
@@ -238,7 +235,6 @@ ggplot(tukey_combined_df, aes(x = Comparison, y = diff, ymin = lwr, ymax = upr, 
   )
 
 ```
-
 
 ## Station Average Original Regression Analysis
 
@@ -404,7 +400,6 @@ ggplot(mean_values, aes(x = mean_CHLa_Uncorrected, y = mean_kd)) +
 
 ## Station Average Regressions Subtracting Residuals
 
-
 ```{r}
 
 # Calculate mean values for each Site
@@ -467,7 +462,6 @@ residual_df <- mean_values |>
   )
 
 ```
-
 
 ```{r}
 
@@ -559,12 +553,12 @@ final_residual_df <- residual_df |>
   select(Site, mean_kd, prop_kd_CDOM, prop_kd_TSS, prop_kd_CHLa)
 
 ```
-The table below shows the average kd value for each station, along with the percentage of kd that is associated with each variable (CDOM, TSS, CHLa). It should be noted that the effects of CHLa were insignificant as the P-value > 0.05.
+
+The table below shows the average kd value for each station, along with the percentage of kd that is associated with each variable (CDOM, TSS, CHLa). It should be noted that the effects of CHLa were insignificant as the P-value \> 0.05.
 
 ```{r}
 head(final_residual_df, 12)
 ```
-
 
 ## Individual Values AIC and Multiple Regression
 
@@ -648,8 +642,9 @@ plot(model)
 
 
 ```
- 
+
 # Residuals vs Fitted Plot
+
 The "Residuals vs Fitted" plot evaluates the assumptions of the linear regression model. Ideally, residuals (errors) should be randomly distributed around zero with no clear pattern, indicating a good fit of the model. In this plot:
 
 1.  The residuals appear somewhat evenly distributed around the horizontal line at 0, but there is slight curvature in the red line (a loess smoother), suggesting potential non-linearity in the relationship or model misspecification.
@@ -659,32 +654,31 @@ The "Residuals vs Fitted" plot evaluates the assumptions of the linear regressio
 This plot suggests the model performs reasonably but may benefit from further diagnostics or additional predictors to capture non-linear effects.
 
 # Q-Q Plot
+
 The Q-Q (quantile-quantile) plot evaluates whether the residuals from the regression model follow a normal distribution. In this plot:
 
-1. The majority of points fall close to the diagonal line, indicating that the residuals generally follow a normal distribution.
-2. However, deviations are observed at both ends of the plot. Points 21 and 16 at the upper end and point 5 at the lower end deviate significantly, suggesting potential outliers or non-normality in the tails.
+1.  The majority of points fall close to the diagonal line, indicating that the residuals generally follow a normal distribution.
+2.  However, deviations are observed at both ends of the plot. Points 21 and 16 at the upper end and point 5 at the lower end deviate significantly, suggesting potential outliers or non-normality in the tails.
 
 Overall, while the residuals are approximately normal, the deviations at the extremes indicate that the model's assumptions may not hold perfectly, warranting further investigation of these specific data points.
 
-
 # Scale Location Plot
+
 The "Scale-Location" plot evaluates the assumption of homoscedasticity in a linear regression model, meaning the residuals should have constant variance across the range of fitted values. In this plot:
 
-1. The residuals, represented as the square root of their absolute standardized values, appear somewhat randomly distributed, but the red loess smoother shows a slight upward trend at higher fitted values. This suggests potential heteroscedasticity or a mild violation of the constant variance assumption.
-2. A few points, such as 16 and 21, are labeled, indicating they may be influential or outliers worth investigating further.
-3. The variability of residuals is fairly consistent across most fitted values, though the upward trend in the red line warrants further inspection.
-Overall, the model performs reasonably well but may benefit from adjustments, such as transforming variables or adding predictors, to address the slight non-constant variance.
-
+1.  The residuals, represented as the square root of their absolute standardized values, appear somewhat randomly distributed, but the red loess smoother shows a slight upward trend at higher fitted values. This suggests potential heteroscedasticity or a mild violation of the constant variance assumption.
+2.  A few points, such as 16 and 21, are labeled, indicating they may be influential or outliers worth investigating further.
+3.  The variability of residuals is fairly consistent across most fitted values, though the upward trend in the red line warrants further inspection. Overall, the model performs reasonably well but may benefit from adjustments, such as transforming variables or adding predictors, to address the slight non-constant variance.
 
 # Residuals vs Leverage Plot
+
 The Residuals vs. Leverage plot evaluates the influence of individual data points on the regression model. In this plot:
 
-1. Most points are clustered within the lower-leverage region, indicating that the majority of observations have minimal influence on the model.
-2. Points 16, 18, and 21 are positioned further from the cluster, suggesting higher leverage and potential influence on the model fit.
-3. The Cook's distance lines show that none of these points exceed the threshold (Cook's distance = 1), though they may still require closer inspection due to their relatively high leverage.
+1.  Most points are clustered within the lower-leverage region, indicating that the majority of observations have minimal influence on the model.
+2.  Points 16, 18, and 21 are positioned further from the cluster, suggesting higher leverage and potential influence on the model fit.
+3.  The Cook's distance lines show that none of these points exceed the threshold (Cook's distance = 1), though they may still require closer inspection due to their relatively high leverage.
 
 Overall, while most points do not appear problematic, points with higher leverage (e.g., 16, 18, and 21) should be investigated to assess their impact on the model.
-
 
 ## Station Average AIC and Multiple Regression
 
@@ -772,9 +766,9 @@ plot(model)
 
 The "Residuals vs Fitted" plot evaluates the assumptions of the linear regression model. Ideally, residuals (errors) should be randomly distributed around zero with no clear pattern, indicating a good fit of the model. In this plot:
 
-1. The residuals are relatively evenly distributed around the horizontal line at 0, but there is some minor curvature in the red loess smoother, hinting at potential non-linearity in the model.
-2. Points labeled as 3, 11, and 12 indicate observations with potential influence that might warrant further investigation.
-3. The variability of residuals is relatively consistent across the fitted values, suggesting no strong evidence of heteroscedasticity (changing variance).
+1.  The residuals are relatively evenly distributed around the horizontal line at 0, but there is some minor curvature in the red loess smoother, hinting at potential non-linearity in the model.
+2.  Points labeled as 3, 11, and 12 indicate observations with potential influence that might warrant further investigation.
+3.  The variability of residuals is relatively consistent across the fitted values, suggesting no strong evidence of heteroscedasticity (changing variance).
 
 This plot suggests that the model generally performs well, though minor non-linearity might indicate room for improvement or refinement in the model specification.
 
@@ -782,9 +776,9 @@ This plot suggests that the model generally performs well, though minor non-line
 
 The "Q-Q Residuals" plot evaluates whether the residuals from the linear regression model follow a normal distribution. Ideally, the points should align closely with the diagonal line, indicating normally distributed residuals. In this plot:
 
-1. Most of the points align reasonably well with the diagonal line, suggesting that the residuals are approximately normally distributed.
-2. Points labeled 11, 3, and 12 deviate from the line, indicating potential outliers or observations with higher leverage that may not conform well to the normality assumption.
-3. The deviations are most pronounced at the tails (extreme values), which could indicate mild departures from normality.
+1.  Most of the points align reasonably well with the diagonal line, suggesting that the residuals are approximately normally distributed.
+2.  Points labeled 11, 3, and 12 deviate from the line, indicating potential outliers or observations with higher leverage that may not conform well to the normality assumption.
+3.  The deviations are most pronounced at the tails (extreme values), which could indicate mild departures from normality.
 
 This plot suggests that the residuals are roughly normal, with some minor deviations that may warrant further investigation, particularly for the influential points.
 
@@ -792,9 +786,9 @@ This plot suggests that the residuals are roughly normal, with some minor deviat
 
 The "Scale-Location" plot (also called Spread-Location plot) evaluates the homoscedasticity (constant variance) assumption in a linear regression model. Ideally, the points should appear randomly scattered around the red line, with no clear pattern, and a roughly constant spread. In this plot:
 
-1. There is some increasing trend in the red loess smoother line, especially for higher fitted values, which suggests potential heteroscedasticity (non-constant variance).
-2. Observations labeled 11 and 12 show larger residuals, which may be influential points contributing to the observed trend.
-3. The variability in standardized residuals is not entirely consistent, with higher variance at larger fitted values.
+1.  There is some increasing trend in the red loess smoother line, especially for higher fitted values, which suggests potential heteroscedasticity (non-constant variance).
+2.  Observations labeled 11 and 12 show larger residuals, which may be influential points contributing to the observed trend.
+3.  The variability in standardized residuals is not entirely consistent, with higher variance at larger fitted values.
 
 This plot indicates possible issues with heteroscedasticity in the model. This could mean that a transformation of the response variable or a different model might improve the fit.
 
@@ -802,8 +796,8 @@ This plot indicates possible issues with heteroscedasticity in the model. This c
 
 The Residuals vs. Leverage plot evaluates the influence of individual data points on the regression model. In this plot:
 
-1. Most points are clustered within the lower-leverage region, indicating that the majority of observations have minimal influence on the model.
-2. Points 10, 11, and 12 are positioned further from the cluster, suggesting higher leverage and potential influence on the model fit. Notably, point 11 stands out as having both higher leverage and a noticeable residual.
-3. The Cook's distance lines show that none of these points exceed the threshold (Cook's distance = 1), though points 10 and 11 approach the 0.5 Cook's distance line, indicating moderate influence and requiring closer inspection.
+1.  Most points are clustered within the lower-leverage region, indicating that the majority of observations have minimal influence on the model.
+2.  Points 10, 11, and 12 are positioned further from the cluster, suggesting higher leverage and potential influence on the model fit. Notably, point 11 stands out as having both higher leverage and a noticeable residual.
+3.  The Cook's distance lines show that none of these points exceed the threshold (Cook's distance = 1), though points 10 and 11 approach the 0.5 Cook's distance line, indicating moderate influence and requiring closer inspection.
 
 Overall, while most points do not appear problematic, points with higher leverage (e.g., 10, 11, and 12) should be investigated to assess their impact on the model.

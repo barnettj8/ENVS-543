@@ -1,0 +1,503 @@
+---
+title: "Mixed Models and GLMs"
+format: html
+editor: visual
+---
+#For HW, do the same mixed models he does here for richness with abundance!!!!!!
+
+# Load in data
+
+```{r}
+
+library(tidyverse)
+library(emmeans)
+library(car)
+library(agridat)
+library(lme4)
+library(lmerTest)
+library(glmmTMB)
+library(DHARMa)
+library(performance)
+library(MuMIn)
+library(bbmle)
+library(aods3)
+library(boot)
+library(pbkrtest)
+library(ggplot2)
+
+```
+
+```{r}
+
+library(readr)
+TeaStreams <- read_csv("UsambaraStreamDataBiotropicaSIMPLE.csv", 
+                       col_types = cols(Stone = col_character(), 
+                                        Stone_Area = col_number(), Richness = col_number(), 
+                                        Abundance = col_number()))
+
+head(TeaStreams)
+
+```
+
+
+# Standardize Data
+
+It is good practice to standardise your explanatory variables before proceeding so that they have a mean of zero (“centering”) and standard deviation of one (“scaling”). It ensures that the estimated coefficients are all on the same scale, making it easier to compare effect sizes. You can use scale() to do that:
+
+```{r}
+
+# Log and Scale Stone_Area explanatory variable
+
+TeaStreams$logStoneArea<-log(TeaStreams$Stone_Area)
+TeaStreams$Stone_Area1<-scale(logStoneArea)
+
+head(TeaStreams)
+
+```
+
+```{r}
+
+# Examine histograms of explanatory variable (richness) from original data and log tranformed (normalized) data
+
+hist(TeaStreams$Richness)  # seems tuncated - count data?
+shapiro.test(TeaStreams$Richness)
+LogRich<-log(TeaStreams$Richness+1)
+hist(LogRich)
+shapiro.test(LogRich)
+
+# At this point since the log data is still not normal, this should point us in the direction of having to do a poisson GLM since it is non-normal count data. For the sake of this activity, we are still going to do the mixed models first. 
+
+```
+
+```{r}
+
+# Examine histograms of response variable (abundance) from original data and log tranformed (normalized) data
+
+hist(TeaStreams$Abundance) # seems tuncated - count data?
+shapiro.test(TeaStreams$Abundance)
+LogAbun<-log(TeaStreams$Abundance+1)
+hist(LogAbun)
+shapiro.test(LogAbun)
+
+```
+
+```{r}
+
+hist(TeaStreams$Stone_Area) # this is a good example of underdispersed data
+shapiro.test(TeaStreams$Stone_Area)
+LogStoneA<-log(TeaStreams$Stone_Area+1)
+hist(LogStoneA)
+shapiro.test(LogStoneA)
+
+```
+
+
+# Basic Linear Model
+
+```{r}
+
+basic.lm <- lm(Richness ~ Treatment, data = TeaStreams)
+summary(basic.lm)
+
+```
+
+```{r}
+
+(basiclmmodel <- ggplot (data = TeaStreams, aes(x = Stone_Area1, y = Richness)) +
+  geom_point() +
+  geom_smooth(method = "lm"))
+
+
+```
+
+
+```{r}
+
+P<-ggplot(TeaStreams, aes(x = Treatment, y = Richness)) +
+  geom_violin(trim=FALSE)
+
+P+stat_summary(fun.y=mean,geo="point", shape=23, size=2)
+P+geom_boxplot(width=0.1)
+
+P+geom_boxplot(width=0.1)
+
+```
+
+
+## Linear Model Residuals
+
+```{r}
+
+## Plot the residuals - 
+
+plot(basic.lm, which = 1)
+
+```
+
+The red line should be close to being flat, like the dashed grey line- not perfect, but looks alright
+
+```{r}
+
+## Have a quick look at the  qqplot too - 
+plot(basic.lm, which = 2)  # doesnt look great
+plot(basic.lm, which = 3)  # ok
+plot(basic.lm, which = 4)  # only 1 > 0.05
+
+```
+
+Points should ideally fall onto the diagonal dashed line
+
+# Look for Independence (psuedoreplication)
+
+It's perfectly plausible that the data from within each area (Tea vs Forest) are more similar to each other than the data from different areas - they are correlated. Pseudoreplication isn't our friend.
+
+```{r}
+
+boxplot(Richness ~ Stream, data = TeaStreams)  # certainly looks like something is going on here
+
+qplot(log(Stone_Area), Richness, data = TeaStreams, geom=c("point", "smooth"), method="lm", xlab = "Stone Area", ylab="Richness", facets=.~Treatment) +theme_bw()
+
+qplot(log(Stone_Area), Richness, data = TeaStreams, geom=c("point", "smooth"), method="lm", xlab = "Stone Area", ylab="Richness", facets=.~Stream) +theme_bw()
+
+```
+
+# Add Streams as a fixed effect in the model
+
+Accounts for data from different streams
+
+```{r}
+
+streams.lm <- lm(Richness ~ Treatment + Stone_Area1, data = TeaStreams)
+summary(streams.lm)
+
+```
+
+
+By using "+" instead of "*" here for the interaction term, we are only testing for differences in intercepts, not slopes
+
+# ANCOVA with interaction (fixed effects)
+
+```{r}
+
+streams.lm2 <- lm(Richness ~ Treatment * Stone_Area1, data = TeaStreams)
+summary(streams.lm2)
+
+```
+
+By using "*" instead of "+" here for the interaction term, we are testing for difference in slopes 
+
+```{r}
+
+anova(streams.lm,streams.lm2)
+
+```
+
+
+So non-mixed effect suggests no interaction (no difference between models P = 0.5546), marginal and significant treatment effects - but this is committing pseudo-replication as stones are not independent
+
+
+# First Mixed Model
+
+We keep "Treatment + Stone_Area1" and not * because there was no difference between the models so it does not matter which we choose.
+
+The (1|Stream/Riffle) object in the model accounts for Riffles being nested in Streams (i.e. riffles in the same stream will likely be more similar to each other) we dont have to do this for stones as we are using Stone_Area + Treatment as our initial interaction term. 
+
+```{r}
+
+mixed.lmer1 <- lmer(Richness ~ Treatment + Stone_Area1+ (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer1)
+
+```
+
+```{r}
+
+plot(mixed.lmer1)
+qqnorm(resid(mixed.lmer1))
+qqline(resid(mixed.lmer1))
+
+```
+The "emmeans" function extracts the effects of the model
+```{r}
+
+emmeans1<-emmeans(mixed.lmer1,specs="Treatment")
+emmeans1
+
+```
+
+# Second Mixed Model (Remove Stone Area Interaction)
+
+```{r}
+
+mixed.lmer2 <- lmer(Richness ~ Treatment + (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer2)
+
+```
+
+```{r}
+
+plot(mixed.lmer2)
+qqnorm(resid(mixed.lmer2))
+qqline(resid(mixed.lmer2))
+
+```
+
+```{r}
+
+emmeans2<-emmeans(mixed.lmer2,specs="Treatment")
+emmeans2
+
+```
+
+## Test for significance of Stone Area
+
+```{r}
+
+anova(mixed.lmer2, mixed.lmer1) #This is a test of the significance of Stone_Area
+
+```
+AIC lmer2 = 674 vs lmer1 = 669
+
+So this suggests our scales log stone area has an important effect and we should keep this term (P = 0.0143)
+
+# Third Mixed Model (Remove Treatment effect)
+
+```{r}
+
+mixed.lmer3 <- lmer(Richness ~ Stone_Area1+ (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer3)
+
+```
+
+```{r}
+
+plot(mixed.lmer3)
+qqnorm(resid(mixed.lmer3))
+qqline(resid(mixed.lmer3)) 
+
+```
+
+## Test for the significance of treatments
+
+```{r}
+
+anova(mixed.lmer3, mixed.lmer1)
+
+```
+AIC lmer3 = 676 vs lmer1 = 669
+
+So this suggests our scales Treatment area has an important effect and we should keep this term (P = 0.003474)
+
+# Fourth and Fifth Mixed Model (adjust for random effects)
+
+```{r}
+
+mixed.lmer4 <- lmer(Richness ~ Treatment + Stone_Area1+ (1|Stream), data = TeaStreams)
+summary(mixed.lmer4)
+
+```
+
+```{r}
+
+emmeans4<-emmeans(mixed.lmer4,specs="Treatment")
+emmeans4
+
+```
+
+```{r}
+
+mixed.lmer5 <- lmer(Richness ~ Treatment + (1|Stream), data = TeaStreams)
+summary(mixed.lmer5)
+
+```
+
+```{r}
+
+emmeans5<-emmeans(mixed.lmer5,specs="Treatment")
+emmeans5
+
+```
+
+## Test for significance of Stone Area with Treatment as random effect
+
+```{r}
+
+anova(mixed.lmer4, mixed.lmer5) 
+
+```
+AIC of lmer5 = 681 vs lmer4 = 678
+P = 0.02166
+
+# Should we include random effects?
+
+Lets compare mixed.lmer1 (which includes "Riffle nested in Stream") with mixed.lmer4 were we drop the "Riffle" random level
+
+```{r}
+
+anova(mixed.lmer1, mixed.lmer4)
+
+```
+AIC lmer4 = 678 vs lmer1 = 669
+
+The model with the nested Riffle layer within Stream is better - so we keep Riffle (P = 0.00154)
+
+# Sixth Mixed Model (no random effects, all fixed)
+
+```{r}
+
+lm6 <- lm(Richness ~ Treatment + Stone_Area1, data = TeaStreams)
+summary(lm6)
+plot(lm6)
+
+```
+
+```{r}
+
+emmeans6<-emmeans(lm6,specs="Treatment")
+emmeans6
+emmeans1
+
+```
+
+Note that treatment means are same - but df, SE, and CI change
+
+Model 6 gives us lower SE and Confidence Intervals, but higher df
+
+## Test for significance of no random effects
+
+```{r}
+
+anova(mixed.lmer1,lm6)
+
+```
+
+AIC lm6 = 684 vs lmer1 = 669
+
+So seems the mixed model 1 is much better - although parameter estimates and significance pretty similar (P = 8.766e-05)
+
+## Best Model So Far
+
+```{r}
+
+mixed.lmer1 <- lmer(Richness ~ Treatment + Stone_Area1+ (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer1)
+
+```
+
+```{r}
+
+(fixef(mixed.lmer1) [1])
+(fixef(mixed.lmer1) [2])
+
+```
+## Check for overdispurtion/diagnostics
+
+```{r}
+
+check_overdispersion(mixed.lmer1)
+
+```
+
+```{r}
+
+plot(simulateResiduals(mixed.lmer1))
+hist(simulateResiduals(mixed.lmer1))
+
+```
+
+Seem Okay as well
+
+END LINEAR MODEL EXAMPLE _________________________________________
+
+# Modelling using Generalized Linear Models
+
+Done because richness could be considered count data
+
+# Poisson GLM
+
+This ignores the mixed effects we previously included
+
+```{r}
+
+glm1 <- glm(Richness ~ Treatment + Stone_Area1, family = "poisson", data = TeaStreams)
+summary(glm1)
+
+```
+
+```{r}
+
+Anova(glm1)
+
+```
+
+```{r}
+
+emmeans(glm1, ~Treatment, type='response') 
+
+```
+
+```{r}
+
+check_overdispersion(glm1)
+
+```
+
+```{r}
+
+plot(simulateResiduals(glm1))
+hist(simulateResiduals(glm1)) 
+
+```
+
+FYI Another way to check model fit wrt "over dispersion is to fit the Quasipoisson and look at the estimated dispersion parameter- if it is not close to 1 could have issues
+
+```{r}
+
+glm2 <- glm(Richness ~ Treatment + Stone_Area1, family = "quasipoisson", data = TeaStreams)
+summary(glm2)
+
+```
+
+Note the dispersion parameter in quasifit is close to 1 - so it suggests poisson is good fit
+
+# Adding the mixed effects back in to poisson GLM
+
+```{r}
+
+glmm1 <- glmer(Richness ~ Treatment+Stone_Area1  + (1 | Stream/Riffle), data = TeaStreams, family = "poisson")
+summary(glmm1)
+Anova(glmm1)
+plot(glmm1)
+
+```
+
+## Compare with effects from best linear mixed model above
+
+```{r}
+
+Anova(glmm1)
+emmeans(glmm1, ~Treatment, type='response') 
+
+```
+
+
+```{r}
+
+emmeans1
+
+```
+
+## Check overdispurtion/diagnostics
+
+```{r}
+
+check_overdispersion(glmm1)
+plot(simulateResiduals(glmm1))
+hist(simulateResiduals(glmm1)) 
+
+```
+
+Seems like some conflicting tests wrt over dispersion (compare plot vs check test)
+
+
+
+

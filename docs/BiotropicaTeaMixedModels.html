@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Mixed Models and GLMs</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="BiotropicaTeaMixedModels_files/libs/clipboard/clipboard.min.js"></script>
+<script src="BiotropicaTeaMixedModels_files/libs/quarto-html/quarto.js"></script>
+<script src="BiotropicaTeaMixedModels_files/libs/quarto-html/popper.min.js"></script>
+<script src="BiotropicaTeaMixedModels_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="BiotropicaTeaMixedModels_files/libs/quarto-html/anchor.min.js"></script>
+<link href="BiotropicaTeaMixedModels_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="BiotropicaTeaMixedModels_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="BiotropicaTeaMixedModels_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="BiotropicaTeaMixedModels_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="BiotropicaTeaMixedModels_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Mixed Models and GLMs</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="load-in-data" class="level1">
+<h1>Load in data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Welcome to emmeans.
+Caution: You lose important information if you filter this package's results.
+See '? untidy'</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData
+
+Attaching package: 'car'
+
+The following object is masked from 'package:dplyr':
+
+    recode
+
+The following object is masked from 'package:purrr':
+
+    some</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(agridat)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: Matrix
+
+Attaching package: 'Matrix'
+
+The following objects are masked from 'package:tidyr':
+
+    expand, pack, unpack</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lmerTest'
+
+The following object is masked from 'package:lme4':
+
+    lmer
+
+The following object is masked from 'package:stats':
+
+    step</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmmTMB)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DHARMa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>This is DHARMa 0.4.7. For overview type '?DHARMa'. For recent changes, type news(package = 'DHARMa')</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(performance)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MuMIn)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bbmle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: stats4
+
+Attaching package: 'bbmle'
+
+The following object is masked from 'package:MuMIn':
+
+    AICc
+
+The following object is masked from 'package:dplyr':
+
+    slice</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(aods3)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(boot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'boot'
+
+The following object is masked from 'package:car':
+
+    logit</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pbkrtest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'broom':
+  method        from 
+  nobs.multinom MuMIn</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>TeaStreams <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"UsambaraStreamDataBiotropicaSIMPLE.csv"</span>, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">Stone =</span> <span class="fu">col_character</span>(), </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">Stone_Area =</span> <span class="fu">col_number</span>(), <span class="at">Richness =</span> <span class="fu">col_number</span>(), </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">Abundance =</span> <span class="fu">col_number</span>()))</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(TeaStreams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  Treatment Stream     Riffle Stone Stone_Area Richness Abundance
+  &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt;      &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 Reference Amani_Emau Low    1            736        8        14
+2 Reference Amani_Emau Low    2            398        2         2
+3 Reference Amani_Emau Low    3            488        6         8
+4 Reference Amani_Emau Low    4            928        4        10
+5 Reference Amani_Emau Low    5            550        5        10
+6 Reference Amani_Emau Low    6            608        1         1</code></pre>
+</div>
+</div>
+</section>
+<section id="standardize-data" class="level1">
+<h1>Standardize Data</h1>
+<p>It is good practice to standardise your explanatory variables before proceeding so that they have a mean of zero (“centering”) and standard deviation of one (“scaling”). It ensures that the estimated coefficients are all on the same scale, making it easier to compare effect sizes. You can use scale() to do that:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Log and Scale Stone_Area explanatory variable</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>logStoneArea<span class="ot">&lt;-</span><span class="fu">log</span>(TeaStreams<span class="sc">$</span>Stone_Area)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>logStoneArea</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 6.601230 5.986452 6.190315 6.833032 6.309918 6.410175 7.264030 6.359574
+  [9] 6.498282 6.967909 6.186209 6.373320 6.342121 6.817831 5.768321 6.331502
+ [17] 7.309212 6.269096 6.230481 6.161207 6.461468 6.507278 6.190315 6.320768
+ [25] 5.834811 5.545177 4.648230 6.731018 6.156979 6.284134 7.066467 7.135687
+ [33] 6.768493 6.860664 6.095825 6.218600 5.929589 6.104793 5.828946 5.583496
+ [41] 5.793014 5.846439 5.966147 6.309918 5.743003 6.927558 6.510258 5.768321
+ [49] 6.324359 5.823046 6.148468 7.494430 6.230481 7.130899 6.380123 6.731018
+ [57] 6.049733 6.519147 6.448889 6.309918 5.863631 5.811141 6.410175 5.886104
+ [65] 6.601230 6.527958 5.955837 5.961005 6.144186 6.246107 6.899723 6.848005
+ [73] 6.309918 7.232733 6.507278 5.575949 6.601230 5.897154 6.498282 5.657739
+ [81] 5.961005 5.906723 6.311735 5.710427 6.442540 6.699500 6.253829 6.222576
+ [89] 5.545177 5.793014 5.676754 7.047517 6.419995 6.135565 6.109248 6.993933
+ [97] 6.587550 6.536692 5.811141 6.410175 5.111988 5.811141 6.740519 5.455321
+[105] 5.834811 5.996253 6.362338 6.551080 6.349139 6.063785 4.969813 6.269096
+[113] 6.476972 6.661855 6.711740 6.568078 6.856462 6.598509 6.109248 6.194405
+[121] 6.603944 6.173786 5.834811 5.736572 6.109248 5.768321 6.545350 6.423247
+[129] 6.432940 6.601230 5.634790 5.945421 7.237059 6.131226 6.349139 6.021023
+[137] 5.929589 5.828946 5.840642 5.170484 6.473891 6.269096 5.337538 6.919684
+[145] 5.840642 6.442540 5.811141 6.899723 6.406880 6.815640 5.934894 6.383507
+[153] 6.664409 6.109248 6.135565 5.793014 5.247024 6.542472 6.135565 6.410175
+[161] 4.955827 5.805135 5.852202 5.111988 5.655992 6.049733 5.846439 5.308268</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Stone_Area1<span class="ot">&lt;-</span><span class="fu">scale</span>(logStoneArea)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>Stone_Area1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               [,1]
+  [1,]  0.772719515
+  [2,] -0.476446275
+  [3,] -0.062216848
+  [4,]  1.243716513
+  [5,]  0.180803867
+  [6,]  0.384514957
+  [7,]  2.119460879
+  [8,]  0.281698911
+  [9,]  0.563539847
+ [10,]  1.517773634
+ [11,] -0.070561406
+ [12,]  0.309629206
+ [13,]  0.246237331
+ [14,]  1.212829319
+ [15,] -0.919666013
+ [16,]  0.224659461
+ [17,]  2.211266501
+ [18,]  0.097857780
+ [19,]  0.019396411
+ [20,] -0.121361476
+ [21,]  0.488737647
+ [22,]  0.581817904
+ [23,] -0.062216848
+ [24,]  0.202849982
+ [25,] -0.784565709
+ [26,] -1.373070720
+ [27,] -3.195576179
+ [28,]  1.036435322
+ [29,] -0.129953019
+ [30,]  0.128413197
+ [31,]  1.718032866
+ [32,]  1.858681540
+ [33,]  1.112580887
+ [34,]  1.299861766
+ [35,] -0.254212507
+ [36,] -0.004745223
+ [37,] -0.591985752
+ [38,] -0.235989093
+ [39,] -0.796483028
+ [40,] -1.295210736
+ [41,] -0.869493168
+ [42,] -0.760938734
+ [43,] -0.517704484
+ [44,]  0.180803867
+ [45,] -0.971109191
+ [46,]  1.435783959
+ [47,]  0.587874234
+ [48,] -0.919666013
+ [49,]  0.210145849
+ [50,] -0.808470655
+ [51,] -0.147245864
+ [52,]  2.587610089
+ [53,]  0.019396411
+ [54,]  1.848951768
+ [55,]  0.323451688
+ [56,]  1.036435322
+ [57,] -0.347864888
+ [58,]  0.605935659
+ [59,]  0.463178857
+ [60,]  0.180803867
+ [61,] -0.726005547
+ [62,] -0.832660191
+ [63,]  0.384514957
+ [64,] -0.680343019
+ [65,]  0.772719515
+ [66,]  0.623837951
+ [67,] -0.538652061
+ [68,] -0.528151278
+ [69,] -0.155947791
+ [70,]  0.051145447
+ [71,]  1.379226515
+ [72,]  1.274141207
+ [73,]  0.180803867
+ [74,]  2.055868586
+ [75,]  0.581817904
+ [76,] -1.310545880
+ [77,]  0.772719515
+ [78,] -0.657890891
+ [79,]  0.563539847
+ [80,] -1.144358179
+ [81,] -0.528151278
+ [82,] -0.638446752
+ [83,]  0.184494871
+ [84,] -1.037300613
+ [85,]  0.450277880
+ [86,]  0.972394480
+ [87,]  0.066835849
+ [88,]  0.003333901
+ [89,] -1.373070720
+ [90,] -0.869493168
+ [91,] -1.105721117
+ [92,]  1.679528929
+ [93,]  0.404468279
+ [94,] -0.173464253
+ [95,] -0.226938312
+ [96,]  1.570651261
+ [97,]  0.744922953
+ [98,]  0.641583889
+ [99,] -0.832660191
+[100,]  0.384514957
+[101,] -2.253267472
+[102,] -0.832660191
+[103,]  1.055740902
+[104,] -1.555649524
+[105,] -0.784565709
+[106,] -0.456531534
+[107,]  0.287315769
+[108,]  0.670820321
+[109,]  0.260496315
+[110,] -0.319313173
+[111,] -2.542151386
+[112,]  0.097857780
+[113,]  0.520240556
+[114,]  0.895902500
+[115,]  0.997265011
+[116,]  0.705357645
+[117,]  1.291324371
+[118,]  0.767190540
+[119,] -0.226938312
+[120,] -0.053906419
+[121,]  0.778233485
+[122,] -0.095802686
+[123,] -0.784565709
+[124,] -0.984176097
+[125,] -0.226938312
+[126,] -0.919666013
+[127,]  0.659176180
+[128,]  0.411076080
+[129,]  0.430771520
+[130,]  0.772719515
+[131,] -1.190988046
+[132,] -0.559817846
+[133,]  2.064658348
+[134,] -0.182279438
+[135,]  0.260496315
+[136,] -0.406200865
+[137,] -0.591985752
+[138,] -0.796483028
+[139,] -0.772717880
+[140,] -2.134409207
+[141,]  0.513978927
+[142,]  0.097857780
+[143,] -1.794972518
+[144,]  1.419784688
+[145,] -0.772717880
+[146,]  0.450277880
+[147,] -0.832660191
+[148,]  1.379226515
+[149,]  0.377820068
+[150,]  1.208378284
+[151,] -0.581206432
+[152,]  0.330327826
+[153,]  0.901092534
+[154,] -0.226938312
+[155,] -0.173464253
+[156,] -0.869493168
+[157,] -1.978887656
+[158,]  0.653328991
+[159,] -0.173464253
+[160,]  0.384514957
+[161,] -2.570569989
+[162,] -0.844863813
+[163,] -0.749227480
+[164,] -2.253267472
+[165,] -1.147907344
+[166,] -0.347864888
+[167,] -0.760938734
+[168,] -1.854446919
+attr(,"scaled:center")
+[1] 6.220935
+attr(,"scaled:scale")
+[1] 0.4921509</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine histograms of explanatory variable (richness) from original data and log tranformed (normalized) data</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(TeaStreams<span class="sc">$</span>Richness)  <span class="co"># seems tuncated - count data?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>LogRich<span class="ot">&lt;-</span><span class="fu">log</span>(TeaStreams<span class="sc">$</span>Richness<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(LogRich)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine histograms of response variable (abundance) from original data and log tranformed (normalized) data</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(TeaStreams<span class="sc">$</span>Abundance) <span class="co"># seems tuncated - count data?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>LogAbun<span class="ot">&lt;-</span><span class="fu">log</span>(TeaStreams<span class="sc">$</span>Abundance<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(LogAbun)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="basic-linear-model" class="level1">
+<h1>Basic Linear Model</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>basic.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(Richness <span class="sc">~</span> Treatment, <span class="at">data =</span> TeaStreams)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(basic.lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Richness ~ Treatment, data = TeaStreams)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.5476 -1.5119 -0.5119  0.4881  6.4524 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    4.5476     0.2032  22.379  &lt; 2e-16 ***
+TreatmentTea  -2.0357     0.2874  -7.084  3.8e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.862 on 166 degrees of freedom
+Multiple R-squared:  0.2321,    Adjusted R-squared:  0.2275 
+F-statistic: 50.18 on 1 and 166 DF,  p-value: 3.799e-11</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>P<span class="ot">&lt;-</span><span class="fu">ggplot</span>(TeaStreams, <span class="fu">aes</span>(<span class="at">x =</span> Treatment, <span class="at">y =</span> Richness)) <span class="sc">+</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">trim=</span><span class="cn">FALSE</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>P</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>P<span class="sc">+</span><span class="fu">stat_summary</span>(<span class="at">fun.y=</span>mean,<span class="at">geo=</span><span class="st">"point"</span>, <span class="at">shape=</span><span class="dv">23</span>, <span class="at">size=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `fun.y` argument of `stat_summary()` is deprecated as of ggplot2 3.3.0.
+ℹ Please use the `fun` argument instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>P<span class="sc">+</span><span class="fu">geom_boxplot</span>(<span class="at">width=</span><span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-7-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>P<span class="sc">+</span><span class="fu">geom_boxplot</span>(<span class="at">width=</span><span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-7-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="linear-model-residuals" class="level2">
+<h2 class="anchored" data-anchor-id="linear-model-residuals">Linear Model Residuals</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Plot the residuals - </span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(basic.lm, <span class="at">which =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The red line should be close to being flat, like the dashed grey line- not perfect, but looks alright</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Have a quick look at the  qqplot too - </span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(basic.lm, <span class="at">which =</span> <span class="dv">2</span>)  <span class="co"># doesnt look great</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(basic.lm, <span class="at">which =</span> <span class="dv">3</span>)  <span class="co"># ok</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(basic.lm, <span class="at">which =</span> <span class="dv">4</span>)  <span class="co"># only 1 &gt; 0.05</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Points should ideally fall onto the diagonal dashed line</p>
+</section>
+</section>
+<section id="look-for-independence-psuedoreplication" class="level1">
+<h1>Look for Independence (psuedoreplication)</h1>
+<p>It’s perfectly plausible that the data from within each area (Tea vs Forest) are more similar to each other than the data from different areas - they are correlated. Pseudoreplication isn’t our friend.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(Richness <span class="sc">~</span> Stream, <span class="at">data =</span> TeaStreams)  <span class="co"># certainly looks like something is going on here</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(<span class="fu">log</span>(Stone_Area), Richness, <span class="at">data =</span> TeaStreams, <span class="at">geom=</span><span class="fu">c</span>(<span class="st">"point"</span>, <span class="st">"smooth"</span>), <span class="at">method=</span><span class="st">"lm"</span>, <span class="at">xlab =</span> <span class="st">"Stone Area"</span>, <span class="at">ylab=</span><span class="st">"Richness"</span>, <span class="at">facets=</span>.<span class="sc">~</span>Treatment) <span class="sc">+</span><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `qplot()` was deprecated in ggplot2 3.4.0.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_point(method = "lm"): Ignoring unknown parameters: `method`</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(<span class="fu">log</span>(Stone_Area), Richness, <span class="at">data =</span> TeaStreams, <span class="at">geom=</span><span class="fu">c</span>(<span class="st">"point"</span>, <span class="st">"smooth"</span>), <span class="at">method=</span><span class="st">"lm"</span>, <span class="at">xlab =</span> <span class="st">"Stone Area"</span>, <span class="at">ylab=</span><span class="st">"Richness"</span>, <span class="at">facets=</span>.<span class="sc">~</span>Stream) <span class="sc">+</span><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_point(method = "lm"): Ignoring unknown parameters: `method`</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-10-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="add-streams-as-a-fixed-effect-in-the-model" class="level1">
+<h1>Add Streams as a fixed effect in the model</h1>
+<p>Accounts for data from different streams</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>streams.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Stone_Area1, <span class="at">data =</span> TeaStreams)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(streams.lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Richness ~ Treatment + Stone_Area1, data = TeaStreams)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.4714 -1.2050 -0.2561  0.8517  6.5410 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    4.4859     0.2010  22.322  &lt; 2e-16 ***
+TreatmentTea  -1.9122     0.2861  -6.684 3.42e-10 ***
+Stone_Area1    0.3809     0.1435   2.655  0.00872 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.829 on 165 degrees of freedom
+Multiple R-squared:  0.2636,    Adjusted R-squared:  0.2546 
+F-statistic: 29.53 on 2 and 165 DF,  p-value: 1.093e-11</code></pre>
+</div>
+</div>
+</section>
+<section id="ancova-with-interaction-fixed-effects" class="level1">
+<h1>ANCOVA with interaction (fixed effects)</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>streams.lm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Richness <span class="sc">~</span> Treatment <span class="sc">*</span> Stone_Area1, <span class="at">data =</span> TeaStreams)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(streams.lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Richness ~ Treatment * Stone_Area1, data = TeaStreams)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.6868 -1.2303 -0.2105  0.8762  6.5617 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                4.4714     0.2028  22.047  &lt; 2e-16 ***
+TreatmentTea              -1.9110     0.2867  -6.666 3.81e-10 ***
+Stone_Area1                0.4697     0.2078   2.261   0.0251 *  
+TreatmentTea:Stone_Area1  -0.1704     0.2878  -0.592   0.5546    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.833 on 164 degrees of freedom
+Multiple R-squared:  0.2651,    Adjusted R-squared:  0.2517 
+F-statistic: 19.72 on 3 and 164 DF,  p-value: 5.741e-11</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(streams.lm,streams.lm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: Richness ~ Treatment + Stone_Area1
+Model 2: Richness ~ Treatment * Stone_Area1
+  Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+1    165 552.22                           
+2    164 551.04  1    1.1781 0.3506 0.5546</code></pre>
+</div>
+</div>
+<p>So non-mixed effect suggests no interaction, marginal and significant treatment effects - but this is commiting pseudoreplication as stones are not independent</p>
+</section>
+<section id="first-mixed-model" class="level1">
+<h1>First Mixed Model</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>mixed.lmer1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Stone_Area1<span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Stream<span class="sc">/</span>Riffle), <span class="at">data =</span> TeaStreams)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mixed.lmer1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle)
+   Data: TeaStreams
+
+REML criterion at convergence: 660.4
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.3115 -0.6049 -0.1280  0.5516  3.4586 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ Riffle:Stream (Intercept) 0.6478   0.8049  
+ Stream        (Intercept) 0.3142   0.5605  
+ Residual                  2.5080   1.5837  
+Number of obs: 168, groups:  Riffle:Stream, 24; Stream, 8
+
+Fixed effects:
+             Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)    4.4931     0.4036   5.9934  11.133 3.16e-05 ***
+TreatmentTea  -1.9267     0.5717   6.0304  -3.370   0.0149 *  
+Stone_Area1    0.3360     0.1388 161.1738   2.421   0.0166 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnT
+TreatmentTe -0.708       
+Stone_Area1 -0.056  0.079</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mixed.lmer1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(mixed.lmer1))</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(mixed.lmer1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>emmeans1<span class="ot">&lt;-</span><span class="fu">emmeans</span>(mixed.lmer1,<span class="at">specs=</span><span class="st">"Treatment"</span>)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>emmeans1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment emmean    SE   df lower.CL upper.CL
+ Reference   4.49 0.404 6.02     3.51     5.48
+ Tea         2.57 0.404 6.02     1.58     3.55
+
+Degrees-of-freedom method: kenward-roger 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+</section>
+<section id="second-mixed-model-remove-stone-area-interaction" class="level1">
+<h1>Second Mixed Model (Remove Stone Area Interaction)</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>mixed.lmer2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Stream<span class="sc">/</span>Riffle), <span class="at">data =</span> TeaStreams)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mixed.lmer2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Richness ~ Treatment + (1 | Stream/Riffle)
+   Data: TeaStreams
+
+REML criterion at convergence: 664
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.3158 -0.5119 -0.2261  0.5140  3.2913 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ Riffle:Stream (Intercept) 0.6304   0.7940  
+ Stream        (Intercept) 0.3986   0.6313  
+ Residual                  2.5813   1.6067  
+Number of obs: 168, groups:  Riffle:Stream, 24; Stream, 8
+
+Fixed effects:
+             Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)    4.5476     0.4277  5.9997  10.633 4.08e-05 ***
+TreatmentTea  -2.0357     0.6048  5.9997  -3.366   0.0151 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+TreatmentTe -0.707</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mixed.lmer2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(mixed.lmer2))</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(mixed.lmer2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>emmeans2<span class="ot">&lt;-</span><span class="fu">emmeans</span>(mixed.lmer2,<span class="at">specs=</span><span class="st">"Treatment"</span>)</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>emmeans2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment emmean    SE df lower.CL upper.CL
+ Reference   4.55 0.428  6     3.50     5.59
+ Tea         2.51 0.428  6     1.47     3.56
+
+Degrees-of-freedom method: kenward-roger 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<section id="test-for-significance-of-stone-area" class="level2">
+<h2 class="anchored" data-anchor-id="test-for-significance-of-stone-area">Test for significance of Stone Area</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mixed.lmer2, mixed.lmer1) <span class="co">#This is a test of the significance of Stone_Area</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: TeaStreams
+Models:
+mixed.lmer2: Richness ~ Treatment + (1 | Stream/Riffle)
+mixed.lmer1: Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle)
+            npar    AIC    BIC logLik deviance  Chisq Df Pr(&gt;Chisq)  
+mixed.lmer2    5 674.00 689.62   -332   664.00                       
+mixed.lmer1    6 669.99 688.74   -329   657.99 6.0007  1     0.0143 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>AIC lmer2 = 674 vs lmer1 = 669</p>
+<p>So this suggests our scales log stone area has an important effect and we should keep this term (P = 0.0143)</p>
+</section>
+</section>
+<section id="third-mixed-model-remove-treatment-effect" class="level1">
+<h1>Third Mixed Model (Remove Treatment effect)</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>mixed.lmer3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Richness <span class="sc">~</span> Stone_Area1<span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Stream<span class="sc">/</span>Riffle), <span class="at">data =</span> TeaStreams)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mixed.lmer3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Richness ~ Stone_Area1 + (1 | Stream/Riffle)
+   Data: TeaStreams
+
+REML criterion at convergence: 668.5
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.3132 -0.5987 -0.1312  0.5395  3.4575 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ Riffle:Stream (Intercept) 0.6481   0.8051  
+ Stream        (Intercept) 1.2810   1.1318  
+ Residual                  2.5081   1.5837  
+Number of obs: 168, groups:  Riffle:Stream, 24; Stream, 8
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)   3.5298     0.4495   6.9442   7.852 0.000107 ***
+Stone_Area1   0.3387     0.1390 160.3837   2.436 0.015938 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+Stone_Area1 0.000 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(mixed.lmer3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">resid</span>(mixed.lmer3))</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">resid</span>(mixed.lmer3)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="test-for-the-significance-of-treatments" class="level2">
+<h2 class="anchored" data-anchor-id="test-for-the-significance-of-treatments">Test for the significance of treatments</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mixed.lmer3, mixed.lmer1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: TeaStreams
+Models:
+mixed.lmer3: Richness ~ Stone_Area1 + (1 | Stream/Riffle)
+mixed.lmer1: Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle)
+            npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)   
+mixed.lmer3    5 676.54 692.16 -333.27   666.54                        
+mixed.lmer1    6 669.99 688.74 -329.00   657.99 8.5404  1   0.003474 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>AIC lmer3 = 676 vs lmer1 = 669</p>
+<p>So this suggests our scales Treatment area has an important effect and we should keep this term (P = 0.003474)</p>
+</section>
+</section>
+<section id="fourth-and-fifth-mixed-model-adjust-for-random-effects" class="level1">
+<h1>Fourth and Fifth Mixed Model (adjust for random effects)</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>mixed.lmer4 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Stone_Area1<span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Stream), <span class="at">data =</span> TeaStreams)</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mixed.lmer4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Richness ~ Treatment + Stone_Area1 + (1 | Stream)
+   Data: TeaStreams
+
+REML criterion at convergence: 670.4
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.4149 -0.6431 -0.0891  0.5493  3.4802 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Stream   (Intercept) 0.5145   0.7173  
+ Residual             2.9593   1.7203  
+Number of obs: 168, groups:  Stream, 8
+
+Fixed effects:
+             Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)    4.4973     0.4054   5.9932  11.093 3.22e-05 ***
+TreatmentTea  -1.9351     0.5742   6.0290  -3.370   0.0149 *  
+Stone_Area1    0.3103     0.1371 161.5629   2.262   0.0250 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnT
+TreatmentTe -0.708       
+Stone_Area1 -0.055  0.077</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>emmeans4<span class="ot">&lt;-</span><span class="fu">emmeans</span>(mixed.lmer4,<span class="at">specs=</span><span class="st">"Treatment"</span>)</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>emmeans4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment emmean    SE   df lower.CL upper.CL
+ Reference   4.50 0.405 6.02     3.51     5.49
+ Tea         2.56 0.405 6.02     1.57     3.55
+
+Degrees-of-freedom method: kenward-roger 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>mixed.lmer5 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Stream), <span class="at">data =</span> TeaStreams)</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mixed.lmer5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Richness ~ Treatment + (1 | Stream)
+   Data: TeaStreams
+
+REML criterion at convergence: 673.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.4036 -0.6960 -0.1500  0.4724  3.3483 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ Stream   (Intercept) 0.5876   0.7666  
+ Residual             3.0226   1.7386  
+Number of obs: 168, groups:  Stream, 8
+
+Fixed effects:
+             Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)    4.5476     0.4277  6.0000  10.634 4.08e-05 ***
+TreatmentTea  -2.0357     0.6048  6.0000  -3.366   0.0151 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+TreatmentTe -0.707</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>emmeans5<span class="ot">&lt;-</span><span class="fu">emmeans</span>(mixed.lmer5,<span class="at">specs=</span><span class="st">"Treatment"</span>)</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>emmeans5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment emmean    SE df lower.CL upper.CL
+ Reference   4.55 0.428  6     3.50     5.59
+ Tea         2.51 0.428  6     1.47     3.56
+
+Degrees-of-freedom method: kenward-roger 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<section id="test-for-significance-of-stone-area-with-treatment-as-random-effect" class="level2">
+<h2 class="anchored" data-anchor-id="test-for-significance-of-stone-area-with-treatment-as-random-effect">Test for significance of Stone Area with Treatment as random effect</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mixed.lmer4, mixed.lmer5) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: TeaStreams
+Models:
+mixed.lmer5: Richness ~ Treatment + (1 | Stream)
+mixed.lmer4: Richness ~ Treatment + Stone_Area1 + (1 | Stream)
+            npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)  
+mixed.lmer5    4 681.30 693.79 -336.65   673.30                       
+mixed.lmer4    5 678.02 693.64 -334.01   668.02 5.2725  1    0.02166 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>AIC of lmer5 = 681 vs lmer4 = 678 P = 0.02166</p>
+</section>
+</section>
+<section id="should-we-include-random-effects" class="level1">
+<h1>Should we include random effects?</h1>
+<p>Lets compare mixed.lmer1 (which includes “Riffle nested in Stream”) with mixed.lmer4 were we drop the “Riffle” random level</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mixed.lmer1, mixed.lmer4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: TeaStreams
+Models:
+mixed.lmer4: Richness ~ Treatment + Stone_Area1 + (1 | Stream)
+mixed.lmer1: Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle)
+            npar    AIC    BIC  logLik deviance Chisq Df Pr(&gt;Chisq)   
+mixed.lmer4    5 678.02 693.64 -334.01   668.02                       
+mixed.lmer1    6 669.99 688.74 -329.00   657.99 10.03  1    0.00154 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>AIC lmer4 = 678 vs lmer1 = 669</p>
+<p>The model with the nested Riffle layer within Stream is better - so we keep Riffle (P = 0.00154)</p>
+</section>
+<section id="sixth-mixed-model-no-random-effects-all-fixed" class="level1">
+<h1>Sixth Mixed Model (no random effects, all fixed)</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>lm6 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Stone_Area1, <span class="at">data =</span> TeaStreams)</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Richness ~ Treatment + Stone_Area1, data = TeaStreams)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.4714 -1.2050 -0.2561  0.8517  6.5410 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    4.4859     0.2010  22.322  &lt; 2e-16 ***
+TreatmentTea  -1.9122     0.2861  -6.684 3.42e-10 ***
+Stone_Area1    0.3809     0.1435   2.655  0.00872 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.829 on 165 degrees of freedom
+Multiple R-squared:  0.2636,    Adjusted R-squared:  0.2546 
+F-statistic: 29.53 on 2 and 165 DF,  p-value: 1.093e-11</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lm6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-29-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-29-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-29-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>emmeans6<span class="ot">&lt;-</span><span class="fu">emmeans</span>(lm6,<span class="at">specs=</span><span class="st">"Treatment"</span>)</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>emmeans6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment emmean    SE  df lower.CL upper.CL
+ Reference   4.49 0.201 165     4.09     4.88
+ Tea         2.57 0.201 165     2.18     2.97
+
+Confidence level used: 0.95 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>emmeans1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment emmean    SE   df lower.CL upper.CL
+ Reference   4.49 0.404 6.02     3.51     5.48
+ Tea         2.57 0.404 6.02     1.58     3.55
+
+Degrees-of-freedom method: kenward-roger 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>Note that treatment means are same - but df, SE, and CI change</p>
+<p>Model 6 gives us lower SE and Confidence Intervals, but higher df</p>
+<section id="test-for-significance-of-no-random-effects" class="level2">
+<h2 class="anchored" data-anchor-id="test-for-significance-of-no-random-effects">Test for significance of no random effects</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mixed.lmer1,lm6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: TeaStreams
+Models:
+lm6: Richness ~ Treatment + Stone_Area1
+mixed.lmer1: Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle)
+            npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)    
+lm6            4 684.68 697.17 -338.34   676.68                         
+mixed.lmer1    6 669.99 688.74 -329.00   657.99 18.684  2  8.766e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>AIC lm6 = 684 vs lmer1 = 669</p>
+<p>So seems the mixed model 1 is much better - although parameter estimates and significance pretty similar (P = 8.766e-05)</p>
+</section>
+<section id="best-model-so-far" class="level2">
+<h2 class="anchored" data-anchor-id="best-model-so-far">Best Model So Far</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>mixed.lmer1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Stone_Area1<span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Stream<span class="sc">/</span>Riffle), <span class="at">data =</span> TeaStreams)</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mixed.lmer1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle)
+   Data: TeaStreams
+
+REML criterion at convergence: 660.4
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.3115 -0.6049 -0.1280  0.5516  3.4586 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ Riffle:Stream (Intercept) 0.6478   0.8049  
+ Stream        (Intercept) 0.3142   0.5605  
+ Residual                  2.5080   1.5837  
+Number of obs: 168, groups:  Riffle:Stream, 24; Stream, 8
+
+Fixed effects:
+             Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)    4.4931     0.4036   5.9934  11.133 3.16e-05 ***
+TreatmentTea  -1.9267     0.5717   6.0304  -3.370   0.0149 *  
+Stone_Area1    0.3360     0.1388 161.1738   2.421   0.0166 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnT
+TreatmentTe -0.708       
+Stone_Area1 -0.056  0.079</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>(<span class="fu">fixef</span>(mixed.lmer1) [<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+   4.493118 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a>(<span class="fu">fixef</span>(mixed.lmer1) [<span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TreatmentTea 
+   -1.926712 </code></pre>
+</div>
+</div>
+</section>
+<section id="check-for-overdispurtiondiagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="check-for-overdispurtiondiagnostics">Check for overdispurtion/diagnostics</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_overdispersion</span>(mixed.lmer1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Overdispersion test
+
+ dispersion ratio = 0.982
+          p-value =  0.96</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No overdispersion detected.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulateResiduals</span>(mixed.lmer1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">simulateResiduals</span>(mixed.lmer1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-35-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Seem Okay as well</p>
+<p>END LINEAR MODEL EXAMPLE _________________________________________</p>
+</section>
+</section>
+<section id="modelling-using-generalized-linear-models" class="level1">
+<h1>Modelling using Generalized Linear Models</h1>
+<p>Done because richness could be considered count data</p>
+</section>
+<section id="poisson-glm" class="level1">
+<h1>Poisson GLM</h1>
+<p>This ignores the mixed effects we previously included</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>glm1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Stone_Area1, <span class="at">family =</span> <span class="st">"poisson"</span>, <span class="at">data =</span> TeaStreams)</span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(glm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Richness ~ Treatment + Stone_Area1, family = "poisson", 
+    data = TeaStreams)
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)   1.49117    0.05237  28.475  &lt; 2e-16 ***
+TreatmentTea -0.55831    0.08682  -6.431 1.27e-10 ***
+Stone_Area1   0.10995    0.04226   2.602  0.00928 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 222.37  on 167  degrees of freedom
+Residual deviance: 165.56  on 165  degrees of freedom
+AIC: 661.89
+
+Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(glm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table (Type II tests)
+
+Response: Richness
+            LR Chisq Df Pr(&gt;Chisq)    
+Treatment     43.047  1  5.344e-11 ***
+Stone_Area1    6.794  1   0.009146 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(glm1, <span class="sc">~</span>Treatment, <span class="at">type=</span><span class="st">'response'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment rate    SE  df asymp.LCL asymp.UCL
+ Reference 4.44 0.233 Inf      4.01      4.92
+ Tea       2.54 0.175 Inf      2.22      2.91
+
+Confidence level used: 0.95 
+Intervals are back-transformed from the log scale </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_overdispersion</span>(glm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Overdispersion test
+
+       dispersion ratio =   0.971
+  Pearson's Chi-Squared = 160.235
+                p-value =    0.59</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No overdispersion detected.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulateResiduals</span>(glm1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">simulateResiduals</span>(glm1)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-40-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>FYI Another way to check model fit wrt “over dispersion is to fit the Quasipoisson and look at the estimated dispersion parameter- if it is not close to 1 could have issues</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>glm2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Richness <span class="sc">~</span> Treatment <span class="sc">+</span> Stone_Area1, <span class="at">family =</span> <span class="st">"quasipoisson"</span>, <span class="at">data =</span> TeaStreams)</span>
+<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(glm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Richness ~ Treatment + Stone_Area1, family = "quasipoisson", 
+    data = TeaStreams)
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   1.49117    0.05161  28.895  &lt; 2e-16 ***
+TreatmentTea -0.55831    0.08555  -6.526 7.95e-10 ***
+Stone_Area1   0.10995    0.04165   2.640  0.00909 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for quasipoisson family taken to be 0.971122)
+
+    Null deviance: 222.37  on 167  degrees of freedom
+Residual deviance: 165.56  on 165  degrees of freedom
+AIC: NA
+
+Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+</div>
+<p>Note the dispersion parameter in quasifit is close to 1 - so it suggests poisson is good fit</p>
+</section>
+<section id="adding-the-mixed-effects-back-in-to-poisson-glm" class="level1">
+<h1>Adding the mixed effects back in to poisson GLM</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>glmm1 <span class="ot">&lt;-</span> <span class="fu">glmer</span>(Richness <span class="sc">~</span> Treatment<span class="sc">+</span>Stone_Area1  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Stream<span class="sc">/</span>Riffle), <span class="at">data =</span> TeaStreams, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(glmm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: poisson  ( log )
+Formula: Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle)
+   Data: TeaStreams
+
+     AIC      BIC   logLik deviance df.resid 
+   650.8    666.5   -320.4    640.8      163 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.6973 -0.5395 -0.1551  0.3958  2.4153 
+
+Random effects:
+ Groups        Name        Variance Std.Dev.
+ Riffle:Stream (Intercept) 0.04434  0.2106  
+ Stream        (Intercept) 0.04029  0.2007  
+Number of obs: 168, groups:  Riffle:Stream, 24; Stream, 8
+
+Fixed effects:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)   1.47330    0.12875  11.443  &lt; 2e-16 ***
+TreatmentTea -0.60341    0.18914  -3.190  0.00142 ** 
+Stone_Area1   0.09467    0.04612   2.053  0.04011 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) TrtmnT
+TreatmentTe -0.679       
+Stone_Area1 -0.085  0.082</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(glmm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table (Type II Wald chisquare tests)
+
+Response: Richness
+              Chisq Df Pr(&gt;Chisq)   
+Treatment   10.1779  1   0.001421 **
+Stone_Area1  4.2132  1   0.040111 * 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(glmm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="compare-with-effects-from-best-linear-mixed-model-above" class="level2">
+<h2 class="anchored" data-anchor-id="compare-with-effects-from-best-linear-mixed-model-above">Compare with effects from best linear mixed model above</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(glmm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table (Type II Wald chisquare tests)
+
+Response: Richness
+              Chisq Df Pr(&gt;Chisq)   
+Treatment   10.1779  1   0.001421 **
+Stone_Area1  4.2132  1   0.040111 * 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(glmm1, <span class="sc">~</span>Treatment, <span class="at">type=</span><span class="st">'response'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment rate    SE  df asymp.LCL asymp.UCL
+ Reference 4.36 0.562 Inf      3.39      5.62
+ Tea       2.39 0.331 Inf      1.82      3.13
+
+Confidence level used: 0.95 
+Intervals are back-transformed from the log scale </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>emmeans1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Treatment emmean    SE   df lower.CL upper.CL
+ Reference   4.49 0.404 6.02     3.51     5.48
+ Tea         2.57 0.404 6.02     1.58     3.55
+
+Degrees-of-freedom method: kenward-roger 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+</section>
+<section id="check-overdispurtiondiagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="check-overdispurtiondiagnostics">Check overdispurtion/diagnostics</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_overdispersion</span>(glmm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Overdispersion test
+
+       dispersion ratio =   0.640
+  Pearson's Chi-Squared = 104.324
+                p-value =       1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No overdispersion detected.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulateResiduals</span>(glmm1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">simulateResiduals</span>(glmm1)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BiotropicaTeaMixedModels_files/figure-html/unnamed-chunk-45-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Seems like some conflicting tests wrt over dispersion (compare plot vs check test)</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
