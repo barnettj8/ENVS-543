@@ -476,7 +476,7 @@ reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`kd (m-
 p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
   geom_point(color = "gray70") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "Regression: kd vs TSS", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
+  labs(title = "kd vs TSS", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
   geom_text(x = max(meanthesis$`TSS (mg/L)`), y = max(meanthesis$`kd (m-1)`), 
             label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
             hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
@@ -578,7 +578,7 @@ p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `kd (m-1)`)) +
   labs(title = "kd vs CHLa", x = "CHLa (µg L⁻¹)", y = "kd (m⁻¹)") +
   geom_text(x = max(meanthesis$`CHLa (ug/L)`), y = max(meanthesis$`kd (m-1)`), 
             label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval, "\n", reg_stats_p3$se), 
-            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
+            hjust = 1, vjust = 3, size = 2, color = "black") +  # Text color black
   theme_minimal() +
   theme(
     plot.title = element_text(size = 7, color = "black"),  # Chart title black
