@@ -1,0 +1,444 @@
+---
+title: "ThesisLMM"
+format: html
+editor: visual
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = TRUE,      # Hide the code
+  warning = FALSE,   # Suppress warnings
+  message = FALSE    # Suppress messages
+)
+
+```
+
+```{r}
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+library(car)
+library(patchwork)
+library(dplyr)
+library(gridExtra)
+library(tidyr)
+library(readxl)
+
+```
+
+```{r}
+
+allthesis <- read_excel("C:/Users/barne/Downloads/ThesisRData.xlsx", sheet = 1)
+
+allthesis <- allthesis |> 
+  mutate(TSS = as.numeric(TSS))
+
+```
+
+```{r}
+avgthesis <- allthesis |> 
+  group_by(Site, Lake) |>  # Include Lake as a grouping variable
+  summarise(across(where(is.numeric), mean, na.rm = TRUE), .groups = "drop")
+
+```
+
+# Basic LM Models
+
+```{r}
+p1summary <- lm(kd ~ TSS, data = avgthesis)
+
+summary(p1summary)
+
+```
+
+```{r}
+
+# Function to get regression statistics (equation, R2, p-value, SE)
+
+get_regression_stats <- function(x, y) {
+  model <- lm(y ~ x)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
+  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
+}
+
+reg_stats_p1 <- get_regression_stats(avgthesis$TSS, avgthesis$kd)
+reg_stats_p2 <- get_regression_stats(avgthesis$CHLa, avgthesis$kd)
+
+```
+
+```{r}
+
+# TSS vs kd
+
+p1 <- ggplot(avgthesis, aes(x = TSS, y = kd)) +
+  geom_point(color = "gray70") +  
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  
+  labs(title = "kd vs TSS", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(avgthesis$TSS), y = max(avgthesis$kd), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
+            hjust = 1, vjust = 2, size = 2, color = "black") + 
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  
+    axis.title.x = element_text(size = 6, color = "black"), 
+    axis.title.y = element_text(size = 6, color = "black"))
+
+```
+
+```{r}
+
+# CHLa vs kd
+
+p2 <- ggplot(avgthesis, aes(x = CHLa, y = kd)) +
+  geom_point(color = "gray70") +  
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  
+  labs(title = "kd vs CHLa", x = "CHLa (ug L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(avgthesis$CHLa), y = max(avgthesis$kd), 
+            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval, "\n", reg_stats_p2$se), 
+            hjust = 1, vjust = 2, size = 2, color = "black") + 
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  
+    axis.title.x = element_text(size = 6, color = "black"), 
+    axis.title.y = element_text(size = 6, color = "black"))
+
+```
+
+```{r}
+
+# Calculate residual kd
+
+avgthesis <- avgthesis |> 
+  mutate(
+    Residualkd = kd - (TSS*0.20337)
+  )
+
+reg_stats_p3 <- get_regression_stats(avgthesis$CDOM, avgthesis$Residualkd)
+
+```
+
+```{r}
+
+# CDOM vs Residual kd
+
+p3 <- ggplot(avgthesis, aes(x = CDOM, y = Residualkd)) +
+  geom_point(color = "gray70") +  
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  
+  labs(title = "Residual kd vs CDOM", x = "CDOM (m⁻¹)", y = "Residualkd (m⁻¹)") +
+  geom_text(x = max(avgthesis$CDOM), y = max(avgthesis$Residualkd), 
+            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval, "\n", reg_stats_p3$se), 
+            hjust = 1, vjust = 2, size = 2, color = "black") + 
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  
+    axis.title.x = element_text(size = 6, color = "black"), 
+    axis.title.y = element_text(size = 6, color = "black"))
+
+```
+
+```{r}
+
+grid.arrange(p1, p2, p3, ncol = 2)
+
+```
+```{r}
+
+p3summary <- lm(Residualkd ~ CDOM, data = avgthesis)
+
+summary(p3summary)
+
+```
+
+```{r}
+
+PercentContributions <- avgthesis |>
+  mutate(
+    `%TSS` = ((TSS*0.20337)/kd)*100,
+    `%CDOM` = ((CDOM*0.17382)/kd)*100) |>
+  summarize(`Site`, `%TSS`, `%CDOM`)
+
+```
+
+```{r}
+
+# Pivot the data into long format for ggplot
+PercentContributions_long <- PercentContributions |> 
+  pivot_longer(cols = c(`%TSS`, `%CDOM`), 
+               names_to = "Variable", 
+               values_to = "PercentContribution")
+
+# Manually recoding the 'Site' variable
+PercentContributions_long <- PercentContributions_long |>
+  mutate(
+    Site = dplyr::recode(Site, 
+                         "2-BRI010.78" = "BRI_1",
+                         "2-BRI013.12" = "BRI_2",
+                         "5ANTW127.14" = "Barfoot",
+                         "Chickahominy" = "Chick",
+                         "Harrison" = "Harrison",
+                         "2-SDY004.27" = "SDY_1",
+                         "2-SDY005.85" = "SDY_2",
+                         "2-MBN000.96" = "SDY_3",
+                         "2-SFT031.08" = "SFT_1",
+                         "2-DYC000.19" = "SFT_2",
+                         "2-SFT033.42" = "SFT_3",
+                         "2-SFT034.38" = "SFT_4",
+                         "Dam Surface" = "ANNA"))
+
+# Change the site order for plot visualization
+site_order <- c( "Harrison", "Chick", "BRI_1", "BRI_2", "SDY_1", "SDY_2", "SDY_3", "SFT_1", "SFT_2", "SFT_3", "SFT_4", "Barfoot", "ANNA")
+
+PercentContributions_long <- PercentContributions_long |>
+  mutate(Site = factor(Site, levels = site_order))
+
+
+
+```
+
+```{r}
+
+ggplot(PercentContributions_long, aes(x = Site, y = PercentContribution, fill = Variable)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "% kd Contributions of TSS and CDOM by Site",
+    x = "Site",
+    y = "% kd",
+    fill = "Variable"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+
+
+```
+
+# Linear Mixed Effect Models
+
+Here we use "Lake" as a random effect/grouping mechanism
+
+```{r}
+
+library(lme4)
+library(MuMIn) 
+
+```
+
+```{r}
+
+lmm1tss <- lmer(kd ~ TSS + (1|Lake), data = avgthesis)
+summary(lmm1tss)
+
+```
+
+```{r}
+
+library(lme4)
+library(lmerTest)
+library(MuMIn) 
+
+
+# Extract fixed effects
+fixed_effects <- fixef(lmm1tss)
+
+# Get the summary of the model
+summary_lmm1tss <- summary(lmm1tss)
+
+# Extract p-values from the 5th column of the model summary
+if (ncol(summary_lmm1tss$coefficients) >= 5) {
+    p_values <- summary_lmm1tss$coefficients[, 5]
+} else {
+    p_values <- NA  # Assign NA if p-values are missing
+}
+
+# Extract standard errors from the 2nd column of model summary
+se_values <- summary_lmm1tss$coefficients[, 2]
+
+# Calculate the R-squared values for the mixed model
+r_squared_values <- r.squaredGLMM(lmm1tss)
+
+# Extract specific coefficients (intercept and TSS coefficient)
+intercept <- fixed_effects[1]
+tss_coefficient <- fixed_effects[2]
+
+equation <- paste("y = ", round(tss_coefficient, 4), "x", " + ", round(intercept, 4), sep = "")
+
+cat("\nThe relationship equation for LMM (kd ~ TSS) is:\n", equation, "\n")
+cat("\nP-value for: ", round(p_values[2], 4), "\n")
+cat("Standard Error: ", round(se_values[2], 4), "\n")
+cat("Marginal R-squared: ", round(r_squared_values[1], 4), "\n")
+cat("Conditional R-squared: ", round(r_squared_values[2], 4), "\n")
+
+```
+
+```{r}
+lmm1chla <- lmer(kd ~ CHLa + (1|Lake), data = avgthesis)
+summary(lmm1chla)
+```
+
+```{r}
+# Extract fixed effects from the model
+fixed_effects_chla <- fixef(lmm1chla)
+
+# Get the summary of the model
+summary_lmm1chla <- summary(lmm1chla)
+
+# Extract p-values from the 5th column of the model summary
+p_values_chla <- summary_lmm1chla$coefficients[, 5]
+
+# Extract standard errors from the 2nd column of the model summary
+se_values_chla <- summary_lmm1chla$coefficients[, 2]
+
+# Calculate the R-squared values for the mixed model
+r_squared_values_chla <- r.squaredGLMM(lmm1chla)
+
+# Extract specific coefficients (intercept and CHLa coefficient)
+intercept_chla <- fixed_effects_chla[1]
+chla_coefficient <- fixed_effects_chla[2]
+
+
+equation_chla <- paste("y = ", round(chla_coefficient, 4), "x", " + ", round(intercept_chla, 4), sep = "")
+
+cat("\nThe relationship equation for LMM (kd ~ CHLa) is:\n", equation_chla, "\n")
+cat("\nP-value for: ", round(p_values_chla[2], 4), "\n")
+cat("Standard Error: ", round(se_values_chla[2], 4), "\n")
+cat("Marginal R-squared: ", round(r_squared_values_chla[1], 4), "\n")
+cat("Conditional R-squared: ", round(r_squared_values_chla[2], 4), "\n")
+
+
+```
+
+```{r}
+
+# Calculate LMM residual kd
+
+avgthesis <- avgthesis |> 
+  mutate(
+    LMMResidualkd = kd - (TSS*0.14229)
+  )
+
+```
+
+```{r}
+lmm1cdom <- lmer(LMMResidualkd ~ CDOM + (1|Lake), data = avgthesis)
+summary(lmm1cdom)
+
+```
+
+```{r}
+# Extract fixed effects from the model
+fixed_effects_residual <- fixef(lmm1cdom)
+
+# Get the summary of the model
+summary_lmm1cdom <- summary(lmm1cdom)
+
+# Extract p-values from the 5th column of the model summary
+p_values_residual <- summary_lmm1cdom$coefficients[, 5]
+
+# Extract standard errors from the 2nd column of the model summary
+se_values_residual <- summary_lmm1cdom$coefficients[, 2]
+
+# Calculate the R-squared values for the mixed model
+r_squared_values_residual <- r.squaredGLMM(lmm1cdom)
+
+# Extract specific coefficients (intercept and CDOM coefficient)
+intercept_residual <- fixed_effects_residual[1]
+cdom_coefficient <- fixed_effects_residual[2]
+
+# Create the equation for the model
+equation_residual <- paste("y = ", round(cdom_coefficient, 4), "x", " + ", round(intercept_residual, 4), sep = "")
+
+cat("\nThe relationship equation for LMM (Residualkd ~ CDOM) is:\n", equation_residual, "\n")
+cat("\nP-value for: ", round(p_values_residual[2], 4), "\n")
+cat("Standard Error: ", round(se_values_residual[2], 4), "\n")
+cat("Marginal R-squared: ", round(r_squared_values_residual[1], 4), "\n")
+cat("Conditional R-squared: ", round(r_squared_values_residual[2], 4), "\n")
+
+```
+
+```{r}
+
+LMMPercentContributions <- avgthesis |>
+  mutate(
+    `LMM%TSS` = ((TSS*0.1423)/kd)*100,
+    `LMM%CDOM` = ((CDOM*0.1862)/kd)*100) |>
+  summarize(`Site`, `LMM%TSS`, `LMM%CDOM`)
+
+head(LMMPercentContributions)
+
+```
+
+```{r}
+
+# Pivot the data into long format for ggplot
+LMMPercentContributions_Long <- LMMPercentContributions |> 
+  pivot_longer(cols = c(`LMM%TSS`, `LMM%CDOM`), 
+               names_to = "Variable", 
+               values_to = "PercentContribution")
+
+# Manually recoding the 'Site' variable
+LMMPercentContributions_Long <- LMMPercentContributions_Long |>
+  mutate(
+    Site = dplyr::recode(Site, 
+                         "2-BRI010.78" = "BRI_1",
+                         "2-BRI013.12" = "BRI_2",
+                         "5ANTW127.14" = "Barfoot",
+                         "Chickahominy" = "Chick",
+                         "Harrison" = "Harrison",
+                         "2-SDY004.27" = "SDY_1",
+                         "2-SDY005.85" = "SDY_2",
+                         "2-MBN000.96" = "SDY_3",
+                         "2-SFT031.08" = "SFT_1",
+                         "2-DYC000.19" = "SFT_2",
+                         "2-SFT033.42" = "SFT_3",
+                         "2-SFT034.38" = "SFT_4",
+                         "Dam Surface" = "ANNA"))
+
+# Change the site order for plot visualization
+site_order <- c( "Harrison", "Chick", "BRI_1", "BRI_2", "SDY_1", "SDY_2", "SDY_3", "SFT_1", "SFT_2", "SFT_3", "SFT_4", "Barfoot", "ANNA")
+
+LMMPercentContributions_Long <- LMMPercentContributions_Long |>
+  mutate(Site = factor(Site, levels = site_order))
+
+```
+
+```{r}
+
+ggplot(LMMPercentContributions_Long, aes(x = Site, y = PercentContribution, fill = Variable)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "% kd Contributions of TSS and CDOM by Site",
+    x = "Site",
+    y = "% kd",
+    fill = "Variable"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(limits = c(0, 100))
+
+
+```
+
+# Comparison of Models
+
+```{r}
+# Comparison of kd/tss lm and lmer models
+
+AIC(p1summary, lmm1tss)
+
+```
+
+
+```{r}
+# Comparison of residualkd/cdom lm and lmer models
+
+AIC(p3summary, lmm1cdom)
+
+```
+
+This indicates that the basic linear model is a better fit than the linear mixed effect model. Since the residual kd for the lmer was based on the lmer tss model, could it be that the random effects of lakes are already taken into account?
+
+i.e. would it be better to do a lmer for kd vs tss then do a regular lm for residual kd vs cdom? This way we arent accounting for random effects twice?
+

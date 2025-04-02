@@ -1,0 +1,210 @@
+---
+title: "Stream Restoration"
+format: html
+editor: visual
+---
+
+## Quarto
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+
+```
+
+
+```{r}
+
+library(readxl)
+
+# Read data from the second sheet by specifying the sheet index
+streamrest <- read_excel("Turunen.xlsx", sheet = 2)
+
+head(streamrest)
+
+```
+
+
+
+```{r}
+
+streamrest_summary <- streamrest %>%
+  group_by(Treatment) %>%
+  summarize(across(everything(), 
+                   list(mean = ~mean(. , na.rm = TRUE),
+                        se = ~sd(. , na.rm = TRUE) / sqrt(length(.))), 
+                   .names = "{col}_{fn}"))
+
+# View the result
+print(streamrest_summary)
+
+```
+```{r}
+#Fine Sediment Anova
+
+  anova_result <- aov(`Fine sediment cover (%)` ~ Treatment, data = streamrest)
+  
+  summary(anova_result)
+
+```
+
+```{r}
+
+tukey_result <- TukeyHSD(anova_result)
+
+# Print the Tukey test results
+print(tukey_result)
+
+```
+
+```{r}
+
+# If Pvalues are below 0.05, there is a significant difference between the groups being compared. If it is above 0.5, there is no significant difference between treatments. If categorize have "ref" as group a, any thing that is not significantly different will also belong to group a. 
+
+# Based on this, group a would contain "ref" and "res-b"
+
+# We will now categorize "res-w" as group b. 
+
+# Based on this, group b would also contain "Imp". 
+
+# Now all of our treatments are in groups based on their different fine sediment %
+
+```
+
+
+
+```{r}
+
+# Now lets plot these values 
+
+ggplot(streamrest_summary, aes(x = Treatment, y = `Fine sediment cover (%)_mean`, 
+                              group = Treatment)) +
+  geom_point(size = 3) +  
+  geom_line() +           
+  geom_errorbar(aes(ymin = `Fine sediment cover (%)_mean` - `Fine sediment cover (%)_se`, 
+                    ymax = `Fine sediment cover (%)_mean` + `Fine sediment cover (%)_se`), 
+                width = 0.1) +
+  theme_minimal() +      
+  labs(x = "Treatment", y = "Fine Sediment Cover (%) Mean ± SE",
+       title = "Fine Sediment Cover Across Sites with Standard Error")
+
+
+```
+
+
+```{r}
+
+# Now that we have these values plotted, lets also overlay our groups to better visualize these differences
+
+library(dplyr)
+
+# Create the 'SedimentGroup' column and assign 'a' to 'Ref' and 'Res-b'
+streamrest_summary <- streamrest_summary |>
+  mutate(SedimentGroup = case_when(
+    Treatment %in% c("Ref", "Res-b") ~ "a",
+    Treatment %in% c("Imp", "Res-w") ~ "b"))
+
+head(streamrest_summary)
+
+
+
+```
+
+
+```{r}
+
+ggplot(streamrest_summary, aes(x = Treatment, y = `Fine sediment cover (%)_mean`, group = Treatment)) +
+  geom_point(size = 3) +  
+  geom_line() +           
+  geom_errorbar(aes(ymin = `Fine sediment cover (%)_mean` - `Fine sediment cover (%)_se`, 
+                    ymax = `Fine sediment cover (%)_mean` + `Fine sediment cover (%)_se`), 
+                width = 0.1) +
+  geom_text(aes(label = SedimentGroup), vjust = -3, hjust = 0.5, size = 5, color = "black") +  # Add group labels
+  theme_minimal() +      
+  labs(x = "Treatment", y = "Fine Sediment Cover (%) Mean ± SE",
+       title = "Fine Sediment Cover Across Sites with Standard Error") 
+
+```
+
+
+```{r}
+
+ggplot(streamrest_summary, aes(x = Treatment, y = `Volume of LWD (m3/m2)_mean`, 
+                              group = Treatment)) +
+  geom_point(size = 3) +  
+  geom_line() +           
+  geom_errorbar(aes(ymin = `Volume of LWD (m3/m2)_mean` - `Volume of LWD (m3/m2)_se`, 
+                    ymax = `Volume of LWD (m3/m2)_mean` + `Volume of LWD (m3/m2)_se`), 
+                width = 0.1) +
+  theme_minimal() +      
+  labs(x = "Treatment", y = "Volume of LWD (m³/m²) Mean ± SE",
+       title = "Volume of LWD Across Treatments with Standard Error")
+
+
+```
+
+
+```{r}
+
+ggplot(streamrest_summary, aes(x = Treatment, y = `Rh_mean`, 
+                              group = Treatment)) +
+  geom_point(size = 3) +  
+  geom_line() +           
+  geom_errorbar(aes(ymin = `Rh_mean` - `Rh_se`, 
+                    ymax = `Rh_mean` + `Rh_se`), 
+                width = 0.1) +
+  theme_minimal() +      
+  labs(x = "Treatment", y = "Rh Mean ± SE",
+       title = "Rh Across Treatments with Standard Error")
+
+
+```
+
+```{r}
+# Load the lme4 package
+library(lme4)
+
+# Assuming your data is stored in the 'streamrest' dataframe
+# First, make sure the column names are properly referenced (ensure no spaces or special characters in your column names if you haven’t already)
+
+# Example: Fine sediment cover (%) as the dependent variable
+model_fine_sediment <- lmer(`Fine sediment cover (%)` ~ Treatment + `Catchment size (km2)` + `Water temperature (°C)` + (1 | `Stream name`), data = streamrest)
+
+# Check the summary of the model
+summary(model_fine_sediment)
+
+# Post-hoc testing for differences between treatment levels
+# Install and load the multcomp package for post-hoc testing
+# install.packages("multcomp")
+library(multcomp)
+
+# Example of post-hoc testing for differences between treatments
+post_hoc <- glht(model_fine_sediment, linfct = mcp(Treatment = "Tukey"))
+summary(post_hoc)
+
+# Example LMM for another outcome, e.g., 'Volume of LWD (m3/m2)'
+model_LWD <- lmer(`Volume of LWD (m3/m2)` ~ Treatment + `Peatland area (%)` + `Stream width (m)` + (1 | `Stream name`), data = streamrest)
+
+# Summary of the LWD model
+summary(model_LWD)
+
+# Example with interaction between Treatment and Peatland drainage
+model_interaction <- lmer(`Fine sediment cover (%)` ~ Treatment * `Peatland drainage (%)` + (1 | `Stream name`), data = streamrest)
+
+# Check the summary of this interaction model
+summary(model_interaction)
+
+
+```
+
+
+
+
+
+
+
+
+

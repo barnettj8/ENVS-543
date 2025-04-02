@@ -86,7 +86,6 @@ summary(basic.lm)
 
 ```
 
-
 ```{r}
 
 plot(basic.lm, which = 1)  # not perfect, but look alright
@@ -155,7 +154,6 @@ P+geom_boxplot(width=0.1)
 
 ```
 
-
 ```{r}
 
 ##BASIC ANALYSIS WITH *ONLY* STONE AREA (IGNORING TREATMENTS HERE)
@@ -170,13 +168,13 @@ plot(basic.lmSS, which = 4)
 
 ```
 
-
 ```{r}
 
 anova(basic.lmSS)
 
 ```
-SO YES - SEEMS THERE IS A STRONG POSITIVE EFFECT OF STONE AREA - 
+
+SO YES - SEEMS THERE IS A STRONG POSITIVE EFFECT OF STONE AREA -
 
 ## Questions
 
@@ -246,7 +244,7 @@ anova(streams.lm,streams.lm2)
 ```
 
 ## Questions
- 
+
 DISCUSS THE DATA
 
 How is the data hieracrichally structured? Russian dolls, what is nested within what?
@@ -255,13 +253,11 @@ How is the data hieracrichally structured? Russian dolls, what is nested within 
 
 Given the work you did with Dragons - which do you think are possible random effects?
 
--
+-   
 
 DISCUSS
 
-
 # First Mixed Model
-
 
 ```{r}
 
@@ -296,10 +292,3 @@ ggpredict(mixed.lmer1, terms = c("Stone_Area1", "Treatment"), type = "random") %
 
 
 ```
-
-
-
-
-
-
-

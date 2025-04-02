@@ -3,6 +3,7 @@ title: "Mixed Models and GLMs"
 format: html
 editor: visual
 ---
+
 #For HW, do the same mixed models he does here for richness with abundance!!!!!!
 
 # Load in data
@@ -39,7 +40,6 @@ head(TeaStreams)
 
 ```
 
-
 # Standardize Data
 
 It is good practice to standardise your explanatory variables before proceeding so that they have a mean of zero (“centering”) and standard deviation of one (“scaling”). It ensures that the estimated coefficients are all on the same scale, making it easier to compare effect sizes. You can use scale() to do that:
@@ -48,7 +48,7 @@ It is good practice to standardise your explanatory variables before proceeding 
 
 # Log and Scale Stone_Area explanatory variable
 
-TeaStreams$logStoneArea<-log(TeaStreams$Stone_Area)
+logStoneArea<-log(TeaStreams$Stone_Area)
 TeaStreams$Stone_Area1<-scale(logStoneArea)
 
 head(TeaStreams)
@@ -91,7 +91,6 @@ shapiro.test(LogStoneA)
 
 ```
 
-
 # Basic Linear Model
 
 ```{r}
@@ -110,7 +109,6 @@ summary(basic.lm)
 
 ```
 
-
 ```{r}
 
 P<-ggplot(TeaStreams, aes(x = Treatment, y = Richness)) +
@@ -122,7 +120,6 @@ P+geom_boxplot(width=0.1)
 P+geom_boxplot(width=0.1)
 
 ```
-
 
 ## Linear Model Residuals
 
@@ -172,8 +169,7 @@ summary(streams.lm)
 
 ```
 
-
-By using "+" instead of "*" here for the interaction term, we are only testing for differences in intercepts, not slopes
+By using "+" instead of "\*" here for the interaction term, we are only testing for differences in intercepts, not slopes
 
 # ANCOVA with interaction (fixed effects)
 
@@ -184,7 +180,7 @@ summary(streams.lm2)
 
 ```
 
-By using "*" instead of "+" here for the interaction term, we are testing for difference in slopes 
+By using "\*" instead of "+" here for the interaction term, we are testing for difference in slopes
 
 ```{r}
 
@@ -192,15 +188,13 @@ anova(streams.lm,streams.lm2)
 
 ```
 
-
 So non-mixed effect suggests no interaction (no difference between models P = 0.5546), marginal and significant treatment effects - but this is committing pseudo-replication as stones are not independent
-
 
 # First Mixed Model
 
-We keep "Treatment + Stone_Area1" and not * because there was no difference between the models so it does not matter which we choose.
+We keep "Treatment + Stone_Area1" and not \* because there was no difference between the models so it does not matter which we choose.
 
-The (1|Stream/Riffle) object in the model accounts for Riffles being nested in Streams (i.e. riffles in the same stream will likely be more similar to each other) we dont have to do this for stones as we are using Stone_Area + Treatment as our initial interaction term. 
+The (1\|Stream/Riffle) object in the model accounts for Riffles being nested in Streams (i.e. riffles in the same stream will likely be more similar to each other) we dont have to do this for stones as we are using Stone_Area + Treatment as our initial interaction term.
 
 ```{r}
 
@@ -216,7 +210,9 @@ qqnorm(resid(mixed.lmer1))
 qqline(resid(mixed.lmer1))
 
 ```
+
 The "emmeans" function extracts the effects of the model
+
 ```{r}
 
 emmeans1<-emmeans(mixed.lmer1,specs="Treatment")
@@ -255,6 +251,7 @@ emmeans2
 anova(mixed.lmer2, mixed.lmer1) #This is a test of the significance of Stone_Area
 
 ```
+
 AIC lmer2 = 674 vs lmer1 = 669
 
 So this suggests our scales log stone area has an important effect and we should keep this term (P = 0.0143)
@@ -283,6 +280,7 @@ qqline(resid(mixed.lmer3))
 anova(mixed.lmer3, mixed.lmer1)
 
 ```
+
 AIC lmer3 = 676 vs lmer1 = 669
 
 So this suggests our scales Treatment area has an important effect and we should keep this term (P = 0.003474)
@@ -324,8 +322,8 @@ emmeans5
 anova(mixed.lmer4, mixed.lmer5) 
 
 ```
-AIC of lmer5 = 681 vs lmer4 = 678
-P = 0.02166
+
+AIC of lmer5 = 681 vs lmer4 = 678 P = 0.02166
 
 # Should we include random effects?
 
@@ -336,6 +334,7 @@ Lets compare mixed.lmer1 (which includes "Riffle nested in Stream") with mixed.l
 anova(mixed.lmer1, mixed.lmer4)
 
 ```
+
 AIC lmer4 = 678 vs lmer1 = 669
 
 The model with the nested Riffle layer within Stream is better - so we keep Riffle (P = 0.00154)
@@ -389,6 +388,7 @@ summary(mixed.lmer1)
 (fixef(mixed.lmer1) [2])
 
 ```
+
 ## Check for overdispurtion/diagnostics
 
 ```{r}
@@ -406,7 +406,7 @@ hist(simulateResiduals(mixed.lmer1))
 
 Seem Okay as well
 
-END LINEAR MODEL EXAMPLE _________________________________________
+END LINEAR MODEL EXAMPLE \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
 # Modelling using Generalized Linear Models
 
@@ -479,7 +479,6 @@ emmeans(glmm1, ~Treatment, type='response')
 
 ```
 
-
 ```{r}
 
 emmeans1
@@ -497,7 +496,3 @@ hist(simulateResiduals(glmm1))
 ```
 
 Seems like some conflicting tests wrt over dispersion (compare plot vs check test)
-
-
-
-

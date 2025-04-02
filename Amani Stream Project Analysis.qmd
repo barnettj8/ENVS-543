@@ -1,0 +1,165 @@
+---
+title: "Revisiting the Amani Stream Project Analysis with mixed models and glmm"
+format: html
+editor: visual
+---
+
+```{}
+```
+
+```{r}
+######################################
+#   Mixed effects modelling in R     #
+#   Amani Stream Inverts             #
+######################################
+
+# -------------------
+# Chunk 1: Load Libraries
+# -------------------
+library(tidyverse)
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(DHARMa)
+library(performance)
+library(ggeffects)
+
+
+# -------------------
+# Chunk 2: Load and Prepare Data
+# -------------------
+TeaStreams <- read_csv("UsambaraStreamDataBiotropicaSIMPLE.csv")
+
+# Log-transform and scale covariates
+TeaStreams$Stone_Area1 <- scale(log(TeaStreams$Stone_Area))
+TeaStreams$LogRich <- log(TeaStreams$Richness + 1)
+
+# Check structure
+head(TeaStreams)
+hist(TeaStreams$Richness)
+shapiro.test(TeaStreams$Richness)
+
+
+# -------------------
+# Chunk 3: Mixed Effects Model (Richness)
+# -------------------
+mixed.lmer_rich <- lmer(Richness ~ Treatment + Stone_Area1 + (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer_rich)
+
+
+# -------------------
+# Chunk 4: Diagnostics for Mixed Model (Richness)
+# -------------------
+plot(mixed.lmer_rich)
+qqnorm(resid(mixed.lmer_rich))
+qqline(resid(mixed.lmer_rich))
+check_overdispersion(mixed.lmer_rich)
+plot(simulateResiduals(mixed.lmer_rich))
+
+
+# -------------------
+# Chunk 5: Treatment Effects (Richness)
+# -------------------
+emmeans_rich <- emmeans(mixed.lmer_rich, specs = "Treatment")
+emmeans_rich
+
+
+# -------------------
+# Chunk 6: Predicted Effects Plot (Richness)
+# -------------------
+ggpredict(mixed.lmer_rich, terms = c("Stone_Area1", "Treatment")) %>% 
+  plot() +
+  labs(x = "Stone Size", y = "Richness", title = "Effect of Stone Size and Tea on Richness") + 
+  theme_minimal()
+
+
+# -------------------
+# Chunk 7 (Optional): Poisson GLMM (Richness)
+# -------------------
+glmm_rich <- glmer(Richness ~ Treatment + Stone_Area1 + (1 | Stream/Riffle), 
+               data = TeaStreams, family = poisson)
+summary(glmm_rich)
+
+check_overdispersion(glmm_rich)
+plot(simulateResiduals(glmm_rich))
+emmeans(glmm_rich, ~Treatment, type='response')
+
+
+
+# ANALYSIS PART 2: Abundance Response
+
+
+# Mixed effects model for Abundance
+mixed.lmer_abund <- lmer(Abundance ~ Treatment + Stone_Area1 + (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer_abund)
+
+# Diagnostics
+plot(mixed.lmer_abund)
+qqnorm(resid(mixed.lmer_abund))
+qqline(resid(mixed.lmer_abund))
+check_overdispersion(mixed.lmer_abund)
+plot(simulateResiduals(mixed.lmer_abund))
+
+# Treatment effects
+emmeans_abund <- emmeans(mixed.lmer_abund, specs = "Treatment")
+emmeans_abund
+
+# Predicted effects plot
+ggpredict(mixed.lmer_abund, terms = c("Stone_Area1", "Treatment")) %>% 
+  plot() +
+  labs(x = "Stone Size", y = "Abundance", title = "Effect of Stone Size and Tea on Abundance") + 
+  theme_minimal()
+
+# Poisson GLMM for Abundance
+glmm_abund <- glmer(Abundance ~ Treatment + Stone_Area1 + (1 | Stream/Riffle), 
+               data = TeaStreams, family = poisson)
+summary(glmm_abund)
+
+check_overdispersion(glmm_abund)
+plot(simulateResiduals(glmm_abund))
+emmeans(glmm_abund, ~Treatment, type='response')
+# ANALYSIS PART 2: Abundance Response
+
+
+# Mixed effects model for Abundance
+mixed.lmer_abund <- lmer(Abundance ~ Treatment + Stone_Area1 + (1|Stream/Riffle), data = TeaStreams)
+summary(mixed.lmer_abund)
+
+# Diagnostics
+plot(mixed.lmer_abund)
+qqnorm(resid(mixed.lmer_abund))
+qqline(resid(mixed.lmer_abund))
+check_overdispersion(mixed.lmer_abund)
+plot(simulateResiduals(mixed.lmer_abund))
+
+# Treatment effects
+emmeans_abund <- emmeans(mixed.lmer_abund, specs = "Treatment")
+emmeans_abund
+
+# Predicted effects plot
+ggpredict(mixed.lmer_abund, terms = c("Stone_Area1", "Treatment")) %>% 
+  plot() +
+  labs(x = "Stone Size", y = "Abundance", title = "Effect of Stone Size and Tea on Abundance") + 
+  theme_minimal()
+
+# Poisson GLMM for Abundance
+glmm_abund <- glmer(Abundance ~ Treatment + Stone_Area1 + (1 | Stream/Riffle), 
+               data = TeaStreams, family = poisson)
+summary(glmm_abund)
+
+check_overdispersion(glmm_abund)
+plot(simulateResiduals(glmm_abund))
+emmeans(glmm_abund, ~Treatment, type='response')
+
+mm_plot <- ggplot(TeaStreams, aes(x = Stone_Area1, y = Abundance, colour = Riffle)) +
+  facet_wrap(~ Stream, nrow = 2) +
+  geom_point(alpha = 0.5) +
+  geom_line(data = cbind(TeaStreams, pred = predict(glmm1)), aes(y = pred), size = 1) +
+  theme_classic() +
+  theme(legend.position = "none", panel.spacing = unit(2, "lines"))
+mm_plot
+
+
+```
+
+In this reanalysis of the Biotropica dataset, we used mixed-effects models to assess how treatment type (tea bags) and stone size affect macroinvertebrate communities, using all 168 individual observations rather than stream-level means. To account for the nested sampling structure—stones within riffles within streams—we specified random intercepts for Stream and Riffle nested within Stream. Fixed effects included Treatment and Stone Area (log-transformed and standardized). We conducted parallel analyses for two key response variables: Richness (taxonomic diversity) and Abundance (total count of individuals). Both were modeled using linear mixed-effects models and Poisson generalized linear mixed models (GLMMs) to account for the count-based nature of the data. Model diagnostics indicated that assumptions were reasonably met, and overdispersion was not a major issue. Predicted effects plots visualized the relationship between stone size, treatment type, and each response. This approach replicates and expands on Figure 1 from the original Biotropica paper, while demonstrating the importance of accounting for hierarchical data structure in ecological field studies.

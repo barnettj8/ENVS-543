@@ -634,6 +634,160 @@ create_diagnostic_plots(model_p3)
 
 ```
 
+# Mixed Effect Models ("Lake" as a random effect/grouping mechanism)
+
+```{r}
+# mixed effect model
+
+# fixed effects are variables that we expect will have an effect on the dependent/response variable: they’re what you call explanatory variables in a standard linear regression.
+
+#random effects are usually grouping factors for which we are trying to control. They are always categorical
+
+library(lme4)
+library(MuMIn) 
+mixed.lmer <- lmer(`kd (m-1)` ~ `TSS (mg/L)` + (1|Lake), data = meanthesis)
+summary(mixed.lmer)
+
+fixed_effects <- fixef(mixed.lmer)
+
+summary_mixed <- summary(mixed.lmer)
+p_values <- summary_mixed$coefficients[, 5]  # P-values
+se_values <- summary_mixed$coefficients[, 2]  # Standard errors
+r_squared_values <- r.squaredGLMM(mixed.lmer)
+
+intercept <- fixed_effects[1]
+tss_coefficient <- fixed_effects[2]
+
+# Print the relationship equation
+equation <- paste("kd (m-1) = ", round(tss_coefficient, 4), "x", " + ", round(intercept, 4), sep = "")
+
+cat("\nThe relationship equation is:\n", equation, "\n")
+cat("\nP-value for TSS (mg/L): ", round(p_values[2], 4), "\n")
+cat("Standard Error for TSS (mg/L): ", round(se_values[2], 4), "\n")
+cat("Marginal R-squared: ", round(r_squared_values[1], 4), "\n")
+cat("Conditional R-squared: ", round(r_squared_values[2], 4), "\n")
+
+
+```
+
+```{r}
+
+# In the summary pane, we can see the random effect variance (0.269856) and the residual variance (0.003389)
+
+0.269856/(0.269856+0.003389)
+
+#So the differences between lakes explains ~ 98% of the variance that's "left over" after the variance explained by our fixed effects of TSS
+
+
+```
+
+```{r}
+
+meanthesis$mixedresidualkd <- meanthesis$`kd (m-1)` - ((meanthesis$`TSS (mg/L)`)*0.1424)
+
+mixed.lmer2 <- lmer(mixedresidualkd ~ `CDOM a440 (corr)` + (1|Lake), data = meanthesis)
+summary(mixed.lmer2)
+
+
+summary_mixed2 <- summary(mixed.lmer2)
+fixed_effects2 <- fixef(mixed.lmer2)
+
+# Extract p-values, standard errors, and R-squared values
+p_values2 <- summary_mixed2$coefficients[, 5]  # P-values
+se_values2 <- summary_mixed2$coefficients[, 2]  # Standard errors
+r_squared_values2 <- r.squaredGLMM(mixed.lmer2)  # R-squared for mixed models
+
+# Extract the intercept and CDOM coefficient
+intercept2 <- fixed_effects2[1]
+cdom_coefficient <- fixed_effects2[2]
+
+# Print the relationship equation
+equation2 <- paste("mixedresidualkd = ", round(intercept2, 4), " + ", round(cdom_coefficient, 4), "x", sep = "")
+
+# Output the results
+cat("\nThe relationship equation is:\n", equation2, "\n")
+cat("\nP-value for CDOM a440 (corr): ", round(p_values2[2], 4), "\n")
+cat("Standard Error for CDOM a440 (corr): ", round(se_values2[2], 4), "\n")
+cat("Marginal R-squared: ", round(r_squared_values2[1], 4), "\n")
+cat("Conditional R-squared: ", round(r_squared_values2[2], 4), "\n")
+
+
+```
+
+
+```{r}
+
+# In the summary pane, we can see the random effect variance (0.28117) and the residual variance (0.01445)
+
+0.28117/(0.28117+0.01445)
+
+#So the differences between lakes explains ~ 95% of the variance that's "left over" after the variance explained by our fixed effects of CDOM
+
+
+```
+
+
+```{r}
+
+# Basic scatter plot and fitted regression line
+library(ggplot2)
+
+ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point() + 
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "blue") +  # Linear fit line (fixed effects)
+  labs(x = "TSS (mg/L)", y = "kd (m-1)", title = "Relationship between TSS and kd (m-1)")
+
+
+```
+
+
+```{r}
+
+# Random intercepts (for each lake) from the mixed-effects model
+ranef_data <- ranef(mixed.lmer)  # Get random effects
+
+# Create a plot showing random effects for each lake
+ranef_df <- data.frame(Lake = rownames(ranef_data$Lake), Intercept = ranef_data$Lake[, 1])
+
+ggplot(ranef_df, aes(x = Lake, y = Intercept)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  labs(x = "Lake", y = "Random Intercept", title = "Random Effects (Intercept) by Lake") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+```{r}
+
+# Plot the data and fitted lines, accounting for random effects
+ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`, color = Lake)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x, aes(group = Lake), se = FALSE) +
+  labs(x = "TSS (mg/L)", y = "kd (m-1)", title = "Mixed Effects Model by Lake") +
+  theme(legend.position = "none")
+
+
+```
+
+```{r}
+
+# Plot mixedresidualkd vs CDOM a440 (corr)
+library(ggplot2)
+
+ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = mixedresidualkd)) +
+  geom_point() +  # Scatter plot of the data
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Fitted regression line
+  labs(title = "Relationship between Mixed Residual kd and CDOM a440 (corr)",
+       x = "CDOM a440 (corr)",
+       y = "Mixed Residual kd (m-1)") +
+  theme_minimal()
+
+
+```
+
+
+
 ### Multiple Linear Regression
 
 ```{r}
