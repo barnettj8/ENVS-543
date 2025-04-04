@@ -46,13 +46,6 @@ avgthesis <- allthesis |>
 # Basic LM Models
 
 ```{r}
-p1summary <- lm(kd ~ TSS, data = avgthesis)
-
-summary(p1summary)
-
-```
-
-```{r}
 
 # Function to get regression statistics (equation, R2, p-value, SE)
 
@@ -145,11 +138,49 @@ p3 <- ggplot(avgthesis, aes(x = CDOM, y = Residualkd)) +
 grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
+
 ```{r}
+
+p1summary <- lm(kd ~ TSS, data = allthesis)
+
+summary(p1summary)
+
+p2summary <- lm(kd ~ CHLa, data = avgthesis)
+
+#summary(p2summary)
 
 p3summary <- lm(Residualkd ~ CDOM, data = avgthesis)
 
-summary(p3summary)
+#summary(p3summary)
+
+```
+
+```{r}
+# Function to create diagnostic plots for each model
+create_diagnostic_plots <- function(model) {
+  par(mfrow = c(2, 2))
+
+  # Residuals vs Fitted plot
+  plot(model, which = 1, main = "Residuals vs Fitted")
+
+  # Normal Q-Q plot
+  plot(model, which = 2, main = "Normal Q-Q")
+
+  # Scale-Location plot
+  plot(model, which = 3, main = "Scale-Location")
+
+  # Residuals vs Leverage plot
+  plot(model, which = 5, main = "Residuals vs Leverage")
+}
+```
+
+```{r}
+
+create_diagnostic_plots(p1summary)
+
+create_diagnostic_plots(p2summary)
+
+create_diagnostic_plots(p3summary)
 
 ```
 
@@ -215,6 +246,7 @@ ggplot(PercentContributions_long, aes(x = Site, y = PercentContribution, fill = 
 
 ```
 
+
 # Linear Mixed Effect Models
 
 Here we use "Lake" as a random effect/grouping mechanism
@@ -223,22 +255,21 @@ Here we use "Lake" as a random effect/grouping mechanism
 
 library(lme4)
 library(MuMIn) 
+library(lmerTest)
 
 ```
 
 ```{r}
 
-lmm1tss <- lmer(kd ~ TSS + (1|Lake), data = avgthesis)
+lmm1tss <- lmer(kd ~ CDOM + CHLa + TSS + (1|Date), data = allthesis)
 summary(lmm1tss)
 
+#anova(lmm1tss)
+
+#change date to Month Year format
 ```
 
 ```{r}
-
-library(lme4)
-library(lmerTest)
-library(MuMIn) 
-
 
 # Extract fixed effects
 fixed_effects <- fixef(lmm1tss)
@@ -272,6 +303,17 @@ cat("Marginal R-squared: ", round(r_squared_values[1], 4), "\n")
 cat("Conditional R-squared: ", round(r_squared_values[2], 4), "\n")
 
 ```
+
+```{r}
+
+# In the summary pane, we can see the random effect variance (0.269856) and the residual variance (0.003389)
+
+0.27/(0.27+0.0034)
+
+#So the differences between lakes explains ~ 98% of the variance
+
+```
+
 
 ```{r}
 lmm1chla <- lmer(kd ~ CHLa + (1|Lake), data = avgthesis)
@@ -372,6 +414,31 @@ head(LMMPercentContributions)
 
 ```{r}
 
+plot(lmm1tss)
+qqnorm(resid(lmm1tss))
+qqline(resid(lmm1tss))
+
+```
+
+```{r}
+
+plot(lmm1chla)
+qqnorm(resid(lmm1chla))
+qqline(resid(lmm1chla))
+
+```
+
+```{r}
+
+plot(lmm1cdom)
+qqnorm(resid(lmm1cdom))
+qqline(resid(lmm1cdom))
+
+```
+
+
+```{r}
+
 # Pivot the data into long format for ggplot
 LMMPercentContributions_Long <- LMMPercentContributions |> 
   pivot_longer(cols = c(`LMM%TSS`, `LMM%CDOM`), 
@@ -441,4 +508,140 @@ AIC(p3summary, lmm1cdom)
 This indicates that the basic linear model is a better fit than the linear mixed effect model. Since the residual kd for the lmer was based on the lmer tss model, could it be that the random effects of lakes are already taken into account?
 
 i.e. would it be better to do a lmer for kd vs tss then do a regular lm for residual kd vs cdom? This way we arent accounting for random effects twice?
+
+
+# Multiple Linear Mixed Effect Model (AFTER DR VONESH DISCUSSION)
+
+```{r}
+
+# Change format of Date to be Month/Year instead of Year/Month/Day
+# This will allow us to account for "Date" as a random effect
+# This can't currently be done as reservoirs were sampled on different days in each month
+
+library(lubridate)
+
+allthesis <- allthesis %>%
+  mutate(Date = as.Date(Date),          
+         Date = format(Date, "%m/%Y"))  
+
+
+```
+
+
+```{r}
+
+lmmall <- lmer(kd ~ CDOM + CHLa + TSS + (1|Date), data = allthesis)
+summary(lmmall)
+
+#anova(lmm1tss)
+
+```
+
+```{r}
+
+lmmall2 <- lmer(kd ~ CDOM + CHLa + TSS + (1|Date/Lake), data = allthesis)
+summary(lmmall2)
+
+```
+
+```{r}
+
+anova(lmmall, lmmall2)
+
+```
+
+# Scaling Data then LMM
+
+It is good practice to standardise your explanatory variables before proceeding so that they have a mean of zero (“centering”) and standard deviation of one (“scaling”). It ensures that the estimated coefficients are all on the same scale, making it easier to compare effect sizes. 
+
+scale() centers the data (the column mean is subtracted from the values in the column) and then scales it (the centered column values are divided by the column’s standard deviation).
+
+
+```{r}
+
+#hist(allthesis$kd)
+#hist(allthesis$TSS)
+#hist(allthesis$CHLa)
+#hist(allthesis$CDOM)
+
+```
+
+```{r}
+
+allthesis$kd1 <- scale(allthesis$kd, center = TRUE, scale = TRUE)
+#hist(allthesis$kd1)
+
+allthesis$TSS1 <- scale(allthesis$TSS, center = TRUE, scale = TRUE)
+#hist(allthesis$TSS1)
+
+allthesis$CHLa1 <- scale(allthesis$CHLa, center = TRUE, scale = TRUE)
+#hist(allthesis$CHLa1)
+
+allthesis$CDOM1 <- scale(allthesis$CDOM, center = TRUE, scale = TRUE)
+#hist(allthesis$CDOM1)
+
+```
+
+```{r}
+
+allthesis$kd2 <- scale(allthesis$kd, center = TRUE, scale = TRUE)
+#hist(allthesis$kd2)
+
+allthesis$TSS2 <- scale(log(allthesis$TSS), center = TRUE, scale = TRUE)
+#hist(allthesis$TSS2)
+
+allthesis$CHLa2 <- scale(log(allthesis$CHLa), center = TRUE, scale = TRUE)
+#hist(allthesis$CHLa2)
+
+allthesis$CDOM2 <- scale(log(allthesis$CDOM), center = TRUE, scale = TRUE)
+#hist(allthesis$CDOM2)
+
+```
+
+```{r}
+
+# Scaled Predictors
+
+lmmall3 <- lmer(kd1 ~ CDOM1 + CHLa1 + TSS1 + (1|Date), data = allthesis)
+summary(lmmall3)
+
+```
+
+```{r}
+
+# Scaled Predictors
+
+lmmall4 <- lmer(kd1 ~ CDOM1 + CHLa1 + TSS1 + (1|Date/Lake), data = allthesis)
+summary(lmmall4)
+
+```
+
+```{r}
+
+#Log transformed and scaled predictors
+
+lmmall5 <- lmer(kd2 ~ CDOM2 + CHLa2 + TSS2 + (1|Date), data = allthesis)
+summary(lmmall5)
+
+```
+
+```{r}
+
+#Log transformed and scaled predictors
+
+lmmall6 <- lmer(kd2 ~ CDOM2 + CHLa2 + TSS2 + (1|Date/Lake), data = allthesis)
+summary(lmmall6)
+
+```
+
+```{r}
+
+anova(lmmall, lmmall2, lmmall3, lmmall4, lmmall5, lmmall6)
+
+```
+
+So according to this anova, the best model would be lmmall2 or lmmall (both using data that hasn't been scaled) based on AIC values
+
+
+
 

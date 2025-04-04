@@ -458,75 +458,7 @@ meanthesis <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_y
 
 ```
 
-
 ```{r}
-
-# Function to extract regression statistics (equation, R-squared, p-value, SE)
-get_regression_stats <- function(x, y) {
-  model <- lm(y ~ x)
-  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
-  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
-  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
-  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
-  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
-}
-
-# p1 - Regression: kd (m⁻¹) vs TSS (mg/L)
-reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`kd (m-1)`)
-p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "kd vs TSS", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
-  geom_text(x = max(meanthesis$`TSS (mg/L)`), y = max(meanthesis$`kd (m-1)`), 
-            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
-            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 7, color = "black"),  # Chart title black
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
-  )
-
-# p2 - Regression: Residual kd after TSS vs CDOM a440 (corr)
-reg_stats_p2 <- get_regression_stats(meanthesis$`CDOM a440 (corr)`, meanthesis$`Residual kd after TSS`)
-p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
-  geom_point(color = "gray70") +  # Use a lighter gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "Residual kd vs CDOM", x = "CDOM (m⁻¹)", y = "Residual kd after TSS (m⁻¹)") +
-  geom_text(x = max(meanthesis$`CDOM a440 (corr)`), y = max(meanthesis$`Residual kd after TSS`), 
-            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval, "\n", reg_stats_p2$se), 
-            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 7, color = "black"),  # Chart title black
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
-  )
-
-# p3 - Regression: Residual kd after TSS vs CHLa (ug/L)
-reg_stats_p3 <- get_regression_stats(meanthesis$`CHLa (ug/L)`, meanthesis$`Residual kd after TSS`)
-p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `Residual kd after TSS`)) +
-  geom_point(color = "gray70") +  # Use an even lighter gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "Residual kd vs CHLa", x = "CHLa (µg L⁻¹)", y = "Residual kd after TSS (m⁻¹)") +
-  geom_text(x = max(meanthesis$`CHLa (ug/L)`), y = max(meanthesis$`Residual kd after TSS`), 
-            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval, "\n", reg_stats_p3$se), 
-            hjust = 1, vjust = 1, size = 2, color = "black") +  # Text color black
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 7, color = "black"),  # Chart title black
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
-  )
-
-# Display plots in a grid
-grid.arrange(p1, p2, p3, ncol = 2)
-
-
-```
-
-```{r}
-
 
 # Function to extract regression statistics (equation, R-squared, p-value, SE)
 get_regression_stats <- function(x, y) {
@@ -594,6 +526,72 @@ grid.arrange(p1, p2, p3, ncol = 2)
 ```
 
 
+
+```{r}
+
+# Function to extract regression statistics (equation, R-squared, p-value, SE)
+get_regression_stats <- function(x, y) {
+  model <- lm(y ~ x)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
+  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
+}
+
+# p1 - Regression: kd (m⁻¹) vs TSS (mg/L)
+reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`kd (m-1)`)
+p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "kd vs TSS", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(meanthesis$`TSS (mg/L)`), y = max(meanthesis$`kd (m-1)`), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# p2 - Regression: Residual kd after TSS vs CDOM a440 (corr)
+reg_stats_p2 <- get_regression_stats(meanthesis$`CDOM a440 (corr)`, meanthesis$`Residual kd after TSS`)
+p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "gray70") +  # Use a lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Residual kd vs CDOM", x = "CDOM (m⁻¹)", y = "Residual kd after TSS (m⁻¹)") +
+  geom_text(x = max(meanthesis$`CDOM a440 (corr)`), y = max(meanthesis$`Residual kd after TSS`), 
+            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval, "\n", reg_stats_p2$se), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# p3 - Regression: kd vs CHLa (ug/L)
+reg_stats_p3 <- get_regression_stats(meanthesis$`CHLa (ug/L)`, meanthesis$`kd (m-1)`)
+p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "gray70") +  # Use an even lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "kd vs CHLa", x = "CHLa (µg L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(meanthesis$`CHLa (ug/L)`), y = max(meanthesis$`kd (m-1)`), 
+            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval, "\n", reg_stats_p3$se), 
+            hjust = 1, vjust = 3, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+  )
+
+# Display plots in a grid
+grid.arrange(p1, p2, p3, ncol = 3)
+
+```
+
 ```{r}
 
 # Function to create diagnostic plots for each model
@@ -633,159 +631,6 @@ create_diagnostic_plots(model_p3)
 
 
 ```
-
-# Mixed Effect Models ("Lake" as a random effect/grouping mechanism)
-
-```{r}
-# mixed effect model
-
-# fixed effects are variables that we expect will have an effect on the dependent/response variable: they’re what you call explanatory variables in a standard linear regression.
-
-#random effects are usually grouping factors for which we are trying to control. They are always categorical
-
-library(lme4)
-library(MuMIn) 
-mixed.lmer <- lmer(`kd (m-1)` ~ `TSS (mg/L)` + (1|Lake), data = meanthesis)
-summary(mixed.lmer)
-
-fixed_effects <- fixef(mixed.lmer)
-
-summary_mixed <- summary(mixed.lmer)
-p_values <- summary_mixed$coefficients[, 5]  # P-values
-se_values <- summary_mixed$coefficients[, 2]  # Standard errors
-r_squared_values <- r.squaredGLMM(mixed.lmer)
-
-intercept <- fixed_effects[1]
-tss_coefficient <- fixed_effects[2]
-
-# Print the relationship equation
-equation <- paste("kd (m-1) = ", round(tss_coefficient, 4), "x", " + ", round(intercept, 4), sep = "")
-
-cat("\nThe relationship equation is:\n", equation, "\n")
-cat("\nP-value for TSS (mg/L): ", round(p_values[2], 4), "\n")
-cat("Standard Error for TSS (mg/L): ", round(se_values[2], 4), "\n")
-cat("Marginal R-squared: ", round(r_squared_values[1], 4), "\n")
-cat("Conditional R-squared: ", round(r_squared_values[2], 4), "\n")
-
-
-```
-
-```{r}
-
-# In the summary pane, we can see the random effect variance (0.269856) and the residual variance (0.003389)
-
-0.269856/(0.269856+0.003389)
-
-#So the differences between lakes explains ~ 98% of the variance that's "left over" after the variance explained by our fixed effects of TSS
-
-
-```
-
-```{r}
-
-meanthesis$mixedresidualkd <- meanthesis$`kd (m-1)` - ((meanthesis$`TSS (mg/L)`)*0.1424)
-
-mixed.lmer2 <- lmer(mixedresidualkd ~ `CDOM a440 (corr)` + (1|Lake), data = meanthesis)
-summary(mixed.lmer2)
-
-
-summary_mixed2 <- summary(mixed.lmer2)
-fixed_effects2 <- fixef(mixed.lmer2)
-
-# Extract p-values, standard errors, and R-squared values
-p_values2 <- summary_mixed2$coefficients[, 5]  # P-values
-se_values2 <- summary_mixed2$coefficients[, 2]  # Standard errors
-r_squared_values2 <- r.squaredGLMM(mixed.lmer2)  # R-squared for mixed models
-
-# Extract the intercept and CDOM coefficient
-intercept2 <- fixed_effects2[1]
-cdom_coefficient <- fixed_effects2[2]
-
-# Print the relationship equation
-equation2 <- paste("mixedresidualkd = ", round(intercept2, 4), " + ", round(cdom_coefficient, 4), "x", sep = "")
-
-# Output the results
-cat("\nThe relationship equation is:\n", equation2, "\n")
-cat("\nP-value for CDOM a440 (corr): ", round(p_values2[2], 4), "\n")
-cat("Standard Error for CDOM a440 (corr): ", round(se_values2[2], 4), "\n")
-cat("Marginal R-squared: ", round(r_squared_values2[1], 4), "\n")
-cat("Conditional R-squared: ", round(r_squared_values2[2], 4), "\n")
-
-
-```
-
-
-```{r}
-
-# In the summary pane, we can see the random effect variance (0.28117) and the residual variance (0.01445)
-
-0.28117/(0.28117+0.01445)
-
-#So the differences between lakes explains ~ 95% of the variance that's "left over" after the variance explained by our fixed effects of CDOM
-
-
-```
-
-
-```{r}
-
-# Basic scatter plot and fitted regression line
-library(ggplot2)
-
-ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
-  geom_point() + 
-  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "blue") +  # Linear fit line (fixed effects)
-  labs(x = "TSS (mg/L)", y = "kd (m-1)", title = "Relationship between TSS and kd (m-1)")
-
-
-```
-
-
-```{r}
-
-# Random intercepts (for each lake) from the mixed-effects model
-ranef_data <- ranef(mixed.lmer)  # Get random effects
-
-# Create a plot showing random effects for each lake
-ranef_df <- data.frame(Lake = rownames(ranef_data$Lake), Intercept = ranef_data$Lake[, 1])
-
-ggplot(ranef_df, aes(x = Lake, y = Intercept)) +
-  geom_bar(stat = "identity", fill = "lightblue") +
-  labs(x = "Lake", y = "Random Intercept", title = "Random Effects (Intercept) by Lake") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-```
-
-
-```{r}
-
-# Plot the data and fitted lines, accounting for random effects
-ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`, color = Lake)) +
-  geom_point() +
-  geom_smooth(method = "lm", formula = y ~ x, aes(group = Lake), se = FALSE) +
-  labs(x = "TSS (mg/L)", y = "kd (m-1)", title = "Mixed Effects Model by Lake") +
-  theme(legend.position = "none")
-
-
-```
-
-```{r}
-
-# Plot mixedresidualkd vs CDOM a440 (corr)
-library(ggplot2)
-
-ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = mixedresidualkd)) +
-  geom_point() +  # Scatter plot of the data
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Fitted regression line
-  labs(title = "Relationship between Mixed Residual kd and CDOM a440 (corr)",
-       x = "CDOM a440 (corr)",
-       y = "Mixed Residual kd (m-1)") +
-  theme_minimal()
-
-
-```
-
 
 
 ### Multiple Linear Regression
@@ -1793,6 +1638,20 @@ print(p_secchi_z1)
 ## POC
 
 ```{r}
+
+get_regression_stats <- function(x, y) {
+  model <- lm(y ~ x)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
+  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
+}
+```
+
+
+
+```{r}
 # Fit the linear regression model
 model <- lm(POC ~ TSS, data = pocdata, na.action = na.exclude)  # This will exclude NA values from the regression model
 
@@ -1800,6 +1659,7 @@ model <- lm(POC ~ TSS, data = pocdata, na.action = na.exclude)  # This will excl
 eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
 rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
 pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
 
 # Create the plot
 p <- ggplot(pocdata, aes(x = TSS, y = POC)) +
@@ -1847,7 +1707,7 @@ model <- lm(avg_POC ~ avg_TSS, data = site_averages, na.action = na.exclude)
 eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
 rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
 pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
-residual_se <- paste("SE = ", round(summary(model)$sigma, 2), sep = "")  # Extract residual standard error (SE)
+se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
 
 # Create the plot with site averages
 p <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
@@ -1865,7 +1725,7 @@ p <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
   geom_text(
     x = max(site_averages$avg_TSS, na.rm = TRUE), 
     y = max(site_averages$avg_POC, na.rm = TRUE), 
-    label = paste(eq, "\n", rsq, "\n", pval, "\n", residual_se), 
+    label = paste(eq, "\n", rsq, "\n", pval, "\n", se), 
     hjust = 1, vjust = 3, size = 3, color = "black"
   ) +
   coord_fixed(ratio = 6)
@@ -1936,12 +1796,13 @@ model_chla_poc <- lm(POC ~ CHLa, data = pocdata, na.action = na.exclude)  # Excl
 eq_chla_poc <- paste("y = ", round(coef(model_chla_poc)[2], 2), "x + ", round(coef(model_chla_poc)[1], 2), sep = "")
 rsq_chla_poc <- paste("R² = ", round(summary(model_chla_poc)$r.squared, 3), sep = "")
 pval_chla_poc <- paste("p = ", round(summary(model_chla_poc)$coefficients[2, 4], 3), sep = "")
+se <- paste("SE = ", round(summary(model_chla_poc)$coefficients[2, 2], 3), sep = "")
 
 # Create the plot
 p_chla_poc <- ggplot(pocdata, aes(x = CHLa, y = POC)) +
   geom_point(color = "gray70") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "All Station POC vs CHLa", x = "CHLa (µg/L)", y = "POC (mg C/L)") +
+  labs(title = "All Station POC vs CHLa", x = "CHLa (µg L⁻¹)", y = "POC (mgC L⁻¹)") +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 12, color = "black"),  # Title size and color
@@ -1953,7 +1814,7 @@ p_chla_poc <- ggplot(pocdata, aes(x = CHLa, y = POC)) +
   geom_text(
     x = max(pocdata$CHLa, na.rm = TRUE), 
     y = max(pocdata$POC, na.rm = TRUE), 
-    label = paste(eq_chla_poc, "\n", rsq_chla_poc, "\n", pval_chla_poc), 
+    label = paste(eq_chla_poc, "\n", rsq_chla_poc, "\n", pval_chla_poc, "\n", se), 
     hjust = 1, vjust = 4, size = 3, color = "black"
   ) +
   coord_fixed(ratio = 10)
