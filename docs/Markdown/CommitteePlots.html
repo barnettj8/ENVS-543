@@ -91,12 +91,41 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>                 Comparison       p adj
-SFT_3-Barfoot SFT_3-Barfoot 0.039143122
-ANNA-Barfoot   ANNA-Barfoot 0.004219344</code></pre>
+<pre><code>kd ANOVA</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   Comparison        p adj
+SFT_4-Barfoot   SFT_4-Barfoot 3.005155e-02
+SFT_3-Barfoot   SFT_3-Barfoot 1.513121e-03
+SFT_2-Barfoot   SFT_2-Barfoot 1.618079e-03
+SFT_1-Barfoot   SFT_1-Barfoot 7.662793e-04
+SDY_2-Barfoot   SDY_2-Barfoot 1.919767e-04
+BRI_2-Barfoot   BRI_2-Barfoot 3.076388e-05
+SDY_1-Barfoot   SDY_1-Barfoot 2.170023e-05
+SDY_3-Barfoot   SDY_3-Barfoot 4.352261e-05
+BRI_1-Barfoot   BRI_1-Barfoot 6.716617e-07
+ANNA-Barfoot     ANNA-Barfoot 8.132034e-09
+BRI_2-Harrison BRI_2-Harrison 1.239678e-02
+SDY_1-Harrison SDY_1-Harrison 9.348342e-03
+SDY_3-Harrison SDY_3-Harrison 1.634555e-02
+BRI_1-Harrison BRI_1-Harrison 4.712696e-04
+ANNA-Harrison   ANNA-Harrison 7.724480e-06
+SFT_3-Chick       SFT_3-Chick 3.176162e-02
+SFT_2-Chick       SFT_2-Chick 3.355850e-02
+SFT_1-Chick       SFT_1-Chick 1.801619e-02
+SDY_2-Chick       SDY_2-Chick 5.456564e-03
+BRI_2-Chick       BRI_2-Chick 1.054909e-03
+SDY_1-Chick       SDY_1-Chick 7.662793e-04
+SDY_3-Chick       SDY_3-Chick 1.446813e-03
+BRI_1-Chick       BRI_1-Chick 2.927125e-05
+ANNA-Chick         ANNA-Chick 3.990026e-07
+ANNA-SFT_4         ANNA-SFT_4 7.936410e-03</code></pre>
 </div>
 </div>
 <div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>CDOM ANOVA</code></pre>
+</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                       Comparison        p adj
 Harrison-Barfoot Harrison-Barfoot 4.308025e-07
@@ -125,21 +154,43 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<div class="cell-output cell-output-stdout">
+<pre><code>TSS ANOVA</code></pre>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       Comparison        p adj
+Harrison-Barfoot Harrison-Barfoot 3.607208e-06
+Chick-Barfoot       Chick-Barfoot 3.370183e-06
+SFT_4-Barfoot       SFT_4-Barfoot 6.803813e-03
+SFT_3-Barfoot       SFT_3-Barfoot 3.782831e-05
+SFT_2-Barfoot       SFT_2-Barfoot 3.077348e-06
+SFT_1-Barfoot       SFT_1-Barfoot 3.077348e-06
+SDY_2-Barfoot       SDY_2-Barfoot 4.289736e-05
+BRI_2-Barfoot       BRI_2-Barfoot 4.083972e-07
+SDY_1-Barfoot       SDY_1-Barfoot 1.722567e-06
+SDY_3-Barfoot       SDY_3-Barfoot 6.123676e-07
+BRI_1-Barfoot       BRI_1-Barfoot 1.629642e-08
+ANNA-Barfoot         ANNA-Barfoot 2.771169e-10
+BRI_1-SFT_4           BRI_1-SFT_4 2.587224e-02
+ANNA-SFT_4             ANNA-SFT_4 1.692851e-03</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<div class="cell-output cell-output-stdout">
+<pre><code>CHLa ANOVA</code></pre>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       Comparison        p adj
+Harrison-Barfoot Harrison-Barfoot 4.273719e-03
+Chick-Barfoot       Chick-Barfoot 1.835684e-04
+SFT_4-Barfoot       SFT_4-Barfoot 5.266611e-05
+SFT_3-Barfoot       SFT_3-Barfoot 3.135849e-05
+SFT_2-Barfoot       SFT_2-Barfoot 3.385305e-04
+SFT_1-Barfoot       SFT_1-Barfoot 4.688665e-04
+SDY_1-Barfoot       SDY_1-Barfoot 2.133382e-03
+SDY_3-Barfoot       SDY_3-Barfoot 1.106043e-02
+BRI_1-Barfoot       BRI_1-Barfoot 2.430918e-03
+ANNA-Barfoot         ANNA-Barfoot 2.040165e-05</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -147,6 +198,24 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div>
 <figure class="figure">
 <p><img src="CommitteePlots_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -178,7 +247,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -187,7 +256,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -199,7 +268,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -209,7 +278,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -219,7 +288,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-15-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-17-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -244,7 +313,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -253,24 +322,6 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 </section>
 <section id="lake-anna" class="level2">
 <h2 class="anchored" data-anchor-id="lake-anna">Lake Anna</h2>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -290,13 +341,31 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 </div>
 </div>
 <div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Lake Anna: Photic Zone kd vs TSS"</code></pre>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -306,7 +375,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-24-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-26-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -316,7 +385,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-24-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-26-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -345,7 +414,7 @@ ANNA-Chick             ANNA-Chick 4.104692e-10</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -378,7 +447,7 @@ F-statistic: 4.882 on 2 and 21 DF,  p-value: 0.01815</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -409,7 +478,7 @@ F-statistic: 0.9909 on 2 and 18 DF,  p-value: 0.3906</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-27-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-29-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -440,7 +509,7 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-27-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-29-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -469,53 +538,7 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
 <p><img src="CommitteePlots_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-31-2.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-31-3.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-31-4.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-31-5.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -530,6 +553,52 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 </div>
 </div>
 <div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-33-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-33-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-33-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-33-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Not enough data for regression."</code></pre>
 </div>
@@ -538,7 +607,7 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -550,16 +619,7 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -577,7 +637,16 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -595,24 +664,6 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
 <p><img src="CommitteePlots_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
@@ -623,6 +674,24 @@ F-statistic: 7.122 on 2 and 21 DF,  p-value: 0.004355</code></pre>
 <div>
 <figure class="figure">
 <p><img src="CommitteePlots_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CommitteePlots_files/figure-html/unnamed-chunk-48-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
