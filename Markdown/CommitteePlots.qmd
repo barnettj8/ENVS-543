@@ -781,6 +781,7 @@ ggplot(annadata) +
   theme(
     legend.title = element_blank(),
     legend.position = "top",  
+    axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
     axis.text.x = element_text(angle = 90, hjust = 1))
 
 
@@ -817,6 +818,7 @@ ggplot(annadata) +
   theme(
     legend.title = element_blank(),
     legend.position = "top",
+    axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
     axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels 90 degrees
   )
 
@@ -845,6 +847,7 @@ ggplot(annadata) +
   theme(
     legend.title = element_blank(),
     legend.position = "top",
+    axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
     axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels 90 degrees
   )
 
@@ -1255,7 +1258,8 @@ et_regression_stats <- function(x, y) {
   eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
   rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
   pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
-  return(list(eq = eq, rsq = rsq, pval = pval))
+    se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
+  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
 }
 
 # Perform regression for Secchi vs kd using the 'meanthesis' dataframe
@@ -1267,7 +1271,7 @@ p1 <- ggplot(meanthesis, aes(x = `Secchi (m)`, y = `kd (m-1)`)) +
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = "Station Average kd vs Secchi Depth", x = "Secchi Depth (m)", y = "kd (m-1)") +
   geom_text(x = max(meanthesis$`Secchi (m)`, na.rm = TRUE), y = max(meanthesis$`kd (m-1)`, na.rm = TRUE), 
-            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
             hjust = 1, vjust = 2, size = 3, color = "black") +  # Add the regression equation and stats
   theme_minimal() +
   theme(
