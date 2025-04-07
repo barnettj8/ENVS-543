@@ -7,7 +7,7 @@ editor: visual
 ```{r setup, include = FALSE}
 
 knitr::opts_chunk$set(
-  echo = TRUE,      # Hide the code
+  echo = TRUE,      # Don't hide the code
   warning = FALSE,   # Suppress warnings
   message = FALSE    # Suppress messages
 )
@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
+
 library(tidyverse)
 library(kableExtra)
 library(ggplot2)
@@ -25,10 +26,6 @@ library(gridExtra)
 library(tidyr)
 library(readxl)
 
-```
-
-```{r}
-
 allthesis <- read_excel("C:/Users/barne/Downloads/ThesisRData.xlsx", sheet = 1)
 
 allthesis <- allthesis |> 
@@ -37,6 +34,7 @@ allthesis <- allthesis |>
 ```
 
 ```{r}
+
 avgthesis <- allthesis |> 
   group_by(Site, Lake) |>  # Include Lake as a grouping variable
   summarise(across(where(is.numeric), mean, na.rm = TRUE), .groups = "drop")
@@ -44,6 +42,8 @@ avgthesis <- allthesis |>
 ```
 
 # Basic LM Models
+
+First we want to plot the regressions between light attenuation and each of our predictors while also displaying the slope equation, R2, Pvalue, and standard error
 
 ```{r}
 
@@ -80,9 +80,6 @@ p1 <- ggplot(avgthesis, aes(x = TSS, y = kd)) +
     axis.title.x = element_text(size = 6, color = "black"), 
     axis.title.y = element_text(size = 6, color = "black"))
 
-```
-
-```{r}
 
 # CHLa vs kd
 
@@ -101,6 +98,8 @@ p2 <- ggplot(avgthesis, aes(x = CHLa, y = kd)) +
 
 ```
 
+To look at the relationship between kd and CDOM, we first need to find the residual kd. We do this by finding the proportion of kd due to TSS, then subtracting that out of our original kd values for each site.
+
 ```{r}
 
 # Calculate residual kd
@@ -113,6 +112,8 @@ avgthesis <- avgthesis |>
 reg_stats_p3 <- get_regression_stats(avgthesis$CDOM, avgthesis$Residualkd)
 
 ```
+
+Now we can perform a regression between CDOM and residual kd then arrange our plots into one output
 
 ```{r}
 
@@ -131,19 +132,19 @@ p3 <- ggplot(avgthesis, aes(x = CDOM, y = Residualkd)) +
     axis.title.x = element_text(size = 6, color = "black"), 
     axis.title.y = element_text(size = 6, color = "black"))
 
-```
-
-```{r}
+# Plot all regressions in the same output
 
 grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
 
+To examine these relationships further, we can look at the summaries of each regression
+
 ```{r}
 
 p1summary <- lm(kd ~ TSS, data = allthesis)
 
-summary(p1summary)
+#summary(p1summary)
 
 p2summary <- lm(kd ~ CHLa, data = avgthesis)
 
@@ -154,6 +155,8 @@ p3summary <- lm(Residualkd ~ CDOM, data = avgthesis)
 #summary(p3summary)
 
 ```
+
+We can also look at the diagnostic plots for each of the models, we do this by creating a function and calling that function with each model we want to examine
 
 ```{r}
 # Function to create diagnostic plots for each model
@@ -172,17 +175,17 @@ create_diagnostic_plots <- function(model) {
   # Residuals vs Leverage plot
   plot(model, which = 5, main = "Residuals vs Leverage")
 }
-```
 
-```{r}
 
-create_diagnostic_plots(p1summary)
+#create_diagnostic_plots(p1summary)
 
-create_diagnostic_plots(p2summary)
+#create_diagnostic_plots(p2summary)
 
-create_diagnostic_plots(p3summary)
+#create_diagnostic_plots(p3summary)
 
 ```
+
+Now we want to examine how much light attenuation at each site can be attributed to the effects of TSS and CDOM (our two significant predictors). To do this, we multiply average predictor values for each site by the slope of the predictor relationship, then divide this by the original kd. Finally, we multiply by 100 to convert this proportion to a percentage. 
 
 ```{r}
 
@@ -246,10 +249,68 @@ ggplot(PercentContributions_long, aes(x = Site, y = PercentContribution, fill = 
 
 ```
 
+# Multivariate Linear Regression
+
+```{r}
+
+response <- "kd"
+predictors <- c("TSS", "CDOM", "CHLa")  
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+model_results <- lapply(all_combinations, function(predictor_set) {
+
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+
+  model <- lm(formula, data = avgthesis)
+  
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model))})
+
+# Convert results to df
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC)}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model
+results_df <- results_df |>
+  mutate(Delta_AIC = AIC - min_AIC) |>
+  arrange(Delta_AIC)
+
+print(results_df)
+
+```
+
+```{r}
+
+lm_tsscdom <- lm(kd ~ TSS + CDOM, data = avgthesis)
+summary(lm_tsscdom)
+
+```
+
+```{r}
+
+# Effects of CHLa are still insignificant here, slopes are comparable to CDOM+TSS model
+
+lm_allpred <- lm(kd ~ TSS + CDOM + CHLa, data = avgthesis)
+summary(lm_allpred)
+
+```
+
 
 # Linear Mixed Effect Models
 
-Here we use "Lake" as a random effect/grouping mechanism
+Here we want to use other variables as random effects to account for the nested design of the study: we have Dates within Sites within Lakes
 
 ```{r}
 
@@ -264,253 +325,61 @@ library(lmerTest)
 lmm1tss <- lmer(kd ~ CDOM + CHLa + TSS + (1|Date), data = allthesis)
 summary(lmm1tss)
 
-#anova(lmm1tss)
-
-#change date to Month Year format
 ```
 
 ```{r}
 
-# Extract fixed effects
+# Get the fixed effect estimates
 fixed_effects <- fixef(lmm1tss)
 
-# Get the summary of the model
+# Get the summary
 summary_lmm1tss <- summary(lmm1tss)
 
-# Extract p-values from the 5th column of the model summary
-if (ncol(summary_lmm1tss$coefficients) >= 5) {
-    p_values <- summary_lmm1tss$coefficients[, 5]
+# Extract p-values (if available)
+p_values <- if ("Pr(>|t|)" %in% colnames(summary_lmm1tss$coefficients)) {
+  summary_lmm1tss$coefficients[, "Pr(>|t|)"]
 } else {
-    p_values <- NA  # Assign NA if p-values are missing
+  NA
 }
 
-# Extract standard errors from the 2nd column of model summary
-se_values <- summary_lmm1tss$coefficients[, 2]
+# Extract standard errors
+se_values <- summary_lmm1tss$coefficients[, "Std. Error"]
 
-# Calculate the R-squared values for the mixed model
+# R-squared
 r_squared_values <- r.squaredGLMM(lmm1tss)
 
-# Extract specific coefficients (intercept and TSS coefficient)
-intercept <- fixed_effects[1]
-tss_coefficient <- fixed_effects[2]
+# Print full equation
+equation <- paste0("y = ", round(fixed_effects["(Intercept)"], 4))
+for (name in names(fixed_effects)[-1]) {
+  equation <- paste0(equation, " + ", round(fixed_effects[name], 4), "*", name)
+}
 
-equation <- paste("y = ", round(tss_coefficient, 4), "x", " + ", round(intercept, 4), sep = "")
+# Display
+cat("\nThe relationship equation is:\n", equation, "\n\n")
 
-cat("\nThe relationship equation for LMM (kd ~ TSS) is:\n", equation, "\n")
-cat("\nP-value for: ", round(p_values[2], 4), "\n")
-cat("Standard Error: ", round(se_values[2], 4), "\n")
+for (name in names(fixed_effects)[-1]) {
+  cat(paste0("Predictor: ", name, "\n"))
+  cat("  Coefficient: ", round(fixed_effects[name], 4), "\n")
+  cat("  P-value: ", round(p_values[name], 4), "\n")
+  cat("  Std. Error: ", round(se_values[name], 4), "\n\n")
+}
+
 cat("Marginal R-squared: ", round(r_squared_values[1], 4), "\n")
 cat("Conditional R-squared: ", round(r_squared_values[2], 4), "\n")
 
 ```
 
-```{r}
-
-# In the summary pane, we can see the random effect variance (0.269856) and the residual variance (0.003389)
-
-0.27/(0.27+0.0034)
-
-#So the differences between lakes explains ~ 98% of the variance
-
-```
-
-
-```{r}
-lmm1chla <- lmer(kd ~ CHLa + (1|Lake), data = avgthesis)
-summary(lmm1chla)
-```
-
-```{r}
-# Extract fixed effects from the model
-fixed_effects_chla <- fixef(lmm1chla)
-
-# Get the summary of the model
-summary_lmm1chla <- summary(lmm1chla)
-
-# Extract p-values from the 5th column of the model summary
-p_values_chla <- summary_lmm1chla$coefficients[, 5]
-
-# Extract standard errors from the 2nd column of the model summary
-se_values_chla <- summary_lmm1chla$coefficients[, 2]
-
-# Calculate the R-squared values for the mixed model
-r_squared_values_chla <- r.squaredGLMM(lmm1chla)
-
-# Extract specific coefficients (intercept and CHLa coefficient)
-intercept_chla <- fixed_effects_chla[1]
-chla_coefficient <- fixed_effects_chla[2]
-
-
-equation_chla <- paste("y = ", round(chla_coefficient, 4), "x", " + ", round(intercept_chla, 4), sep = "")
-
-cat("\nThe relationship equation for LMM (kd ~ CHLa) is:\n", equation_chla, "\n")
-cat("\nP-value for: ", round(p_values_chla[2], 4), "\n")
-cat("Standard Error: ", round(se_values_chla[2], 4), "\n")
-cat("Marginal R-squared: ", round(r_squared_values_chla[1], 4), "\n")
-cat("Conditional R-squared: ", round(r_squared_values_chla[2], 4), "\n")
-
-
-```
+Now we can also look at the residual plots for this model
 
 ```{r}
 
-# Calculate LMM residual kd
-
-avgthesis <- avgthesis |> 
-  mutate(
-    LMMResidualkd = kd - (TSS*0.14229)
-  )
+#plot(lmm1tss)
+#qqnorm(resid(lmm1tss))
+#qqline(resid(lmm1tss))
 
 ```
 
-```{r}
-lmm1cdom <- lmer(LMMResidualkd ~ CDOM + (1|Lake), data = avgthesis)
-summary(lmm1cdom)
-
-```
-
-```{r}
-# Extract fixed effects from the model
-fixed_effects_residual <- fixef(lmm1cdom)
-
-# Get the summary of the model
-summary_lmm1cdom <- summary(lmm1cdom)
-
-# Extract p-values from the 5th column of the model summary
-p_values_residual <- summary_lmm1cdom$coefficients[, 5]
-
-# Extract standard errors from the 2nd column of the model summary
-se_values_residual <- summary_lmm1cdom$coefficients[, 2]
-
-# Calculate the R-squared values for the mixed model
-r_squared_values_residual <- r.squaredGLMM(lmm1cdom)
-
-# Extract specific coefficients (intercept and CDOM coefficient)
-intercept_residual <- fixed_effects_residual[1]
-cdom_coefficient <- fixed_effects_residual[2]
-
-# Create the equation for the model
-equation_residual <- paste("y = ", round(cdom_coefficient, 4), "x", " + ", round(intercept_residual, 4), sep = "")
-
-cat("\nThe relationship equation for LMM (Residualkd ~ CDOM) is:\n", equation_residual, "\n")
-cat("\nP-value for: ", round(p_values_residual[2], 4), "\n")
-cat("Standard Error: ", round(se_values_residual[2], 4), "\n")
-cat("Marginal R-squared: ", round(r_squared_values_residual[1], 4), "\n")
-cat("Conditional R-squared: ", round(r_squared_values_residual[2], 4), "\n")
-
-```
-
-```{r}
-
-LMMPercentContributions <- avgthesis |>
-  mutate(
-    `LMM%TSS` = ((TSS*0.1423)/kd)*100,
-    `LMM%CDOM` = ((CDOM*0.1862)/kd)*100) |>
-  summarize(`Site`, `LMM%TSS`, `LMM%CDOM`)
-
-head(LMMPercentContributions)
-
-```
-
-```{r}
-
-plot(lmm1tss)
-qqnorm(resid(lmm1tss))
-qqline(resid(lmm1tss))
-
-```
-
-```{r}
-
-plot(lmm1chla)
-qqnorm(resid(lmm1chla))
-qqline(resid(lmm1chla))
-
-```
-
-```{r}
-
-plot(lmm1cdom)
-qqnorm(resid(lmm1cdom))
-qqline(resid(lmm1cdom))
-
-```
-
-
-```{r}
-
-# Pivot the data into long format for ggplot
-LMMPercentContributions_Long <- LMMPercentContributions |> 
-  pivot_longer(cols = c(`LMM%TSS`, `LMM%CDOM`), 
-               names_to = "Variable", 
-               values_to = "PercentContribution")
-
-# Manually recoding the 'Site' variable
-LMMPercentContributions_Long <- LMMPercentContributions_Long |>
-  mutate(
-    Site = dplyr::recode(Site, 
-                         "2-BRI010.78" = "BRI_1",
-                         "2-BRI013.12" = "BRI_2",
-                         "5ANTW127.14" = "Barfoot",
-                         "Chickahominy" = "Chick",
-                         "Harrison" = "Harrison",
-                         "2-SDY004.27" = "SDY_1",
-                         "2-SDY005.85" = "SDY_2",
-                         "2-MBN000.96" = "SDY_3",
-                         "2-SFT031.08" = "SFT_1",
-                         "2-DYC000.19" = "SFT_2",
-                         "2-SFT033.42" = "SFT_3",
-                         "2-SFT034.38" = "SFT_4",
-                         "Dam Surface" = "ANNA"))
-
-# Change the site order for plot visualization
-site_order <- c( "Harrison", "Chick", "BRI_1", "BRI_2", "SDY_1", "SDY_2", "SDY_3", "SFT_1", "SFT_2", "SFT_3", "SFT_4", "Barfoot", "ANNA")
-
-LMMPercentContributions_Long <- LMMPercentContributions_Long |>
-  mutate(Site = factor(Site, levels = site_order))
-
-```
-
-```{r}
-
-ggplot(LMMPercentContributions_Long, aes(x = Site, y = PercentContribution, fill = Variable)) +
-  geom_bar(stat = "identity", position = "stack") +
-  labs(
-    title = "% kd Contributions of TSS and CDOM by Site",
-    x = "Site",
-    y = "% kd",
-    fill = "Variable"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_continuous(limits = c(0, 100))
-
-
-```
-
-# Comparison of Models
-
-```{r}
-# Comparison of kd/tss lm and lmer models
-
-AIC(p1summary, lmm1tss)
-
-```
-
-
-```{r}
-# Comparison of residualkd/cdom lm and lmer models
-
-AIC(p3summary, lmm1cdom)
-
-```
-
-This indicates that the basic linear model is a better fit than the linear mixed effect model. Since the residual kd for the lmer was based on the lmer tss model, could it be that the random effects of lakes are already taken into account?
-
-i.e. would it be better to do a lmer for kd vs tss then do a regular lm for residual kd vs cdom? This way we arent accounting for random effects twice?
-
-
-# Multiple Linear Mixed Effect Model (AFTER DR VONESH DISCUSSION)
+# Changing Date Format
 
 ```{r}
 
@@ -527,6 +396,7 @@ allthesis <- allthesis %>%
 
 ```
 
+Using just Date as a random effect
 
 ```{r}
 
@@ -537,6 +407,8 @@ summary(lmmall)
 
 ```
 
+Using both Date and Lake as random effects
+
 ```{r}
 
 lmmall2 <- lmer(kd ~ CDOM + CHLa + TSS + (1|Date/Lake), data = allthesis)
@@ -544,11 +416,22 @@ summary(lmmall2)
 
 ```
 
+Using average data instead of all data (Lake random effect)
+
 ```{r}
 
-anova(lmmall, lmmall2)
+lmmavg1 <- lmer(kd ~ CDOM + CHLa + TSS + (1|Lake), data = avgthesis)
+summary(lmmavg1)
 
 ```
+
+```{r}
+
+AIC(lmmall, lmmall2, lmmavg1)
+
+```
+
+
 
 # Scaling Data then LMM
 
@@ -566,6 +449,8 @@ scale() centers the data (the column mean is subtracted from the values in the c
 
 ```
 
+Here we scale our data, indicated by "predictor"1:
+
 ```{r}
 
 allthesis$kd1 <- scale(allthesis$kd, center = TRUE, scale = TRUE)
@@ -581,6 +466,8 @@ allthesis$CDOM1 <- scale(allthesis$CDOM, center = TRUE, scale = TRUE)
 #hist(allthesis$CDOM1)
 
 ```
+
+Here we try to normalize/standardize our predictors further by log transforming data first, then scaling, indicated by "predictor"2
 
 ```{r}
 
@@ -600,7 +487,7 @@ allthesis$CDOM2 <- scale(log(allthesis$CDOM), center = TRUE, scale = TRUE)
 
 ```{r}
 
-# Scaled Predictors
+# Scaled Predictors, Date grouping
 
 lmmall3 <- lmer(kd1 ~ CDOM1 + CHLa1 + TSS1 + (1|Date), data = allthesis)
 summary(lmmall3)
@@ -609,7 +496,7 @@ summary(lmmall3)
 
 ```{r}
 
-# Scaled Predictors
+# Scaled Predictors, Date and Lake grouping
 
 lmmall4 <- lmer(kd1 ~ CDOM1 + CHLa1 + TSS1 + (1|Date/Lake), data = allthesis)
 summary(lmmall4)
@@ -618,7 +505,7 @@ summary(lmmall4)
 
 ```{r}
 
-#Log transformed and scaled predictors
+#Log transformed and scaled predictors, Date grouping
 
 lmmall5 <- lmer(kd2 ~ CDOM2 + CHLa2 + TSS2 + (1|Date), data = allthesis)
 summary(lmmall5)
@@ -627,7 +514,7 @@ summary(lmmall5)
 
 ```{r}
 
-#Log transformed and scaled predictors
+#Log transformed and scaled predictors, Date and Lake grouping
 
 lmmall6 <- lmer(kd2 ~ CDOM2 + CHLa2 + TSS2 + (1|Date/Lake), data = allthesis)
 summary(lmmall6)
@@ -642,6 +529,141 @@ anova(lmmall, lmmall2, lmmall3, lmmall4, lmmall5, lmmall6)
 
 So according to this anova, the best model would be lmmall2 or lmmall (both using data that hasn't been scaled) based on AIC values
 
+# Scaling average data
 
+```{r}
+
+avgthesis$kd1 <- scale(avgthesis$kd, center = TRUE, scale = TRUE)
+#hist(allthesis$kd1)
+
+avgthesis$TSS1 <- scale(avgthesis$TSS, center = TRUE, scale = TRUE)
+#hist(allthesis$TSS1)
+
+avgthesis$CHLa1 <- scale(avgthesis$CHLa, center = TRUE, scale = TRUE)
+#hist(allthesis$CHLa1)
+
+avgthesis$CDOM1 <- scale(avgthesis$CDOM, center = TRUE, scale = TRUE)
+#hist(allthesis$CDOM1)
+
+```
+
+```{r}
+
+avgthesis$kd2 <- scale(avgthesis$kd, center = TRUE, scale = TRUE)
+#hist(allthesis$kd2)
+
+avgthesis$TSS2 <- scale(log(avgthesis$TSS), center = TRUE, scale = TRUE)
+#hist(allthesis$TSS2)
+
+avgthesis$CHLa2 <- scale(log(avgthesis$CHLa), center = TRUE, scale = TRUE)
+#hist(allthesis$CHLa2)
+
+avgthesis$CDOM2 <- scale(log(avgthesis$CDOM), center = TRUE, scale = TRUE)
+#hist(allthesis$CDOM2)
+
+```
+
+```{r}
+
+lmmavg2 <- lmer(kd1 ~ CDOM1 + CHLa1 + TSS1 + (1|Lake), data = avgthesis)
+summary(lmmavg2)
+
+```
+
+```{r}
+
+lmmavg3 <- lmer(kd2 ~ CDOM2 + CHLa2 + TSS2 + (1|Lake), data = avgthesis)
+summary(lmmavg3)
+
+```
+
+```{r}
+
+anova(lmmavg1, lmmavg2, lmmavg3)
+
+```
+
+```{r}
+
+AIC(lm_tsscdom, lmmavg1)
+
+```
+
+Best model for avg data is "lm_tsscdom"
+
+It appears as though for both average data and all data models, the best models are those that do not have scaled data or log data. lmmall2 uses both lake and date as random effects, while lm_tsscdom is just a simple multivariate linear regression (no random effects)
+
+```{r}
+
+AIC(lm_tsscdom, lmmall2)
+
+```
+
+Between those two models, it appears that the simple multivariate regression is the best.
+
+# Comparison of multivariate predictor contributions vs univariate residual method
+
+```{r}
+
+#summary(lm_tsscdom)
+
+#TSS slope = 0.17402
+#CDOM slope = 0.17916
+
+PercentContributions <- avgthesis |>
+  mutate(
+    `%TSS` = ((TSS*0.20337)/kd)*100,
+    `%CDOM` = ((CDOM*0.17382)/kd)*100,
+    `mult%TSS` = ((TSS*0.17402)/kd)*100,
+    `mult%CDOM` = ((CDOM*0.17916)/kd)*100) |>
+  summarize(`Site`, `%TSS`, `%CDOM`, `mult%TSS`, `mult%CDOM`)
+
+head(PercentContributions)
+
+```
+
+```{r}
+
+# Paired t-test for %TSS vs mult%TSS
+t_test_tss <- t.test(PercentContributions$`%TSS`, PercentContributions$`mult%TSS`, paired = TRUE)
+
+# Paired t-test for %CDOM vs mult%CDOM
+t_test_cdom <- t.test(PercentContributions$`%CDOM`, PercentContributions$`mult%CDOM`, paired = TRUE)
+
+t_test_tss
+t_test_cdom
+
+```
+
+According to the results of the paired Ttests there are statistical differences in our percent kd explained by predictors based on univariate vs multivariate results. 
+
+Doing univariate regressions and subtracting out the residuals gives us estimates of TSS effects that is ~8% higher than multivariate estimates on average.
+
+Alternatively, univariate estimates of CDOM effects are ~0.84% lower than multivariate estimates on average.
+
+Comparing percent contributions between multivariate and univariate (hierarchical) regressions is tricky as to do so, we have to be sure that our predictors are not correlated. Multivariate regressions are order independent and partition variance simultaneously.
+
+# Does order matter?
+
+I know that changing the order in which I do my univariate regressions changes the percent estimates for each predictor. Theoretically, I don't think this should be the case since TSS and CDOM should not be correlated, one represents scattering effects and one represents absorption effects. 
+
+Here I want to run a quick test to determine if there actually is a correlation between TSS and CDOM that may be causing the order of our regressions to change our findings. 
+
+```{r}
+
+cor(avgthesis[, c("TSS", "CDOM")])
+
+```
+
+Here, it appears as though CDOM and TSS are minorly correlated indicating that there may be some shared variance between predictors. While this isn't a lot, it is likely enough to make the sequential univariate regressions order sensitive. Due to these being slightly correlated, it may be better to use a multivariate approach. 
+
+```{r}
+
+library(car)
+vif(lm(kd ~ TSS + CDOM, data = avgthesis))
+
+
+```
+A VIF of 1 indicates no correlation between predictors, this value (1.03) means there is negligible correlation and that the slopes of this multivariate regression can be treated as independent contributions to kd. 
 
 
