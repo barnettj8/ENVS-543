@@ -782,6 +782,8 @@ site_order <- c( "Harrison", "Chick", "BRI_1", "BRI_2", "SDY_1", "SDY_2", "SDY_3
 meanthesis_long <- meanthesis_long %>%
   mutate(Site = factor(Site, levels = site_order)) 
 
+meanthesis_long <- meanthesis_long %>%
+  filter(Site != "ANNA")
 
 # Create the stacked bar plot with customized y-axis
 ggplot(meanthesis_long, aes(x = Site, y = Percentage, fill = Source)) +
