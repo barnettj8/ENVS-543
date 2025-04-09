@@ -151,6 +151,79 @@ grid.arrange(plot_kd, plot_CDOM, plot_TSS, plot_CHLa, ncol = 2)
 
 ```
 
+
+```{r}
+
+library(multcompView)
+
+# Function to get letter labels
+get_letters <- function(variable_name) {
+  model <- aov(Value ~ Site, data = subset(long_data, Variable == variable_name))
+  tukey <- TukeyHSD(model)
+  letters <- multcompLetters4(model, tukey)
+  letter_df <- as.data.frame.list(letters$Site)
+  letter_df$Site <- rownames(letter_df)
+  names(letter_df)[1] <- "Letter"
+  return(letter_df)
+}
+
+# Generate letter labels for each variable
+kd_letters <- get_letters("kd")
+cdom_letters <- get_letters("CDOM")
+tss_letters <- get_letters("TSS")
+chla_letters <- get_letters("CHLa")
+
+
+```
+
+```{r}
+
+# Function to get max value for positioning labels
+get_site_max <- function(variable_name) {
+  subset(long_data, Variable == variable_name) %>%
+    group_by(Site) %>%
+    summarise(Max = max(Value, na.rm = TRUE))
+}
+
+kd_max <- get_site_max("kd")
+cdom_max <- get_site_max("CDOM")
+tss_max <- get_site_max("TSS")
+chla_max <- get_site_max("CHLa")
+
+
+```
+
+```{r}
+
+kd_labels <- merge(kd_letters, kd_max, by = "Site")
+cdom_labels <- merge(cdom_letters, cdom_max, by = "Site")
+tss_labels <- merge(tss_letters, tss_max, by = "Site")
+chla_labels <- merge(chla_letters, chla_max, by = "Site")
+
+```
+
+```{r}
+
+plot_kd <- plot_kd +
+  geom_text(data = kd_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3)
+
+plot_CDOM <- plot_CDOM +
+  geom_text(data = cdom_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3)
+
+plot_TSS <- plot_TSS +
+  geom_text(data = tss_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3)
+
+plot_CHLa <- plot_CHLa +
+  geom_text(data = chla_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3)
+
+grid.arrange(plot_kd, plot_CDOM, plot_TSS, plot_CHLa, 
+             ncol = 2, nrow = 2, # Ensure 2 columns and 2 rows
+             widths = c(1, 1),    # Make the columns the same width
+             heights = c(1, 1))
+
+```
+
+
 ```{r}
 
 # Plot for kd
@@ -259,89 +332,122 @@ print(significant_comparisons)
 
 ```{r}
 
-cat("CDOM ANOVA")
+library(multcompView)
+
+cat("kd ANOVA\n")
+
+# Perform ANOVA comparing 'kd' across sites
+anova_kd <- aov(Value ~ Site, data = long_data %>% filter(Variable == "kd"))
+
+# Run Tukey's HSD post-hoc test
+tukey_results <- TukeyHSD(anova_kd)
+
+# Extract the results for the 'Site' factor
+tukey_summary <- tukey_results$Site
+
+# Generate a compact letter display
+# multcompLetters takes a named vector of adjusted p-values from Tukey's output
+tukey_letters <- multcompLetters(tukey_summary[,"p adj"])
+
+# Combine letters with site names
+site_letters <- data.frame(
+  Site = names(tukey_letters$Letters),
+  Group = tukey_letters$Letters
+)
+
+# Print site groupings
+print(site_letters)
+
+
+```
+
+
+```{r}
+
+
+cat("CDOM ANOVA\n")
+
 # Perform ANOVA comparing 'CDOM' across sites
 anova_cdom <- aov(Value ~ Site, data = long_data %>% filter(Variable == "CDOM"))
 
 # Run Tukey's HSD post-hoc test
 tukey_results <- TukeyHSD(anova_cdom)
 
-# Extract the results for the 'Site' factor from the Tukey HSD test
+# Extract the results for the 'Site' factor
 tukey_summary <- tukey_results$Site
 
-# Convert the matrix to a data frame for easier manipulation
-tukey_df <- as.data.frame(tukey_summary)
+# Generate compact letter display from adjusted p-values
+tukey_letters <- multcompLetters(tukey_summary[,"p adj"])
 
-# Add the comparison names as a new column (this will be the rownames)
-tukey_df$Comparison <- rownames(tukey_df)
+# Create data frame of site groupings
+site_letters <- data.frame(
+  Site = names(tukey_letters$Letters),
+  Group = tukey_letters$Letters
+)
 
-# Filter to keep only the statistically significant comparisons (p-value < 0.05)
-significant_comparisons <- tukey_df %>%
-  filter(`p adj` < 0.05) %>%
-  select(Comparison, `p adj`)  # Select the Comparison and p adj columns
-
-# Print the significant comparisons with p-values
-print(significant_comparisons)
+# Print site groupings
+print(site_letters)
 
 
 ```
 
 
 ```{r}
-cat("TSS ANOVA")
+# Load required package
+library(multcompView)
 
-# Perform ANOVA comparing 'CDOM' across sites
-anova_cdom <- aov(Value ~ Site, data = long_data %>% filter(Variable == "TSS"))
+cat("TSS ANOVA\n")
+
+# Perform ANOVA comparing 'TSS' across sites
+anova_tss <- aov(Value ~ Site, data = long_data %>% filter(Variable == "TSS"))
 
 # Run Tukey's HSD post-hoc test
-tukey_results <- TukeyHSD(anova_cdom)
+tukey_results <- TukeyHSD(anova_tss)
 
-# Extract the results for the 'Site' factor from the Tukey HSD test
+# Extract the results for the 'Site' factor
 tukey_summary <- tukey_results$Site
 
-# Convert the matrix to a data frame for easier manipulation
-tukey_df <- as.data.frame(tukey_summary)
+# Generate compact letter display from adjusted p-values
+tukey_letters <- multcompLetters(tukey_summary[,"p adj"])
 
-# Add the comparison names as a new column (this will be the rownames)
-tukey_df$Comparison <- rownames(tukey_df)
+# Create data frame of site groupings
+site_letters <- data.frame(
+  Site = names(tukey_letters$Letters),
+  Group = tukey_letters$Letters
+)
 
-# Filter to keep only the statistically significant comparisons (p-value < 0.05)
-significant_comparisons <- tukey_df %>%
-  filter(`p adj` < 0.05) %>%
-  select(Comparison, `p adj`)  # Select the Comparison and p adj columns
-
-# Print the significant comparisons with p-values
-print(significant_comparisons)
+# Print site groupings
+print(site_letters)
 
 ```
 
 
 ```{r}
-cat("CHLa ANOVA")
+# Load required package
+library(multcompView)
 
-# Perform ANOVA comparing 'CDOM' across sites
-anova_cdom <- aov(Value ~ Site, data = long_data %>% filter(Variable == "CHLa"))
+cat("CHLa ANOVA\n")
+
+# Perform ANOVA comparing 'CHLa' across sites
+anova_chla <- aov(Value ~ Site, data = long_data %>% filter(Variable == "CHLa"))
 
 # Run Tukey's HSD post-hoc test
-tukey_results <- TukeyHSD(anova_cdom)
+tukey_results <- TukeyHSD(anova_chla)
 
-# Extract the results for the 'Site' factor from the Tukey HSD test
+# Extract the results for the 'Site' factor
 tukey_summary <- tukey_results$Site
 
-# Convert the matrix to a data frame for easier manipulation
-tukey_df <- as.data.frame(tukey_summary)
+# Generate compact letter display from adjusted p-values
+tukey_letters <- multcompLetters(tukey_summary[,"p adj"])
 
-# Add the comparison names as a new column (this will be the rownames)
-tukey_df$Comparison <- rownames(tukey_df)
+# Create data frame of site groupings
+site_letters <- data.frame(
+  Site = names(tukey_letters$Letters),
+  Group = tukey_letters$Letters
+)
 
-# Filter to keep only the statistically significant comparisons (p-value < 0.05)
-significant_comparisons <- tukey_df %>%
-  filter(`p adj` < 0.05) %>%
-  select(Comparison, `p adj`)  # Select the Comparison and p adj columns
-
-# Print the significant comparisons with p-values
-print(significant_comparisons)
-
+# Print site groupings
+print(site_letters)
 
 ```
 
