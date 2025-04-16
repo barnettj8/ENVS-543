@@ -223,6 +223,42 @@ grid.arrange(plot_kd, plot_CDOM, plot_TSS, plot_CHLa,
 
 ```
 
+```{r}
+
+
+plot_kd <- plot_kd +
+  geom_text(data = kd_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+
+plot_CDOM <- plot_CDOM +
+  geom_text(data = cdom_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+
+plot_TSS <- plot_TSS +
+  geom_text(data = tss_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(axis.text.x = element_text(size = 8, angle = 45))
+
+plot_CHLa <- plot_CHLa +
+  geom_text(data = chla_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(axis.text.x = element_text(size = 8, angle = 45))
+
+grid.arrange(
+  plot_kd, plot_CDOM, plot_TSS, plot_CHLa, 
+  ncol = 2, nrow = 2,
+  widths = c(1, 1),
+  heights = c(1, 1)
+)
+
+```
+
 
 ```{r}
 
@@ -894,7 +930,7 @@ meanthesis_long <- meanthesis_long %>%
 # Create the stacked bar plot with customized y-axis
 ggplot(meanthesis_long, aes(x = Site, y = Percentage, fill = Source)) +
   geom_bar(stat = "identity") +  # Use "identity" to map the y-values directly
-  labs(title = "Percent kd from TSS vs CDOM by Site",
+  labs(title = " ",
        x = "Site",
        y = "% kd",
        fill = "Source") +
@@ -907,8 +943,8 @@ ggplot(meanthesis_long, aes(x = Site, y = Percentage, fill = Source)) +
   theme(
     plot.title = element_text(size = 10, color = "black"),
      axis.line = element_line(colour = "black", size = 0.5), # Title size and color
-    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title size and color
-    axis.title.y = element_text(size = 8, color = "black"),  # Y-axis title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
     axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
   )
 ```
@@ -948,7 +984,8 @@ ggplot(annadata) +
   theme(
     legend.position = "none",  # No legend needed for single variable
     axis.line = element_line(colour = "black", size = 0.5),
-    axis.text.x = element_text(angle = 90, hjust = 1)
+    axis.text.x = element_text(size = 10, angle = 90, hjust = 1, color = "black"),
+    axis.text.y = element_text(size = 9)
   )
 
 
@@ -969,7 +1006,7 @@ ggplot(annadata) +
   geom_point(aes(x = Date, y = Bottom_TSS, color = "Bottom"), size = 3) +  
   geom_line(aes(x = Date, y = Bottom_TSS, color = "Bottom", group = 1)) +  # Add group aesthetic
   
-  labs(title = "TSS Depths Over Time", x = "Date", y = "TSS (mg L⁻¹") +
+  labs(title = " ", x = " ", y = "TSS (mg L⁻¹") +
   scale_color_manual(values = c("Surface" = "black", "Photic Zone Average" = "blue", "Bottom" = "red")) +  # Custom colors
   
   scale_x_date(
@@ -982,7 +1019,8 @@ ggplot(annadata) +
     legend.title = element_blank(),
     legend.position = "top",  
     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.text.x = element_text(angle = 90, hjust = 1))
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 9))
 
 
 
@@ -1002,7 +1040,7 @@ ggplot(annadata) +
   geom_point(aes(x = Date, y = Bottom_CDOM, color = "Bottom"), size = 3) +  
   geom_line(aes(x = Date, y = Bottom_CDOM, color = "Bottom", group = 1)) +  # Add group aesthetic
   
-  labs(title = "CDOM Depths Over Time", x = "Date", y = "CDOM (m⁻¹)") +
+  labs(title = " ", x = " ", y = "CDOM (m⁻¹)") +
   scale_color_manual(values = c("Surface" = "black", "Photic Zone Average" = "blue", "Bottom" = "red")) +  # Custom colors
   
   scale_x_date(
@@ -1014,13 +1052,13 @@ ggplot(annadata) +
     limits = c(0, 2)  # Set y-axis limits from 0 to 2
   ) +
   
-  theme_minimal() +  # Minimal theme
+    theme_minimal() +  # Minimal theme
   theme(
     legend.title = element_blank(),
-    legend.position = "top",
+    legend.position = "top",  
     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels 90 degrees
-  )
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 9))
 
 ```
 
@@ -1035,7 +1073,7 @@ ggplot(annadata) +
   geom_point(aes(x = Date, y = Photic_CHLa, color = "Photic Zone Average"), size = 3) +  
   geom_line(aes(x = Date, y = Photic_CHLa, color = "Photic Zone Average", group = 1)) +  # Add group aesthetic
   
-  labs(title = "CHLa Depths Over Time", x = "Date", y = "CHLa (µg L⁻¹)") +
+  labs(title = " ", x = " ", y = "CHLa (µg L⁻¹)") +
   scale_color_manual(values = c("Surface" = "black", "Photic Zone Average" = "blue")) +  # Custom colors
   
   scale_x_date(
@@ -1043,13 +1081,13 @@ ggplot(annadata) +
     labels = scales::date_format("%b %Y")  # Format labels as Month Year (e.g., Jan 2020)
   ) +
   
-  theme_minimal() +  # Minimal theme
+   theme_minimal() +  # Minimal theme
   theme(
     legend.title = element_blank(),
-    legend.position = "top",
+    legend.position = "top",  
     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels 90 degrees
-  )
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 9))
 
 ```
 
@@ -1835,7 +1873,7 @@ pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
 se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
 
 # Create the plot
-p <- ggplot(pocdata, aes(x = TSS, y = POC)) +
+o <- ggplot(pocdata, aes(x = TSS, y = POC)) +
   geom_point(color = "gray70") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = "All Station POC vs TSS", x = "TSS (mg L⁻¹)", y = "POC (mgC L⁻¹)" ) +
@@ -1856,8 +1894,46 @@ p <- ggplot(pocdata, aes(x = TSS, y = POC)) +
   ) +
   coord_fixed(ratio = 6)
 
+
+```
+
+```{r}
+
+
+# Fit the linear regression model for CHLa vs POC
+model_chla_poc <- lm(POC ~ CHLa, data = pocdata, na.action = na.exclude)  # Exclude NA values from the regression model
+
+# Extract regression stats (equation, R-squared, p-value)
+eq_chla_poc <- paste("y = ", round(coef(model_chla_poc)[2], 2), "x + ", round(coef(model_chla_poc)[1], 2), sep = "")
+rsq_chla_poc <- paste("R² = ", round(summary(model_chla_poc)$r.squared, 3), sep = "")
+pval_chla_poc <- paste("p = ", round(summary(model_chla_poc)$coefficients[2, 4], 3), sep = "")
+se <- paste("SE = ", round(summary(model_chla_poc)$coefficients[2, 2], 3), sep = "")
+
+# Create the plot
+p_chla_poc <- ggplot(pocdata, aes(x = CHLa, y = POC)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "All Station POC vs CHLa", x = "CHLa (µg L⁻¹)", y = "POC (mgC L⁻¹)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  # Add regression stats to the plot
+  geom_text(
+    x = max(pocdata$CHLa, na.rm = TRUE), 
+    y = max(pocdata$POC, na.rm = TRUE), 
+    label = paste(eq_chla_poc, "\n", rsq_chla_poc, "\n", pval_chla_poc, "\n", se), 
+    hjust = 1, vjust = 4, size = 3, color = "black"
+  ) +
+  coord_fixed(ratio = 10)
+
 # Print the plot
-print(p)
+p_chla_poc
+
 
 ```
 
@@ -1884,7 +1960,7 @@ pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
 se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
 
 # Create the plot with site averages
-p <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
+c <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
   geom_point(color = "gray70") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = "Site Average POC vs TSS", x = "TSS (mg L⁻¹)", y = "POC (mgC L⁻¹)") +
@@ -1908,6 +1984,9 @@ p <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
 # Print the plot
 print(p)
 
+grid.arrange 
+
+grid.arrange(o, p_chla_poc, ncol = 2)
 
 ```
 
@@ -1962,44 +2041,6 @@ print(p)
 
 ```
 
-```{r}
-
-# Fit the linear regression model for CHLa vs POC
-model_chla_poc <- lm(POC ~ CHLa, data = pocdata, na.action = na.exclude)  # Exclude NA values from the regression model
-
-# Extract regression stats (equation, R-squared, p-value)
-eq_chla_poc <- paste("y = ", round(coef(model_chla_poc)[2], 2), "x + ", round(coef(model_chla_poc)[1], 2), sep = "")
-rsq_chla_poc <- paste("R² = ", round(summary(model_chla_poc)$r.squared, 3), sep = "")
-pval_chla_poc <- paste("p = ", round(summary(model_chla_poc)$coefficients[2, 4], 3), sep = "")
-se <- paste("SE = ", round(summary(model_chla_poc)$coefficients[2, 2], 3), sep = "")
-
-# Create the plot
-p_chla_poc <- ggplot(pocdata, aes(x = CHLa, y = POC)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "All Station POC vs CHLa", x = "CHLa (µg L⁻¹)", y = "POC (mgC L⁻¹)") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 12, color = "black"),  # Title size and color
-     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
-    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
-    axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
-  ) +
-  # Add regression stats to the plot
-  geom_text(
-    x = max(pocdata$CHLa, na.rm = TRUE), 
-    y = max(pocdata$POC, na.rm = TRUE), 
-    label = paste(eq_chla_poc, "\n", rsq_chla_poc, "\n", pval_chla_poc, "\n", se), 
-    hjust = 1, vjust = 4, size = 3, color = "black"
-  ) +
-  coord_fixed(ratio = 10)
-
-# Print the plot
-p_chla_poc
-
-
-```
 
 ```{r}
 
