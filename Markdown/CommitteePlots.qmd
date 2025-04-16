@@ -1828,6 +1828,8 @@ o <- ggplot(pocdata, aes(x = TSS, y = POC)) +
   ) +
   coord_fixed(ratio = 6)
 
+print(o)
+
 
 ```
 
@@ -1881,6 +1883,7 @@ site_averages <- pocdata %>%
   group_by(Site) %>%
   summarise(
     avg_TSS = mean(TSS, na.rm = TRUE),
+    avg_CHLA = mean(CHLa, na.rm = TRUE),
     avg_POC = mean(POC, na.rm = TRUE)
   )
 
@@ -1894,7 +1897,7 @@ pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
 se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
 
 # Create the plot with site averages
-c <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
+t <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
   geom_point(color = "gray70") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = "Site Average POC vs TSS", x = "TSS (mg L⁻¹)", y = "POC (mgC L⁻¹)") +
@@ -1915,15 +1918,45 @@ c <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
   ) +
   coord_fixed(ratio = 6)
 
-# Print the plot
-print(p)
+print(t)
 
-grid.arrange 
-
-grid.arrange(o, p_chla_poc, ncol = 2)
 
 ```
 
+```{r}
+
+model <- lm(avg_POC ~ avg_CHLA, data = site_averages, na.action = na.exclude)
+
+# Extract regression stats (equation, R-squared, p-value, and residual SE)
+eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
+
+c <- ggplot(site_averages, aes(x = avg_CHLA, y = avg_POC)) +
+  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Site Average POC vs CHLa", x = "CHLa (ug L⁻¹)", y = "POC (mgC L⁻¹)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),  # Title size and color
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
+    axis.text.x = element_text(angle = 0, hjust = 1)  # Rotate x-axis labels for readability
+  ) +
+  # Add regression stats to the plot (equation, R², p-value, and SE)
+  geom_text(
+    x = max(site_averages$avg_CHLA, na.rm = TRUE), 
+    y = max(site_averages$avg_POC, na.rm = TRUE), 
+    label = paste(eq, "\n", rsq, "\n", pval, "\n", se), 
+    hjust = 1, vjust = 3, size = 3, color = "black"
+  ) +
+  coord_fixed(ratio = 15)
+
+print(c)
+
+```
 
 ```{r}
 
