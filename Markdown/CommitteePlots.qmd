@@ -688,8 +688,8 @@ p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
   theme(
     plot.title = element_text(size = 7, color = "black"),  # Chart title black
      axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 8, color = "black")   # Y-axis title black
   )
 
 # p2 - Regression: Residual kd after TSS vs CDOM a440 (corr)
@@ -705,8 +705,8 @@ p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`
   theme(
     plot.title = element_text(size = 7, color = "black"),  # Chart title black
      axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 8, color = "black")   # Y-axis title black
   )
 
 # p3 - Regression: kd vs CHLa (ug/L)
@@ -722,8 +722,8 @@ p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `kd (m-1)`)) +
   theme(
     plot.title = element_text(size = 7, color = "black"),  # Chart title black
      axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 8, color = "black")   # Y-axis title black
   )
 
 # Display plots in a grid
@@ -733,72 +733,6 @@ grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
 
-
-
-```{r}
-
-# Function to extract regression statistics (equation, R-squared, p-value, SE)
-get_regression_stats <- function(x, y) {
-  model <- lm(y ~ x)
-  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
-  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
-  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
-  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
-  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
-}
-
-# p1 - Regression: kd (m⁻¹) vs TSS (mg/L)
-reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`kd (m-1)`)
-p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "kd vs TSS", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
-  geom_text(x = max(meanthesis$`TSS (mg/L)`), y = max(meanthesis$`kd (m-1)`), 
-            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
-            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 7, color = "black"),  # Chart title black
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
-  )
-
-# p2 - Regression: Residual kd after TSS vs CDOM a440 (corr)
-reg_stats_p2 <- get_regression_stats(meanthesis$`CDOM a440 (corr)`, meanthesis$`Residual kd after TSS`)
-p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
-  geom_point(color = "gray70") +  # Use a lighter gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "Residual kd vs CDOM", x = "CDOM (m⁻¹)", y = "Residual kd after TSS (m⁻¹)") +
-  geom_text(x = max(meanthesis$`CDOM a440 (corr)`), y = max(meanthesis$`Residual kd after TSS`), 
-            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval, "\n", reg_stats_p2$se), 
-            hjust = 1, vjust = 2, size = 2, color = "black") +  # Text color black
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 7, color = "black"),  # Chart title black
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
-  )
-
-# p3 - Regression: kd vs CHLa (ug/L)
-reg_stats_p3 <- get_regression_stats(meanthesis$`CHLa (ug/L)`, meanthesis$`kd (m-1)`)
-p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `kd (m-1)`)) +
-  geom_point(color = "gray70") +  # Use an even lighter gray for points
-  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "kd vs CHLa", x = "CHLa (µg L⁻¹)", y = "kd (m⁻¹)") +
-  geom_text(x = max(meanthesis$`CHLa (ug/L)`), y = max(meanthesis$`kd (m-1)`), 
-            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval, "\n", reg_stats_p3$se), 
-            hjust = 1, vjust = 3, size = 2, color = "black") +  # Text color black
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 7, color = "black"),  # Chart title black
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
-  )
-
-# Display plots in a grid
-grid.arrange(p1, p2, p3, ncol = 3)
-
-```
 
 ```{r}
 
@@ -1130,8 +1064,8 @@ p1 <- ggplot(annadata, aes(x = Photic_TSS, y = kd)) +
   theme(
     plot.title = element_text(size = 7, color = "black"),  # Chart title black
      axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 8, color = "black")   # Y-axis title black
   )
 
 # p2 - Regression: Photic_CDOM vs kd
@@ -1147,8 +1081,8 @@ p2 <- ggplot(annadata, aes(x = Photic_CDOM, y = kd)) +
   theme(
     plot.title = element_text(size = 7, color = "black"),  # Chart title black
      axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 8, color = "black")   # Y-axis title black
   )
 
 # p3 - Regression: Photic_CHLa vs kd
@@ -1164,8 +1098,8 @@ p3 <- ggplot(annadata, aes(x = Photic_CHLa, y = kd)) +
   theme(
     plot.title = element_text(size = 7, color = "black"),  # Chart title black
      axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 6, color = "black"),  # X-axis title black
-    axis.title.y = element_text(size = 6, color = "black")   # Y-axis title black
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 8, color = "black")   # Y-axis title black
   )
 
 # Arrange the plots using gridExtra
@@ -1474,7 +1408,7 @@ reg_stats_p1 <- et_regression_stats(meanthesis$`Secchi (m)`, meanthesis$`kd (m-1
 p1 <- ggplot(meanthesis, aes(x = `Secchi (m)`, y = `kd (m-1)`)) +
   geom_point(color = "gray70") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "Station Average kd vs Secchi Depth", x = "Secchi Depth (m)", y = "kd (m-1)") +
+  labs(title = " ", x = "Secchi Depth (m)", y = "kd (m-1)") +
   geom_text(x = max(meanthesis$`Secchi (m)`, na.rm = TRUE), y = max(meanthesis$`kd (m-1)`, na.rm = TRUE), 
             label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
             hjust = 1, vjust = 2, size = 3, color = "black") +  # Add the regression equation and stats
@@ -1819,7 +1753,7 @@ pval_secchi_z1 <- paste("p = ", round(summary(model_secchi_z1)$coefficients[2, 4
 p_secchi_z1 <- ggplot(secchi_z1_data_clean, aes(x = Secchi, y = `Z1%`)) +
   geom_point(color = "gray70") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
-  labs(title = "Secchi vs Z1%", x = "Secchi (m)", y = "Z1%") +
+  labs(title = " ", x = "Secchi (m)", y = "Z1%") +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 12, color = "black"),  # Title size and color
