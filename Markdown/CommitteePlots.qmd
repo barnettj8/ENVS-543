@@ -1416,8 +1416,8 @@ p1 <- ggplot(meanthesis, aes(x = `Secchi (m)`, y = `kd (m-1)`)) +
   theme(
     plot.title = element_text(size = 10, color = "black"),  # Title size and color
      axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
-    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title size and color
-    axis.title.y = element_text(size = 8, color = "black"),  # Y-axis title size and color
+    axis.title.x = element_text(size = 10, color = "black"),  # X-axis title size and color
+    axis.title.y = element_text(size = 10, color = "black"),  # Y-axis title size and color
     axis.text.x = element_text(hjust = 1)  # Rotate x-axis labels for readability
   )
 
