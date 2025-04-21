@@ -1389,6 +1389,82 @@ Based on the AIC values and their corresponding Delta AIC values, the best model
 
 
 ```{r}
+# Function to extract regression statistics (equation, R-squared, p-value, SE)
+get_regression_stats <- function(x, y) {
+  model <- lm(y ~ x)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
+  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
+}
+
+# p1 - Regression: Secchi (m) vs TSS (mg/L)
+reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`Secchi (m)`)
+p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `Secchi (m)`)) +
+  geom_point(color = "gray70") +
+  geom_smooth(method = "lm", color = "black", se = FALSE) +
+  labs(title = "Secchi vs TSS", x = "TSS (mg L⁻¹)", y = "Secchi (m)") +
+  geom_text(x = max(meanthesis$`TSS (mg/L)`, na.rm = TRUE), 
+            y = max(meanthesis$`Secchi (m)`, na.rm = TRUE), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),
+    axis.line = element_line(colour = "black", size = 0.5),
+    axis.title.x = element_text(size = 8, color = "black"),
+    axis.title.y = element_text(size = 8, color = "black")
+  )
+
+# Create a new column: residual_secchi = Secchi - (TSS * 0.14)
+meanthesis$residual_secchi <- meanthesis$`Secchi (m)` - (meanthesis$`TSS (mg/L)` * 0.14)
+
+# p2 - Regression: residual_secchi vs CDOM a440 (corr)
+reg_stats_p2 <- get_regression_stats(meanthesis$`CDOM a440 (corr)`, meanthesis$residual_secchi)
+
+p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = residual_secchi)) +
+  geom_point(color = "gray70") +
+  geom_smooth(method = "lm", color = "black", se = FALSE) +
+  labs(title = "Residual Secchi vs CDOM", x = "CDOM (m⁻¹)", y = "Residual Secchi (m)") +
+  geom_text(x = max(meanthesis$`CDOM a440 (corr)`, na.rm = TRUE), 
+            y = max(meanthesis$residual_secchi, na.rm = TRUE), 
+            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval, "\n", reg_stats_p2$se), 
+            hjust = 1, vjust = 1, size = 2, color = "black") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),
+    axis.line = element_line(colour = "black", size = 0.5),
+    axis.title.x = element_text(size = 8, color = "black"),
+    axis.title.y = element_text(size = 8, color = "black")
+  )
+
+# p3 - Regression: Secchi (m) vs CHLa (ug/L)
+reg_stats_p3 <- get_regression_stats(meanthesis$`CHLa (ug/L)`, meanthesis$`Secchi (m)`)
+p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `Secchi (m)`)) +
+  geom_point(color = "gray70") +
+  geom_smooth(method = "lm", color = "black", se = FALSE) +
+  labs(title = "Secchi vs CHLa", x = "CHLa (µg L⁻¹)", y = "Secchi (m)") +
+  geom_text(x = max(meanthesis$`CHLa (ug/L)`, na.rm = TRUE), 
+            y = max(meanthesis$`Secchi (m)`, na.rm = TRUE), 
+            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval, "\n", reg_stats_p3$se), 
+            hjust = 1, vjust = 2, size = 2, color = "black") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),
+    axis.line = element_line(colour = "black", size = 0.5),
+    axis.title.x = element_text(size = 8, color = "black"),
+    axis.title.y = element_text(size = 8, color = "black")
+  )
+
+# Display plots in a grid
+grid.arrange(p1, p2, p3, ncol = 2)
+
+
+```
+
+
+```{r}
 # Function to extract regression statistics (equation, R-squared, p-value)
 et_regression_stats <- function(x, y) {
   # Remove NA values from both x and y
@@ -1406,7 +1482,7 @@ reg_stats_p1 <- et_regression_stats(meanthesis$`Secchi (m)`, meanthesis$`kd (m-1
 
 # Create the plot for Secchi vs kd regression using the 'meanthesis' dataframe
 p1 <- ggplot(meanthesis, aes(x = `Secchi (m)`, y = `kd (m-1)`)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_point(color = "black") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = " ", x = "Secchi Depth (m)", y = "kd (m-1)") +
   geom_text(x = max(meanthesis$`Secchi (m)`, na.rm = TRUE), y = max(meanthesis$`kd (m-1)`, na.rm = TRUE), 
@@ -1847,7 +1923,7 @@ se <- paste("SE = ", round(summary(model_chla_poc)$coefficients[2, 2], 3), sep =
 
 # Create the plot
 p_chla_poc <- ggplot(pocdata, aes(x = CHLa, y = POC)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_point(color = "gray10") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = "All Station POC vs CHLa", x = "CHLa (µg L⁻¹)", y = "POC (mgC L⁻¹)") +
   theme_minimal() +
@@ -1898,7 +1974,7 @@ se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
 
 # Create the plot with site averages
 t <- ggplot(site_averages, aes(x = avg_TSS, y = avg_POC)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_point(color = "gray10") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = "Site Average POC vs TSS", x = "TSS (mg L⁻¹)", y = "POC (mgC L⁻¹)") +
   theme_minimal() +
@@ -1934,7 +2010,7 @@ pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
 se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")
 
 c <- ggplot(site_averages, aes(x = avg_CHLA, y = avg_POC)) +
-  geom_point(color = "gray70") +  # Use a darker gray for points
+  geom_point(color = "gray10") +  # Use a darker gray for points
   geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
   labs(title = "Site Average POC vs CHLa", x = "CHLa (ug L⁻¹)", y = "POC (mgC L⁻¹)") +
   theme_minimal() +
