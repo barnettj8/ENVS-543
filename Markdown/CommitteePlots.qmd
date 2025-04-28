@@ -1108,6 +1108,38 @@ grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
 
+
+
+```{r}
+
+annadata$residualchla <- annadata$kd - (annadata$Photic_CHLa * 0.07)
+
+# p2 - Regression: Photic_CDOM vs residualchla
+reg_stats_p2 <- get_regression_stats_se(annadata$Photic_CDOM, annadata$residualchla)
+p2 <- ggplot(annadata, aes(x = Photic_CDOM, y = residualchla)) +
+  geom_point(color = "gray70") +  # Use a lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = "Lake Anna: Photic Zone CDOM vs residualchla", x = "CDOM (m⁻¹)", y = "Residual CHLa") +
+  geom_text(x = max(annadata$Photic_CDOM, na.rm = TRUE), y = max(annadata$residualchla, na.rm = TRUE), 
+            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", reg_stats_p2$pval, "\n", reg_stats_p2$residual_se), 
+            hjust = 1, vjust = 1, size = 2, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 7, color = "black"),  # Chart title black
+    axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 8, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 8, color = "black")   # Y-axis title black
+  )
+
+# Plot p2 with residualchla on the y-axis
+print(p2)
+
+
+
+```
+
+
+
 ```{r}
 
 # Function to create diagnostic plots for a linear model
@@ -2192,17 +2224,19 @@ print(p)
 
 ```
 
-
 ```{r}
 
-# Calculate the average C% and standard error for each site
 avg_cpercent <- pocdata %>%
-  group_by(Site) %>%  # Group by Site
+  filter(!is.na(Site)) %>%   # Remove NA sites first
+  group_by(Site) %>%
   summarize(
     Average_Cpercent = mean(`C%`, na.rm = TRUE),
-    SE_Cpercent = sd(`C%`, na.rm = TRUE) / sqrt(n())  # Standard error calculation
+    SE_Cpercent = sd(`C%`, na.rm = TRUE) / sqrt(n())
   ) %>%
-  filter(!is.na(Average_Cpercent))  
+  filter(!is.na(Average_Cpercent))
+
+head(avg_cpercent)
+
 ```
 
 
@@ -2219,7 +2253,7 @@ avg_cpercent <- avg_cpercent %>%
                          "2-BRI010.78" = "BRI_1",
                          "2-BRI013.12" = "BRI_2",
                          "5ANTW127.14" = "Barfoot",
-                         "2-CHK026.94" = "Chick",
+                         "Chickahominy" = "Chickahominy",
                          "Harrison Near Dam" = "Harrison",
                          "2-SDY004.27" = "SDY_1",
                          "2-SDY005.85" = "SDY_2",

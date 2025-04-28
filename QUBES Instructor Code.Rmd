@@ -1,0 +1,482 @@
+---
+title: "QUBES Instructor Code"
+output: html_document
+date: "2025-04-15"
+---
+
+## Recreating Stream Restoration ANOVA Figure in R
+
+This tutorial walks through how to recreate Figure 1 from the focal paper using R. We’ll perform an ANOVA and create clean visualizations with group letters and error bars.
+
+### 1. Load Required Libraries
+
+```{r, message = FALSE, warning = FALSE}
+
+# Use function install.packages("NAME OF PACKAGE") then load package in library if needed
+
+# Load essential packages
+
+library(readxl)    # to read Excel files
+library(dplyr)     # for data wrangling
+library(ggplot2)   # for plotting
+library(gridExtra) # to arrange multiple plots if desired
+
+```
+
+**Description:** These packages are essential tools for data manipulation, statistical analysis, and visualization:
+
+-   `dplyr` simplifies data wrangling tasks like grouping and summarizing.
+
+-   `ggplot2` is a powerful package for creating publication-quality plots.
+
+-   `gridExtra` helps arrange multiple plots into neat layouts.
+
+**Why it matters:** Libraries streamline complex tasks, making your workflow more efficient and reproducible.
+
+If any aren't installed yet, use `install.packages("package_name")`.
+
+### 2. Import the Data
+
+```{r}
+# Load in our data set
+
+data <- read.csv("environmentalVariables.csv")
+
+```
+
+**Description:** This code loads the dataset into R. The dataset contains ecological variables like sediment cover, woody debris, and hydraulic retention for each treatment group.
+
+**Why it matters:** Having the data loaded is the foundation for all subsequent analysis and visualization.
+
+🔍 **Question** **1: Look at the first few rows of the dataset using `head(data)`. What types of variables do you notice, and which ones might require transformation or reordering?**
+
+*Student Answer:* \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Answer Key**
+
+-   The dataset includes categorical variables like `Treatment` and numerical variables like `Fine_Sediment`, `LWD_Volume`, and `Rh`. `Treatment` may require reordering for meaningful scientific analysis.
+
+### 3. Reorder Treatment Factor
+
+Before we jump into this portion of the coding assignment, we should first understand what an ANOVA is and why it is important!
+
+ANOVA is a statistical method used to compare means across multiple groups to determine if the observed differences are statistically significant. It answers the question: *Are these groups genuinely different, or is the variation just due to random chance?*
+
+For example, in stream restoration, treatments like "Ref" (reference), "Imp" (impacted), "Res-b" (restoration - bank), and "Res-w" (restoration - water) may affect factors like fine sediment or large woody debris. ANOVA helps us test whether the treatment has a significant effect on these ecological variables.
+
+**Why this matters:** Understanding which treatments are effective (or ineffective) guides environmental management decisions, like whether restoration techniques are improving stream health.
+
+```{r}
+# Set a custom order for the Treatment variable
+
+data$Treatment <- factor(data$Treatment, levels = c("Ref", "Imp", "Res-b", "Res-w"))
+```
+
+**Description:** By default, R organizes categorical variables alphabetically. This code manually reorders the `Treatment` factor to a scientifically meaningful order.
+
+**Why it matters:** A logical order enhances plot readability and ensures the data is presented in a way that aligns with scientific interpretation (e.g., reference sites before impacted and restored sites).
+
+### 4. Run ANOVAs
+
+```{r}
+# Run ANOVAs for each response variable
+
+aov_sed <- aov(Fine_Sediment ~ Treatment, data = data)
+
+aov_lwd <- aov(LWD_Volume ~ Treatment, data = data)
+
+aov_rh  <- aov(Rh ~ Treatment, data = data)
+
+```
+
+**Description:** Here, ANOVA is used to test whether differences among treatment groups are statistically significant for three response variables:
+
+1.  `Fine_Sediment` (% sediment cover)
+
+2.  `LWD_Volume` (volume of large woody debris)
+
+3.  `Rh` (hydraulic retention)
+
+**Why it matters:** ANOVA provides a statistical basis to conclude whether treatments affect stream ecological variables. Without it, we cannot say if observed differences are meaningful.
+
+Now that we've applied the aov() function to our variables, let's take a look at what kind of information this function gives us!
+
+```{r}
+# Summarize the information from the Fine_Sediment ANOVA function to see what output information it gives
+
+summary(aov_sed)
+
+lm(Fine_Sediment ~ Treatment, data = data)
+
+
+```
+
+**Description:** Running/summarizing the ANOVA function in R will tell us some general information about the chosen variable and whether any differences may exist across treatment. Here it gives us 5 main pieces of information to interpret:
+
+1. `Df` - Degrees of Freedom
+
+  a.  **Definition:** Represents the number of independent values used to calculate a statistic. For `Treatment` it's the number of groups minus 1. For `Residuals` it's the total number of observations minus the number of groups.
+  
+  b.  **Importance:** It affects how precise your variance estimates are aand is needed to calculate `F value`
+
+2. `Sum Sq` - Sum of Squares 
+
+  a.  **Definition:** Measures the total variation in the data. `Treatment` shows variation between groups, and `Residuals` shows variation within groups (unexplained by the model).
+  
+  b.  **Importance:** It shows how much variation is explained by the model vs. unexplained noise
+
+3. `Mean Sq` - Mean Square 
+
+  a.  **Definition:** The `Sum Sq` divided by its `Df`. It's essentially the average amount of variation per degree of freedom. 
+  
+  b.  **Importance:** It allows fair comparison between different sources of variation by accounting for sample size.
+
+4. `F value` 
+
+  a.  **Definition:** Compares group variance to residual variance `Mean Sq of Treatment` / `Mean Sq of Residuals`. A larger F means greater between group differences relative to within group noise.
+  
+  b.  **Importance:** It's the main statistic used to test whether the treatment groups are significantly different. 
+
+5. `Pr(>F)` - P Value
+
+  a.  **Definition:** This tells us how likely it is to get an `F value` this larger (or larger) just by chance, if there were no treatment effect. 
+  
+  b.  **Importance:** It tells us whether the effect of the treatment is statistically significant, guiding conclusions. 
+
+Now explore the outputs of other aov() functions from above 
+
+```{r}
+# Summary(name of first object with function)
+summary(aov_sed)
+
+# Summary(name of second object with function)
+summary(aov_lwd)
+
+# Summary(name of third object with function)
+summary(aov_rh)
+
+```
+
+List the P Values for each variable below:
+
+1. P value for Fine Sediment across Treatments: 2.36e-05
+
+2. P value for LWD Volume across Treatments: 3.9e-05
+
+3. P value for Rh across Treatments: 0.138
+
+🔍 **Question 2: In your own words, what does ANOVA test for, and why is it important?**
+
+*Student Answer:* \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Answer Key**
+
+-   ANOVA tests whether there are significant differences in means across multiple groups. It is crucial for identifying meaningful treatment effects in ecological studies, as it helps us understand if changes observed are statistically valid or due to random variation.
+
+🔍 **Question 3: What ecological questions are we addressing by running ANOVAs for fine sediment, LWD volume, and Rh?**
+
+*Student Answer:* \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Answer Key**
+
+-   We aim to determine whether different treatments significantly impact stream health metrics, such as sediment cover, wood debris, and hydraulic retention.
+
+### 5. Run Post-Hoc Tukey Tests
+
+```{r}
+# Post-hoc comparisons (optional, shows which groups differ)
+
+print(TukeyHSD(aov_sed))
+
+print(TukeyHSD(aov_lwd))
+
+print(TukeyHSD(aov_rh))
+
+```
+
+**Description:** Tukey's Honest Significant Difference (HSD) test compares all pairs of treatment groups to identify *which specific treatments differ*. We can then assign group labels like "a", "b", "ab", which are used in plots.
+
+**Why it matters:** ANOVA identifies if there's a difference but doesn't specify where the difference lies. Tukey HSD fills this gap, aiding in interpretation.
+
+**Examine Closer:** Take a closer look back at the Fine Sediment Tukey Test results. Here we see 5 output variables. `$Treatment` tells us which two treatments are being compared in each row. `diff` tells us the difference in means between the two treatment variables in that row. `lwr` tells us the lower bound of the 95% confidence interval for the difference in means or the smallest likely difference, based on the data. `upr` tells us the upper bound of the 95% confidence interval for the difference in means or the largest likely difference, based on the data. `p adj` tells us the p-value after adjustment for multiple comparisons. This tells us whether the observed difference between the treatment groups is statistically significant. 
+
+If the `p adj` is < 0.05, then the two treatments being compared are statistically significantly different. We can then add grouping labels (e.g., "a," "b," "ab") to our treatments for each variable to indicate which treatments are statistically alike and which are different. Treatments that are not statistically different receive the same letter, while treatments that are different receive different letters. This is done for you with Fine Sediment below. Here, the reference streams and boulder restored streams are not different from each other, so they both get grouped as "a". Since the impacted and wood restored streams are different from group "a" streams, but similar to each other, they both go into group "b". Review this and make sure you understand it.
+
+Fine Sediment:
+  1. Ref: a
+  2. Imp: b 
+  3. Res-b: a
+  4. Res-w: b
+
+🔍 **Question 4:** **In your own words, why is it important to perform a Tukey HSD test after running ANOVA? Add group labels (e.g., "a," "b," "ab") below to show which treatments are different for each variable**
+
+*Student Answer:* \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Answer Key**
+
+-   The Tukey HSD test is essential for determining which specific treatment groups differ after ANOVA indicates a significant overall effect. 
+  
+LWD Volume:
+  1. Ref: a
+  2. Imp: b
+  3. Res-b: b
+  4. Res-w: ab
+  
+Rh:
+  1. Ref: a 
+  2. Imp: a
+  3. Res-b: a
+  4. Res-w: a
+
+### 6. Calculate Summary Statistics (mean, SE, group letters)
+
+#### (a) Fine Sediment
+
+```{r}
+
+sed_summary <- data %>%
+  group_by(Treatment) %>%
+  summarise(
+    mean = mean(Fine_Sediment, na.rm = TRUE),
+    se = sd(Fine_Sediment, na.rm = TRUE) / sqrt(n())
+  ) %>%
+  mutate(Treatment = factor(Treatment, levels = c("Ref", "Imp", "Res-b", "Res-w"))) %>%
+  arrange(Treatment)
+
+# Tukey group letters based on Tukey result
+
+sed_summary$group <- c("a", "b", "a", "b")
+
+```
+
+#### (b) Large Woody Debris
+
+```{r}
+
+lwd_summary <- data %>%
+  group_by(Treatment) %>%
+  summarise(
+    mean = mean(LWD_Volume, na.rm = TRUE),
+    se = sd(LWD_Volume, na.rm = TRUE) / sqrt(n())
+  ) %>%
+  mutate(Treatment = factor(Treatment, levels = c("Ref", "Imp", "Res-b", "Res-w"))) %>%
+  arrange(Treatment)
+
+# Tukey group letters based on result
+
+lwd_summary$group <- c("a", "b", "b", "ab")
+
+```
+
+#### (c) Hydraulic Retention (Rh)
+
+```{r}
+
+rh_summary <- data %>%
+  group_by(Treatment) %>%
+  summarise(
+    mean = mean(Rh, na.rm = TRUE),
+    se = sd(Rh, na.rm = TRUE) / sqrt(n())
+  ) %>%
+  mutate(Treatment = factor(Treatment, levels = c("Ref", "Imp", "Res-b", "Res-w"))) %>%
+  arrange(Treatment)
+
+# Tukey group letters based on result
+
+rh_summary$group <- c("a", "a", "a", "a")
+
+```
+
+**Description:** These blocks calculate the mean and standard error (`se`) for each treatment group, and assigns Tukey group letters.
+
+-   `group_by(Treatment)`: Groups data by treatment levels.
+
+-   `summarise()`: Calculates the mean and `se`.
+
+-   `mutate()`: Ensures treatment order matches the scientific sequence.
+
+-   `arrange()`: Sorts rows by treatment.
+
+**Why it matters:** Summary statistics condense the data and help visualize variability between treatments in the plots.
+
+🔍 **Question 5:** **In your own words, what do the summary statistics (mean, standard error, group letters) reveal about the treatment effects?**
+
+*Student Answer:* \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Answer Key**
+
+-   **Mean:** Indicates the average response for each treatment group, allowing for general comparisons.
+
+-   **Standard Error (SE):** Shows the variability or precision of the mean estimates. Smaller SE values indicate more reliable estimates.
+
+-   **Group Letters:** Derived from Tukey HSD results, these letters indicate significant differences between treatments. For example, treatments with different letters (e.g., "a" and "b") are significantly different, while shared letters (e.g., "ab") show overlap.
+
+### 7. Define a Custom Plot Theme
+
+```{r}
+# Base theme used in all plots
+
+base_theme <- theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+    aspect.ratio = 1  # make plot panels square
+  )
+
+```
+
+**Description:** Sets a consistent, clean aesthetic for all plots. Black borders and square panels mimic professional publication formats.
+
+**Why it matters:** A polished theme enhances clarity and visual appeal.
+
+### 8. Create Each Plot
+
+#### Plot (a): Fine Sediment
+
+```{r}
+
+p1 <- ggplot(sed_summary, aes(x = Treatment, y = mean)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.1) +
+  geom_text(aes(label = group, y = mean + se + 2), size = 4) +
+  labs(x = "Treatment", y = "% of fine sediment", subtitle = "(a)") +
+  base_theme +
+  coord_fixed()
+
+```
+
+#### Plot (b): Volume of Wood
+
+```{r}
+
+p2 <- ggplot(lwd_summary, aes(x = Treatment, y = mean)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.1) +
+  geom_text(aes(label = group, y = mean + se + 0.002), size = 4) +
+  labs(x = "Treatment", y = "Volume of wood (m³/m²)", subtitle = "(b)") +
+  base_theme +
+  coord_fixed()
+
+```
+
+#### Plot (c): Hydraulic Retention (Rh)
+
+```{r}
+
+p3 <- ggplot(rh_summary, aes(x = Treatment, y = mean)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.1) +
+  geom_text(aes(label = group, y = mean + se + 0.05), size = 4) +
+  labs(x = "Treatment", y = expression(R[h]), subtitle = "(c)") +
+  base_theme +
+  coord_fixed()
+
+```
+
+**Description:** Each plot visualizes the treatment effects:
+
+-   `geom_point()`: Adds points for treatment means.
+
+-   `geom_errorbar()`: Shows variability using error bars.
+
+-   `geom_text()`: Adds group labels above error bars.
+
+-   `labs()`: Sets axis labels and subtitles.
+
+**Why it matters:** Clear, intuitive plots make scientific results accessible to broader audiences.
+
+### 9. Display the Plots
+
+#### Option 1: Show Each Plot One by One
+
+```{r}
+
+print(p1)
+print(p2)
+print(p3)
+
+```
+
+#### Option 2: Display All Side-by-Side
+
+```{r}
+
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+**Description:** Arranges all three plots side by side to display treatment effects comprehensively.
+
+**Why it matters:** Visualizing results together allows patterns to emerge, facilitating comparisons across variables.
+
+🔍 **Question 6:** **In your own words, how do the plots help communicate the results of the analysis? Which features of the plots (e.g., error bars, group letters) are most useful for interpreting treatment effects?**
+
+**Potential Answers:**
+
+-   The plots visually summarize the key results, making it easier to compare treatments at a glance. They clearly show the mean values for each treatment and the variability around those means using error bars.
+
+-   The group letters are especially useful because they highlight which treatments are statistically different from one another, reducing the need for lengthy explanations.
+
+-   Together, these features make the findings accessible and intuitive, even for an audience with limited statistical background.
+
+🔍 **Question 7:** **Imagine presenting these plots to a scientific audience. What additional information or context might you include to make the results more compelling or understandable?**
+
+**Potential Answers:**
+
+-   I would include a brief caption or title explaining the ecological significance of the variables (e.g., why fine sediment, LWD, and Rh are important indicators of stream health).
+
+-   Adding sample sizes (n) for each treatment group to the plots would help the audience assess the reliability of the data.
+
+-   I might also overlay raw data points (e.g., jittered dots) to show the variability within groups and ensure transparency.
+
+-   Finally, I would link the results to practical implications, such as recommending specific restoration techniques based on the findings.
+
+🔍 **Question 8:** **Go back and review Figure 1 from the paper. Do the plots shown there match up with the ones we just created? How and why might these differ? (hint: review their statistical analysis methods vs yours)**
+
+-   The figure created does not align with Figure 1 from the paper. In the paper, for LWD Volume, Res-w is statistically different from Imp and Res-b, whereas our Tukey tests show no statistical differences between these three treatments. Additionally, Rh data in the paper seems to show differences between Ref and Imp streams, where our tests show no differences between any of the treatments. 
+
+- These differences likely stem from the difference in statistical analyses methods between our analysis and theirs. They use generalized linear models and linear mixed-effects models to test for differences between treatments, whereas we use ANOVA/Tukey tests. In addition to being able to model data at a more complex level, accounting for correlations and random effects, GLMs and LMMs are more robust and handle unequal sample sizes effectively. They can adjust for the variability within groups where ANOVAs are unable to. 
+
+### Summary of Coding Assignment
+
+In this coding assignment, we explored how to analyze and visualize ecological data related to stream restoration treatments. Specifically, we used R to recreate Figure 1 from the focal study, which examines the effects of different treatments—reference (Ref), impacted (Imp), and two types of restoration (Res-b, Res-w)—on three ecological response variables: fine sediment cover, large woody debris (LWD) volume, and hydraulic retention (Rh). Here's an overview of what was achieved:
+
+1.  **Data Preparation and Organization:**
+
+    -   Imported the dataset containing environmental variables for each treatment group.
+
+    -   Reordered the `Treatment` factor to reflect a logical scientific sequence, ensuring plots and analyses align with ecological context.
+
+2.  **Statistical Analysis Using ANOVA:**
+
+    -   Conducted separate ANOVA tests for each response variable (fine sediment, LWD volume, and Rh) to determine if the treatments had a statistically significant impact.
+
+    -   Discussed the importance of ANOVA in comparing group means and understanding treatment effects.
+
+3.  **Post-Hoc Analysis with Tukey Tests:**
+
+    -   Performed Tukey's Honest Significant Difference (HSD) tests to identify which specific treatment groups differed for each variable.
+
+    -   Generated group letters (e.g., "a," "b," "ab") for use in visualizations, summarizing significant differences between treatments.
+
+4.  **Calculation of Summary Statistics:**
+
+    -   Computed key summary statistics for each treatment group, including the mean and standard error (SE), which capture the central tendency and variability of the data.
+
+    -   Annotated why these metrics are critical for interpreting results and enhancing plot clarity.
+
+5.  **Visualization of Results:**
+
+    -   Created clear and professional-quality plots for each response variable using `ggplot2`. Each plot included:
+
+        -   Treatment means as points.
+
+        -   Error bars to show variability.
+
+        -   Group letters to visually indicate significant differences.
+
+    -   Applied a consistent custom theme to ensure the plots were clean, square, and publication-ready.
+
+6.  **Integration and Presentation:**
+
+    -   Combined the individual plots into a cohesive layout, enabling side-by-side comparisons across response variables. This facilitated a holistic understanding of how treatments impact various ecological factors.
+
+This assignment not only reinforced the technical skills needed to conduct statistical analysis and create visualizations in R but also highlighted the practical implications of stream restoration research. By walking through these steps, we gained a deeper appreciation of how data-driven insights guide ecological decision-making.
