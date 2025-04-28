@@ -2235,7 +2235,26 @@ avg_cpercent <- pocdata %>%
   ) %>%
   filter(!is.na(Average_Cpercent))
 
-head(avg_cpercent)
+p <- ggplot(avg_cpercent, aes(x = Site, y = Average_Cpercent)) + 
+  geom_bar(stat = "identity", fill = "steelblue") +  
+  geom_errorbar(
+    aes(ymin = Average_Cpercent - SE_Cpercent, ymax = Average_Cpercent + SE_Cpercent),
+    width = 0.2,
+    color = "black"
+  ) +
+  labs(title = "Average C% by Site", x = "Site", y = "Average C%") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12, color = "black"),
+     axis.line = element_line(colour = "black", size = 0.5),
+    axis.title.x = element_text(size = 10, color = "black"),
+    axis.title.y = element_text(size = 10, color = "black"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  scale_y_continuous(limits = c(0, 100))
+
+# Print the plot
+print(p)
 
 ```
 
@@ -2243,7 +2262,7 @@ head(avg_cpercent)
 ```{r}
 
 # Define desired site order
-site_order <- c("Harrison", "Chick", "BRI_1", "BRI_2", "SDY_1", "SDY_2", "SDY_3", 
+site_order <- c("Harrison", "Chickahominy", "BRI_1", "BRI_2", "SDY_1", "SDY_2", "SDY_3", 
                 "SFT_1", "SFT_2", "SFT_3", "SFT_4", "Barfoot", "ANNA")
 
 # Recode Site names in avg_cpercent to match those used in meanthesis_long
