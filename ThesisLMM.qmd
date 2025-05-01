@@ -185,7 +185,7 @@ create_diagnostic_plots <- function(model) {
 
 ```
 
-Now we want to examine how much light attenuation at each site can be attributed to the effects of TSS and CDOM (our two significant predictors). To do this, we multiply average predictor values for each site by the slope of the predictor relationship, then divide this by the original kd. Finally, we multiply by 100 to convert this proportion to a percentage. 
+Now we want to examine how much light attenuation at each site can be attributed to the effects of TSS and CDOM (our two significant predictors). To do this, we multiply average predictor values for each site by the slope of the predictor relationship, then divide this by the original kd. Finally, we multiply by 100 to convert this proportion to a percentage.
 
 ```{r}
 
@@ -306,7 +306,6 @@ lm_allpred <- lm(kd ~ TSS + CDOM + CHLa, data = avgthesis)
 summary(lm_allpred)
 
 ```
-
 
 # Linear Mixed Effect Models
 
@@ -431,14 +430,11 @@ AIC(lmmall, lmmall2, lmmavg1)
 
 ```
 
-
-
 # Scaling Data then LMM
 
-It is good practice to standardise your explanatory variables before proceeding so that they have a mean of zero (“centering”) and standard deviation of one (“scaling”). It ensures that the estimated coefficients are all on the same scale, making it easier to compare effect sizes. 
+It is good practice to standardise your explanatory variables before proceeding so that they have a mean of zero (“centering”) and standard deviation of one (“scaling”). It ensures that the estimated coefficients are all on the same scale, making it easier to compare effect sizes.
 
 scale() centers the data (the column mean is subtracted from the values in the column) and then scales it (the centered column values are divided by the column’s standard deviation).
-
 
 ```{r}
 
@@ -635,19 +631,19 @@ t_test_cdom
 
 ```
 
-According to the results of the paired Ttests there are statistical differences in our percent kd explained by predictors based on univariate vs multivariate results. 
+According to the results of the paired Ttests there are statistical differences in our percent kd explained by predictors based on univariate vs multivariate results.
 
-Doing univariate regressions and subtracting out the residuals gives us estimates of TSS effects that is ~8% higher than multivariate estimates on average.
+Doing univariate regressions and subtracting out the residuals gives us estimates of TSS effects that is \~8% higher than multivariate estimates on average.
 
-Alternatively, univariate estimates of CDOM effects are ~0.84% lower than multivariate estimates on average.
+Alternatively, univariate estimates of CDOM effects are \~0.84% lower than multivariate estimates on average.
 
 Comparing percent contributions between multivariate and univariate (hierarchical) regressions is tricky as to do so, we have to be sure that our predictors are not correlated. Multivariate regressions are order independent and partition variance simultaneously.
 
 # Does order matter?
 
-I know that changing the order in which I do my univariate regressions changes the percent estimates for each predictor. Theoretically, I don't think this should be the case since TSS and CDOM should not be correlated, one represents scattering effects and one represents absorption effects. 
+I know that changing the order in which I do my univariate regressions changes the percent estimates for each predictor. Theoretically, I don't think this should be the case since TSS and CDOM should not be correlated, one represents scattering effects and one represents absorption effects.
 
-Here I want to run a quick test to determine if there actually is a correlation between TSS and CDOM that may be causing the order of our regressions to change our findings. 
+Here I want to run a quick test to determine if there actually is a correlation between TSS and CDOM that may be causing the order of our regressions to change our findings.
 
 ```{r}
 
@@ -655,7 +651,7 @@ cor(avgthesis[, c("TSS", "CDOM")])
 
 ```
 
-Here, it appears as though CDOM and TSS are minorly correlated indicating that there may be some shared variance between predictors. While this isn't a lot, it is likely enough to make the sequential univariate regressions order sensitive. Due to these being slightly correlated, it may be better to use a multivariate approach. 
+Here, it appears as though CDOM and TSS are minorly correlated indicating that there may be some shared variance between predictors. While this isn't a lot, it is likely enough to make the sequential univariate regressions order sensitive. Due to these being slightly correlated, it may be better to use a multivariate approach.
 
 ```{r}
 
@@ -664,6 +660,37 @@ vif(lm(kd ~ TSS + CDOM, data = avgthesis))
 
 
 ```
-A VIF of 1 indicates no correlation between predictors, this value (1.03) means there is negligible correlation and that the slopes of this multivariate regression can be treated as independent contributions to kd. 
+
+A VIF of 1 indicates no correlation between predictors, this value (1.03) means there is negligible correlation and that the slopes of this multivariate regression can be treated as independent contributions to kd.
+
+# Lake Anna LMM
+
+```{r}
+
+annaurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=853297443&single=true&output=csv"
+
+annadata <- read_csv(annaurl)
+
+head(annadata)
+
+```
+
+```{r}
+
+# Ensure the Date column is in Date format
+annadata$Date <- as.Date(annadata$Date, format = "%m/%d/%Y")
+
+annadata$Month <- format(annadata$Date, "%m")
+
+
+```
+
+```{r}
+
+annalmm <- lmer(kd ~ Photic_TSS + Photic_CHLa + Photic_CDOM + (1|Month), data = annadata)
+
+summary(annalmm)
+
+```
 
 
