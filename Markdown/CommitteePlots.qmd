@@ -151,7 +151,6 @@ grid.arrange(plot_kd, plot_CDOM, plot_TSS, plot_CHLa, ncol = 2)
 
 ```
 
-
 ```{r}
 
 library(multcompView)
@@ -259,6 +258,53 @@ grid.arrange(
 
 ```
 
+```{r}
+
+plot_kd <- plot_kd +
+  geom_text(data = kd_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(), 
+    panel.border = element_blank(),        
+    axis.line = element_line(color = "black")
+  )
+
+plot_CDOM <- plot_CDOM +
+  geom_text(data = cdom_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    panel.border = element_blank(),        
+    axis.line = element_line(color = "black")
+  )
+
+plot_TSS <- plot_TSS +
+  geom_text(data = tss_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        panel.border = element_blank(),        
+        axis.line = element_line(color = "black"))
+
+plot_CHLa <- plot_CHLa +
+  geom_text(data = chla_labels, aes(x = Site, y = Max + 0.2 * Max, label = Letter), size = 3) +
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        panel.border = element_blank(),        
+        axis.line = element_line(color = "black") )
+
+combined_plot <- grid.arrange(
+  plot_kd, plot_CDOM, plot_TSS, plot_CHLa, 
+  ncol = 2, nrow = 2,
+  widths = c(1, 1),
+  heights = c(1, 1)
+)
+
+print(combined_plot)
+
+ggsave("combined_plots_600dpi.png", combined_plot,
+       width = 10, height = 8, dpi = 600, units = "in")
+
+```
 
 ```{r}
 
@@ -397,7 +443,6 @@ print(site_letters)
 
 ```
 
-
 ```{r}
 
 
@@ -427,7 +472,6 @@ print(site_letters)
 
 ```
 
-
 ```{r}
 # Load required package
 library(multcompView)
@@ -456,7 +500,6 @@ site_letters <- data.frame(
 print(site_letters)
 
 ```
-
 
 ```{r}
 # Load required package
@@ -733,6 +776,160 @@ grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
 
+```{r}
+
+
+# Function to extract regression statistics (equation, R-squared, p-value, SE)
+get_regression_stats <- function(x, y) {
+  model <- lm(y ~ x)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 3), sep = "")
+  pval <- paste("P = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
+  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
+}
+
+# p1 - Regression: kd (m⁻¹) vs TSS (mg/L)
+reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`kd (m-1)`)
+p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "black") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = " ", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(meanthesis$`TSS (mg/L)`), y = max(meanthesis$`kd (m-1)`), 
+            label = paste(reg_stats_p1$eq, "\n", reg_stats_p1$rsq, "\n", reg_stats_p1$pval, "\n", reg_stats_p1$se), 
+            hjust = 1, vjust = 2, size = 3, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 8, color = "black"),  # Chart title black
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 9, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 9, color = "black")   # Y-axis title black
+  )
+
+# p2 - Regression: Residual kd after TSS vs CDOM a440 (corr)
+reg_stats_p2 <- get_regression_stats(meanthesis$`CDOM a440 (corr)`, meanthesis$`Residual kd after TSS`)
+p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "black") +  # Use a lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = " ", x = "CDOM (m⁻¹)", y = "Residual kd after TSS (m⁻¹)") +
+  geom_text(x = max(meanthesis$`CDOM a440 (corr)`), y = max(meanthesis$`Residual kd after TSS`), 
+            label = paste(reg_stats_p2$eq, "\n", reg_stats_p2$rsq, "\n", "P < 0.001", "\n", reg_stats_p2$se), 
+            hjust = 1, vjust = 2, size = 3, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 8, color = "black"),  # Chart title black
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 9, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 9, color = "black")   # Y-axis title black
+  )
+
+# p3 - Regression: kd vs CHLa (ug/L)
+reg_stats_p3 <- get_regression_stats(meanthesis$`CHLa (ug/L)`, meanthesis$`kd (m-1)`)
+p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "black") +  # Use an even lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = " ", x = "CHLa (µg L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(meanthesis$`CHLa (ug/L)`), y = max(meanthesis$`kd (m-1)`), 
+            label = paste(reg_stats_p3$eq, "\n", reg_stats_p3$rsq, "\n", reg_stats_p3$pval, "\n", reg_stats_p3$se), 
+            hjust = 1, vjust = 3, size = 3, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 8, color = "black"),  # Chart title black
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 9, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 9, color = "black")   # Y-axis title black
+  )
+
+# Display plots in a grid
+plotprint <- grid.arrange(p1, p2, p3, ncol = 1,
+             heights = c(1,1,1))
+
+print(plotprint)
+
+#ggsave("figure3option.png", plotprint,
+       width = 5, height = 8, dpi = 600, units = "in")
+
+
+```
+
+
+```{r}
+
+
+
+# Function to extract regression statistics (equation, R-squared, p-value, SE)
+get_regression_stats <- function(x, y) {
+  model <- lm(y ~ x)
+  eq <- paste("y = ", round(coef(model)[2], 2), "x + ", round(coef(model)[1], 2), sep = "")
+  rsq <- paste("R² = ", round(summary(model)$r.squared, 2), sep = "")
+  pval <- paste("p = ", round(summary(model)$coefficients[2, 4], 3), sep = "")
+  se <- paste("SE = ", round(summary(model)$coefficients[2, 2], 3), sep = "")  # Extract SE
+  return(list(eq = eq, rsq = rsq, pval = pval, se = se))
+}
+
+# p1 - Regression: kd (m⁻¹) vs TSS (mg/L)
+reg_stats_p1 <- get_regression_stats(meanthesis$`TSS (mg/L)`, meanthesis$`kd (m-1)`)
+p1 <- ggplot(meanthesis, aes(x = `TSS (mg/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "black") +  # Use a darker gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = " ", x = "TSS (mg L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(meanthesis$`TSS (mg/L)`), y = max(meanthesis$`kd (m-1)`), 
+            label = paste(reg_stats_p1$rsq, "\n", reg_stats_p1$pval), 
+            hjust = 1, vjust = 4, size = 3, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 8, color = "black"),  # Chart title black
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 9, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 9, color = "black")   # Y-axis title black
+  )
+
+# p2 - Regression: Residual kd after TSS vs CDOM a440 (corr)
+reg_stats_p2 <- get_regression_stats(meanthesis$`CDOM a440 (corr)`, meanthesis$`Residual kd after TSS`)
+p2 <- ggplot(meanthesis, aes(x = `CDOM a440 (corr)`, y = `Residual kd after TSS`)) +
+  geom_point(color = "black") +  # Use a lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = " ", x = "CDOM (m⁻¹)", y = "Residual kd after TSS (m⁻¹)") +
+  geom_text(x = max(meanthesis$`CDOM a440 (corr)`), y = max(meanthesis$`Residual kd after TSS`), 
+            label = paste(reg_stats_p2$rsq, "\n", "p < 0.001"), 
+            hjust = 1, vjust = 4, size = 3, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 8, color = "black"),  # Chart title black
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 9, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 9, color = "black")   # Y-axis title black
+  )
+
+# p3 - Regression: kd vs CHLa (ug/L)
+reg_stats_p3 <- get_regression_stats(meanthesis$`CHLa (ug/L)`, meanthesis$`kd (m-1)`)
+p3 <- ggplot(meanthesis, aes(x = `CHLa (ug/L)`, y = `kd (m-1)`)) +
+  geom_point(color = "black") +  # Use an even lighter gray for points
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  # Black regression line
+  labs(title = " ", x = "CHLa (µg L⁻¹)", y = "kd (m⁻¹)") +
+  geom_text(x = max(meanthesis$`CHLa (ug/L)`), y = max(meanthesis$`kd (m-1)`), 
+            label = paste(reg_stats_p3$rsq, "\n", reg_stats_p3$pval), 
+            hjust = 1, vjust =4, size = 3, color = "black") +  # Text color black
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 8, color = "black"),  # Chart title black
+     axis.line = element_line(colour = "black", size = 0.5),  # Add black axis lines
+    axis.title.x = element_text(size = 9, color = "black"),  # X-axis title black
+    axis.title.y = element_text(size = 9, color = "black")   # Y-axis title black
+  )
+
+# Display plots in a grid
+plotprint <- grid.arrange(p1, p2, p3, ncol = 1,
+             heights = c(1,1,1))
+
+print(plotprint)
+
+ggsave("figure3option2.png", plotprint,
+       width = 5, height = 8, dpi = 600, units = "in")
+
+
+```
+
 
 ```{r}
 
@@ -773,7 +970,6 @@ create_diagnostic_plots(model_p3)
 
 
 ```
-
 
 ### Multiple Linear Regression
 
@@ -885,7 +1081,6 @@ ggplot(meanthesis_long, aes(x = Site, y = Percentage, fill = Source)) +
 
 ### Lake Size
 
-
 ```{r}
 
 library(dplyr)
@@ -911,7 +1106,6 @@ view(mean_by_lake)
 
 ```
 
-
 ```{r}
 
 model <- lm(`mean_kd (m-1)` ~ mean_Lake_Size, data = mean_by_lake)
@@ -919,6 +1113,7 @@ summary(model)
 
 
 ```
+
 ```{r}
 
 library(ggplot2)
@@ -936,9 +1131,6 @@ ggplot(mean_by_lake, aes(x = mean_Lake_Size, y = `mean_kd (m-1)`)) +
 
 ```
 
-
-
-
 ## Lake Anna
 
 ```{r}
@@ -946,6 +1138,8 @@ ggplot(mean_by_lake, aes(x = mean_Lake_Size, y = `mean_kd (m-1)`)) +
 annaurl <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzc4O_yfQyjR6m0xebm0MWcQ58v-aMF1cq1zDVMJ9Qs-tGrgf94j21Ood2xGH-f5hw-gC8CqpjenBO/pub?gid=853297443&single=true&output=csv"
 
 annadata <- read_csv(annaurl)
+
+head(annadata)
 
 ```
 
@@ -981,7 +1175,6 @@ ggplot(annadata) +
 
 
 ```
-
 
 ```{r}
 ggplot(annadata) +
@@ -1085,6 +1278,8 @@ ggplot(annadata) +
 
 ```
 
+### Individual Linear Regressions
+
 ```{r}
 
 # Function to extract regression statistics (equation, R-squared, p-value, and residual SE)
@@ -1168,8 +1363,6 @@ grid.arrange(p1, p2, p3, ncol = 2)
 
 ```
 
-
-
 ```{r}
 
 annadata$residualchla <- annadata$kd - (annadata$Photic_CHLa * 0.07)
@@ -1197,8 +1390,6 @@ print(p2)
 
 
 ```
-
-
 
 ```{r}
 
@@ -1243,6 +1434,14 @@ create_diagnostic_plots(model_p3)
 ```
 
 ### Lake Anna Multiple Linear Regression
+
+```{r}
+
+lm(kd ~ Photic_TSS + Photic_CDOM + Photic_CHLa, data = annadata)
+
+
+```
+
 
 ```{r}
 
@@ -1294,6 +1493,77 @@ print(Annaresults_df)
 ```
 
 The results of the AIC-based model comparison indicate that Photic_CHLa is the most effective predictor for kd, as the model using only Photic_CHLa (Model 1) has the lowest AIC value. This model outperforms all other combinations of predictors, suggesting that Photic_CHLa alone explains the variation in kd more effectively than any other model. The inclusion of Photic_TSS alongside Photic_CHLa (Model 2) results in only a marginal increase in AIC, indicating that adding Photic_TSS does not significantly improve the model's predictive ability. Models using Photic_TSS or Photic_CDOM alone, such as Models 3 and 8, perform considerably worse, with higher AIC values and larger delta AIC values, highlighting that these predictors are less effective in explaining kd by themselves. Furthermore, models that combine Photic_TSS with Photic_CDOM or all three predictors (Photic_TSS, Photic_CDOM, and Photic_CHLa) result in higher AIC values, indicating that adding these predictors does not enhance model performance. Overall, the findings suggest that Photic_CHLa is the most crucial factor in predicting kd, while other variables like Photic_TSS and Photic_CDOM do not contribute meaningfully to the model.
+
+### Dr Bukaveckas Anna Data
+
+```{r}
+
+bukanna <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ39eNa8kt_kYh0ilq_ecR7SdEzLwjhQKZZHR1sItT1w4GzEiTJMogEkVV76Gx2e6wUnd6kVpg9sIkn/pub?gid=0&single=true&output=csv"
+
+bukanna <- read_csv(bukanna)
+
+bukanna$Date <- as.Date(bukanna$Date, format = "%m/%d/%Y")
+
+```
+
+
+```{r}
+
+lm(kd ~ Photic_TSS + Photic_CDOM + Photic_CHLa, data = bukanna)
+
+```
+
+```{r}
+
+# Define the full dataset and predictors
+response <- "kd"
+predictors <- c("Photic_TSS", "Photic_CDOM", "Photic_CHLa")  # Adjust predictors based on your dataset
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+# Fit models for each combination and calculate AIC
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Create the formula for the current combination of predictors
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  # Fit the linear model
+  model <- lm(formula, data = bukanna)
+  
+  # Return the model, predictors, and AIC
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+# Convert results to a dataframe for easier analysis
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model (difference from the minimum AIC)
+Annaresults_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+print(Annaresults_df)
+
+
+
+```
+Model selection based on Akaike’s Information Criterion (AIC) indicated that Photic_CHLa alone was the best predictor of light attenuation (kd), with the lowest AIC value (–36.02). Models that included CHLa with either TSS or CDOM showed slightly higher AIC values (ΔAIC < 2), suggesting they are also plausible but do not substantially improve model performance. In contrast, models without CHLa—including those with only TSS, only CDOM, or both—had significantly higher AIC values (ΔAIC > 4), indicating weaker support. Overall, these results suggest that CHLa is the most parsimonious and informative predictor of kd in this dataset, with little gain in explanatory power from adding other variables.
 
 ## Polynomial Regressions
 
@@ -1479,7 +1749,6 @@ Based on the AIC values and their corresponding Delta AIC values, the best model
 
 ## Secchi Depth
 
-
 ```{r}
 # Function to extract regression statistics (equation, R-squared, p-value, SE)
 get_regression_stats <- function(x, y) {
@@ -1554,7 +1823,6 @@ grid.arrange(p1, p2, p3, ncol = 2)
 
 
 ```
-
 
 ```{r}
 # Function to extract regression statistics (equation, R-squared, p-value)
@@ -1963,8 +2231,6 @@ get_regression_stats <- function(x, y) {
 }
 ```
 
-
-
 ```{r}
 # Fit the linear regression model
 model <- lm(POC ~ TSS, data = pocdata, na.action = na.exclude)  # This will exclude NA values from the regression model
@@ -2041,7 +2307,6 @@ p_chla_poc
 
 
 ```
-
 
 ```{r}
 
@@ -2141,7 +2406,6 @@ pocdata <- pocdata %>%
 
 ```
 
-
 ```{r}
 
 # Fit the linear regression model
@@ -2178,7 +2442,6 @@ print(p)
 
 
 ```
-
 
 ```{r}
 
@@ -2235,7 +2498,6 @@ p_tss_c  # Simply run this and the plot will be shown
 
 
 ```
-
 
 ```{r}
 
@@ -2322,7 +2584,6 @@ print(p)
 
 ```
 
-
 ```{r}
 
 # Define desired site order
@@ -2375,4 +2636,3 @@ p <- ggplot(avg_cpercent, aes(x = Site, y = Average_Cpercent)) +
 print(p)
 
 ```
-

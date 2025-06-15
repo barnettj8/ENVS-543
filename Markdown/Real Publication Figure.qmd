@@ -1,0 +1,275 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+```{r}
+
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+library(car)
+library(patchwork)
+library(dplyr)
+library(gridExtra)
+library(tidyr)
+
+```
+
+```{r}
+
+library(readxl)
+annadata <- read_excel("PublicationData.xlsx")
+
+```
+
+```{r}
+
+annadata$Date <- as.Date(annadata$Date, format = "%Y-%m-%d")  
+
+```
+
+```{r}
+
+z_label <- "Photic Depth (m)"      
+kd_label <- "Light Attenuation (kd; m⁻¹)"
+
+ymin <- 0     
+ymax <- 12    
+kdmin <- 0    
+kdmax <- 2
+
+
+p1 <- ggplot(annadata, aes(x = Date)) +
+  geom_line(aes(y = Z, color = "Z", linetype = "Z")) +
+  geom_point(aes(y = Z, color = "Z", shape = "Z"), size = 2) +
+  geom_line(aes(y = kd * (ymax - ymin) / (kdmax - kdmin), color = "kd", linetype = "kd")) +
+  geom_point(aes(y = kd * (ymax - ymin) / (kdmax - kdmin), color = "kd", shape = "kd"), size = 2) +
+  scale_y_continuous(
+    name = z_label,
+    limits = c(ymin, ymax),
+    sec.axis = sec_axis(
+      trans = ~ . * (kdmax - kdmin) / (ymax - ymin),
+      name = kd_label
+    )
+  ) +
+ scale_color_manual(
+    name = NULL,
+    values = c("Z" = "black", "kd" = "black"),
+    labels = c("Z" = "Photic Depth", "kd" = "kd")
+  ) +
+  scale_linetype_manual(
+    name = NULL,
+    values = c("Z" = "solid", "kd" = "dashed"),
+    labels = c("Z" = "Photic Depth", "kd" = "kd")
+  ) +
+  scale_shape_manual(
+    name = NULL,
+    values = c("Z" = 16, "kd" = 17),  # solid circle, triangle
+    labels = c("Z" = "Photic Depth", "kd" = "kd")
+  ) +
+  theme_minimal() +
+  scale_x_date(
+  breaks = seq(min(annadata$Date), max(annadata$Date), by = "3 months"),
+  labels = function(x) format(x, "%b-%y") %>% sub("Jan", "JA", .) %>%
+    sub("Feb", "FE", .) %>%
+    sub("Mar", "MR", .) %>%
+    sub("Apr", "AP", .) %>%
+    sub("May", "MY", .) %>%
+    sub("Jun", "JN", .) %>%
+    sub("Jul", "JL", .) %>%
+    sub("Aug", "AU", .) %>%
+    sub("Sep", "SE", .) %>%
+    sub("Oct", "OC", .) %>%
+    sub("Nov", "NV", .) %>%
+    sub("Dec", "DE", .)
+) +
+  theme(
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    axis.title.x = element_blank(),
+    axis.text.y = element_text(size = 12),
+    axis.title.y = element_text(size = 12),   
+    axis.text.y.right = element_text(size = 12),
+    axis.title.y.right = element_text(size = 12),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8),
+    legend.position = c(0.05, 0.1),
+    legend.justification = c("left", "bottom"),
+    legend.background = element_rect(fill = alpha("white", 0.7), color = NA)
+  )
+
+p1
+
+ggsave("figure4p1.png", p1,
+       width = 6, height = 4, dpi = 600, units = "in")
+
+ggsave("figure4p1.svg", p1,
+       width = 6, height = 4, units = "in")
+
+```
+
+```{r}
+ymin <- 0     
+ymax <- 2   
+kdmin <- 0    
+kdmax <- 4
+
+p2 <- ggplot(annadata, aes(x = Date)) +
+  geom_line(aes(y = CDOM, color = "CDOM", linetype = "CDOM")) +
+  geom_point(aes(y = CDOM, color = "CDOM", shape = "CDOM"), size = 2) +
+  geom_line(aes(y = TSS * (ymax - ymin) / (kdmax - kdmin), color = "TSS", linetype = "TSS")) +
+  geom_point(aes(y = TSS * (ymax - ymin) / (kdmax - kdmin), color = "TSS", shape = "TSS"), size = 2) +
+  scale_y_continuous(
+    name = "CDOM (m⁻¹)",
+    limits = c(ymin, ymax),
+    sec.axis = sec_axis(
+      trans = ~ . * (kdmax - kdmin) / (ymax - ymin),
+      name = "TSS (mg L⁻¹)",
+      breaks = scales::pretty_breaks(n = 5),
+      labels = scales::number_format()
+    )
+  ) +
+  scale_color_manual(
+    name = NULL,
+    values = c("CDOM" = "black", "TSS" = "black"),
+    labels = c("CDOM" = "CDOM", "TSS" = "TSS")
+  ) +
+  scale_linetype_manual(
+    name = NULL,
+    values = c("CDOM" = "solid", "TSS" = "dashed"),
+    labels = c("CDOM" = "CDOM", "TSS" = "TSS")
+  ) +
+  scale_shape_manual(
+    name = NULL,
+    values = c("CDOM" = 16, "TSS" = 17),  # solid circle, triangle
+    labels = c("CDOM" = "CDOM", "TSS" = "TSS")
+  ) +
+  theme_minimal() +
+  scale_x_date(
+  breaks = seq(min(annadata$Date), max(annadata$Date), by = "3 months"),
+  labels = function(x) format(x, "%b-%y") %>% sub("Jan", "JA", .) %>%
+    sub("Feb", "FE", .) %>%
+    sub("Mar", "MR", .) %>%
+    sub("Apr", "AP", .) %>%
+    sub("May", "MY", .) %>%
+    sub("Jun", "JN", .) %>%
+    sub("Jul", "JL", .) %>%
+    sub("Aug", "AU", .) %>%
+    sub("Sep", "SE", .) %>%
+    sub("Oct", "OC", .) %>%
+    sub("Nov", "NV", .) %>%
+    sub("Dec", "DE", .)
+) +
+  theme(
+     plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    axis.title.x = element_blank(),
+    axis.text.y = element_text(size = 12),
+    axis.title.y = element_text(size = 12),   
+    axis.text.y.right = element_text(size = 12),
+    axis.title.y.right = element_text(size = 12),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8),
+    legend.position = c(0.05, 0.95),
+    legend.justification = c("left", "top"),
+    legend.background = element_rect(fill = alpha("white", 0.7), color = NA)
+  )
+
+p2
+
+ggsave("figure4p2.png", p2,
+       width = 6, height = 4, dpi = 600, units = "in")
+
+ggsave("figure4p2.svg", p2,
+       width = 6, height = 4, units = "in")
+
+```
+
+
+```{r}
+
+ymin <- 0     
+ymax <- 22   
+kdmin <- 0    
+kdmax <- 1
+
+p3 <- ggplot(annadata, aes(x = Date)) +
+  geom_line(aes(y = CHLa, color = "CHLa", linetype = "CHLa")) +
+  geom_point(aes(y = CHLa, color = "CHLa", shape = "CHLa"), size = 2) +
+  geom_line(aes(y = POC * (ymax - ymin) / (kdmax - kdmin), color = "POC", linetype = "POC")) +
+  geom_point(aes(y = POC * (ymax - ymin) / (kdmax - kdmin), color = "POC", shape = "POC"), size = 2) +
+  scale_y_continuous(
+    name = "CHLa (µg L⁻¹)",
+    limits = c(ymin, ymax),
+    sec.axis = sec_axis(
+      trans = ~ . * (kdmax - kdmin) / (ymax - ymin),
+      name = "POC (mg L⁻¹)",
+      breaks = scales::pretty_breaks(n = 5),
+      labels = scales::number_format()
+    )
+  ) +
+  scale_color_manual(
+    name = NULL,
+    values = c("CHLa" = "black", "POC" = "black"),
+    labels = c("CHLa" = "CHLa", "POC" = "POC")
+  ) +
+  scale_linetype_manual(
+    name = NULL,
+    values = c("CHLa" = "solid", "POC" = "dashed"),
+    labels = c("CHLa" = "CHLa", "POC" = "POC")
+  ) +
+  scale_shape_manual(
+    name = NULL,
+    values = c("CHLa" = 16, "POC" = 17),  # solid circle, triangle
+    labels = c("CHLa" = "CHLa", "POC" = "POC")
+  ) +
+  labs(x = NULL) +
+  theme_minimal() +
+  scale_x_date(
+  breaks = seq(min(annadata$Date), max(annadata$Date), by = "3 months"),
+  labels = function(x) format(x, "%b-%y") %>% sub("Jan", "JA", .) %>%
+    sub("Feb", "FE", .) %>%
+    sub("Mar", "MR", .) %>%
+    sub("Apr", "AP", .) %>%
+    sub("May", "MY", .) %>%
+    sub("Jun", "JN", .) %>%
+    sub("Jul", "JL", .) %>%
+    sub("Aug", "AU", .) %>%
+    sub("Sep", "SE", .) %>%
+    sub("Oct", "OC", .) %>%
+    sub("Nov", "NV", .) %>%
+    sub("Dec", "DE", .)
+) +
+  theme(
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA),
+    axis.title.x = element_blank(),
+    axis.text.y = element_text(size = 12),
+    axis.title.y = element_text(size = 12),   
+    axis.text.y.right = element_text(size = 12),
+    axis.title.y.right = element_text(size = 12),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8),
+    legend.position = c(0.05, 0.95),
+    legend.justification = c("left", "top"),
+    legend.background = element_rect(fill = alpha("white", 0.7), color = NA)
+  )
+
+p3
+
+ggsave("figure4p3.png", p3,
+       width = 6, height = 4, dpi = 600, units = "in")
+
+ggsave("figure4p3.svg", p3,
+       width = 6, height = 4, units = "in")
+
+```
+
