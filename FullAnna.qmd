@@ -1,0 +1,99 @@
+---
+title: "Full Anna"
+format: html
+editor: visual
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,      # Hide the code
+  warning = FALSE,   # Suppress warnings
+  message = FALSE    # Suppress messages
+)
+
+```
+
+```{r}
+
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(tibble)
+
+```
+
+```{r}
+
+bukanna <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ39eNa8kt_kYh0ilq_ecR7SdEzLwjhQKZZHR1sItT1w4GzEiTJMogEkVV76Gx2e6wUnd6kVpg9sIkn/pub?gid=0&single=true&output=csv"
+
+bukanna <- read_csv(bukanna)
+
+bukanna$Date <- as.Date(bukanna$Date, format = "%m/%d/%Y")
+
+```
+
+**Multiple Regression**
+
+```{r}
+
+model <- lm(kd ~ Photic_TSS + Photic_CDOM + Photic_CHLa, data = bukanna)
+
+summary(model)
+
+```
+
+**AIC**
+
+```{r}
+
+
+# Define the full dataset and predictors
+response <- "kd"
+predictors <- c("Photic_TSS", "Photic_CDOM", "Photic_CHLa")  # Adjust predictors based on your dataset
+
+# Generate all combinations of predictors
+all_combinations <- unlist(
+  lapply(0:length(predictors), function(x) combn(predictors, x, simplify = FALSE)), 
+  recursive = FALSE
+)
+
+# Fit models for each combination and calculate AIC
+model_results <- lapply(all_combinations, function(predictor_set) {
+  # Create the formula for the current combination of predictors
+  formula <- as.formula(paste(response, "~", ifelse(length(predictor_set) == 0, "1", paste(predictor_set, collapse = " + "))))
+  
+  # Fit the linear model
+  model <- lm(formula, data = bukanna)
+  
+  # Return the model, predictors, and AIC
+  list(
+    predictors = predictor_set,
+    model = model,
+    AIC = AIC(model)
+  )
+})
+
+# Convert results to a dataframe for easier analysis
+results_df <- do.call(rbind, lapply(model_results, function(x) {
+  data.frame(
+    Predictors = paste(x$predictors, collapse = " + "),
+    AIC = x$AIC
+  )
+}))
+
+# Find the model with the lowest AIC
+min_AIC <- min(results_df$AIC)
+
+# Calculate the delta AIC for each model (difference from the minimum AIC)
+Annaresults_df <- results_df %>%
+  mutate(Delta_AIC = AIC - min_AIC) %>%
+  arrange(Delta_AIC)  # Sort by delta AIC
+
+# Print the results with Delta AIC
+print(Annaresults_df)
+
+
+```
+
+Model selection based on Akaike’s Information Criterion (AIC) indicated that Photic_CHLa alone was the best predictor of light attenuation (kd), with the lowest AIC value (–36.02). Models that included CHLa with either TSS or CDOM showed slightly higher AIC values (ΔAIC \< 2), suggesting they are also plausible but do not substantially improve model performance. Moreover, as seen in the summary table of the multiple regression, TSS and CDOM were not statistically significant (Pvalues \> 0.05) of kd across this dataset. Models without CHLa—including those with only TSS, only CDOM, or both—had significantly higher AIC values (ΔAIC \> 4), indicating weaker support. Overall, these results suggest that CHLa is the most parsimonious and informative predictor of kd in this dataset, with little to no significant gain in explanatory power from adding other variables.
