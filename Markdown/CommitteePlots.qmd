@@ -847,7 +847,7 @@ plotprint <- grid.arrange(p1, p2, p3, ncol = 1,
 print(plotprint)
 
 #ggsave("figure3option.png", plotprint,
-       width = 5, height = 8, dpi = 600, units = "in")
+      # width = 5, height = 8, dpi = 600, units = "in")
 
 
 ```
@@ -924,8 +924,8 @@ plotprint <- grid.arrange(p1, p2, p3, ncol = 1,
 
 print(plotprint)
 
-ggsave("figure3option2.png", plotprint,
-       width = 5, height = 8, dpi = 600, units = "in")
+#ggsave("figure3option2.png", plotprint,
+ #      width = 5, height = 8, dpi = 600, units = "in")
 
 
 ```
