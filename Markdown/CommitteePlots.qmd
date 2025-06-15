@@ -1509,8 +1509,9 @@ bukanna$Date <- as.Date(bukanna$Date, format = "%m/%d/%Y")
 
 ```{r}
 
-lm(kd ~ Photic_TSS + Photic_CDOM + Photic_CHLa, data = bukanna)
+model <- lm(kd ~ Photic_TSS + Photic_CDOM + Photic_CHLa, data = bukanna)
 
+summary(model)
 ```
 
 ```{r}
@@ -1563,7 +1564,8 @@ print(Annaresults_df)
 
 
 ```
-Model selection based on Akaike’s Information Criterion (AIC) indicated that Photic_CHLa alone was the best predictor of light attenuation (kd), with the lowest AIC value (–36.02). Models that included CHLa with either TSS or CDOM showed slightly higher AIC values (ΔAIC < 2), suggesting they are also plausible but do not substantially improve model performance. In contrast, models without CHLa—including those with only TSS, only CDOM, or both—had significantly higher AIC values (ΔAIC > 4), indicating weaker support. Overall, these results suggest that CHLa is the most parsimonious and informative predictor of kd in this dataset, with little gain in explanatory power from adding other variables.
+
+Model selection based on Akaike’s Information Criterion (AIC) indicated that Photic_CHLa alone was the best predictor of light attenuation (kd), with the lowest AIC value (–36.02). Models that included CHLa with either TSS or CDOM showed slightly higher AIC values (ΔAIC < 2), suggesting they are also plausible but do not substantially improve model performance. Moreover, as seen in the summary table of the multiple regression, TSS and CDOM were not statistically significant (Pvalues > 0.05) of kd across this dataset. Models without CHLa—including those with only TSS, only CDOM, or both—had significantly higher AIC values (ΔAIC > 4), indicating weaker support. Overall, these results suggest that CHLa is the most parsimonious and informative predictor of kd in this dataset, with little to no significant gain in explanatory power from adding other variables.
 
 ## Polynomial Regressions
 

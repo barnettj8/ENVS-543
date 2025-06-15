@@ -567,9 +567,23 @@ Coefficients:
 Call:
 lm(formula = kd ~ Photic_TSS + Photic_CDOM + Photic_CHLa, data = bukanna)
 
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.13532 -0.06598 -0.01782  0.07005  0.24298 
+
 Coefficients:
-(Intercept)   Photic_TSS  Photic_CDOM  Photic_CHLa  
-    0.67155      0.01681     -0.04597      0.01277  </code></pre>
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.671553   0.083050   8.086  2.1e-07 ***
+Photic_TSS   0.016815   0.046466   0.362   0.7217    
+Photic_CDOM -0.045969   0.081561  -0.564   0.5800    
+Photic_CHLa  0.012774   0.005523   2.313   0.0328 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1022 on 18 degrees of freedom
+  (2 observations deleted due to missingness)
+Multiple R-squared:  0.3609,    Adjusted R-squared:  0.2544 
+F-statistic: 3.389 on 3 and 18 DF,  p-value: 0.04074</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -585,7 +599,7 @@ Coefficients:
 8                                        -26.80083 9.2177608</code></pre>
 </div>
 </div>
-<p>Model selection based on Akaike’s Information Criterion (AIC) indicated that Photic_CHLa alone was the best predictor of light attenuation (kd), with the lowest AIC value (–36.02). Models that included CHLa with either TSS or CDOM showed slightly higher AIC values (ΔAIC &lt; 2), suggesting they are also plausible but do not substantially improve model performance. In contrast, models without CHLa—including those with only TSS, only CDOM, or both—had significantly higher AIC values (ΔAIC &gt; 4), indicating weaker support. Overall, these results suggest that CHLa is the most parsimonious and informative predictor of kd in this dataset, with little gain in explanatory power from adding other variables.</p>
+<p>Model selection based on Akaike’s Information Criterion (AIC) indicated that Photic_CHLa alone was the best predictor of light attenuation (kd), with the lowest AIC value (–36.02). Models that included CHLa with either TSS or CDOM showed slightly higher AIC values (ΔAIC &lt; 2), suggesting they are also plausible but do not substantially improve model performance. Moreover, as seen in the summary table of the multiple regression, TSS and CDOM were not statistically significant (Pvalues &gt; 0.05) of kd across this dataset. Models without CHLa—including those with only TSS, only CDOM, or both—had significantly higher AIC values (ΔAIC &gt; 4), indicating weaker support. Overall, these results suggest that CHLa is the most parsimonious and informative predictor of kd in this dataset, with little to no significant gain in explanatory power from adding other variables.</p>
 </section>
 </section>
 <section id="polynomial-regressions" class="level2">
